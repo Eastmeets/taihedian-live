@@ -135,8 +135,42 @@ html,body{margin:0;background:#050201;color:#F6E3A8;font-family:-apple-system,Bl
 .cine-who{font-size:13px;color:#FFE7A8;text-shadow:0 2px 6px #000,0 0 2px #000;margin-bottom:6px;font-weight:600}
 .cine-text{font-size:18px;line-height:1.45;color:#fff;font-weight:700;text-shadow:0 2px 8px #000,0 0 3px #000;word-break:break-word}
 
+
+.seekbar-wrap{
+  display:none; width:100%; padding:4px 4px 2px; order:-1; flex-basis:100%;
+  touch-action:none; user-select:none; -webkit-user-select:none;
+}
+.seekbar-wrap.on{display:block}
+.seek-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
+.seek-meta .t{font-size:10px;color:#C9A56A;font-variant-numeric:tabular-nums}
+.seek-meta .lab{font-size:10px;color:#FFE7A8;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seek-track{
+  position:relative;height:28px; /* 触摸热区加大 */
+  display:flex;align-items:center;cursor:pointer;
+}
+.seek-rail{
+  position:absolute;left:0;right:0;height:4px;border-radius:2px;
+  background:rgba(232,197,71,.22);
+}
+.seek-fill{
+  position:absolute;left:0;height:4px;border-radius:2px;width:0%;
+  background:linear-gradient(90deg,#E8C547,#F2CF6A);
+}
+.seek-ticks{position:absolute;left:0;right:0;height:4px;pointer-events:none}
+.seek-tick{
+  position:absolute;top:-3px;width:2px;height:10px;margin-left:-1px;
+  background:rgba(255,231,168,.7);border-radius:1px;
+}
+.seek-thumb{
+  position:absolute;top:50%;width:18px;height:18px;margin-left:-9px;margin-top:-9px;
+  border-radius:50%;background:#F2CF6A;border:2px solid #5a3a10;
+  box-shadow:0 1px 4px rgba(0,0,0,.55);left:0%;
+  touch-action:none;
+}
+.seek-thumb:active,.seek-track.dragging .seek-thumb{transform:scale(1.15)}
+
 .controls{position:absolute;left:0;right:0;bottom:0;z-index:10;padding:8px 10px max(10px,env(safe-area-inset-bottom));
-  background:linear-gradient(transparent,rgba(0,0,0,.85));display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+  background:linear-gradient(transparent,rgba(0,0,0,.85));display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center}
 button{appearance:none;border:1px solid rgba(232,197,71,.5);background:rgba(40,15,8,.85);color:#FFE7A8;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:600}
 button.on{background:rgba(120,50,10,.95);border-color:#FFD45A}
 button.rec{border-color:#FF5A4A;color:#FFD0C8}
@@ -188,6 +222,19 @@ button.rec.on{background:rgba(140,20,10,.95)}
     <div class="cine-text" id="cineText"></div>
   </div>
   <div class="controls">
+    <div class="seekbar-wrap" id="seekWrap">
+      <div class="seek-meta">
+        <span class="t" id="seekNow">0:00</span>
+        <span class="lab" id="seekLabel">回放进度</span>
+        <span class="t" id="seekTotal">0:00</span>
+      </div>
+      <div class="seek-track" id="seekTrack" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+        <div class="seek-rail"></div>
+        <div class="seek-fill" id="seekFill"></div>
+        <div class="seek-ticks" id="seekTicks"></div>
+        <div class="seek-thumb" id="seekThumb"></div>
+      </div>
+    </div>
     <button id="btnVoice" type="button">开启殿中语音</button>
     <button id="btnReplay" type="button">回放今日会议</button>
     <button id="btnPause" type="button">暂停会议</button>
@@ -202,7 +249,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
 <div class="below">
   <h2>会议纪要</h2>
   <div class="minutes" id="minutes"></div>
-  <div class="warnbox">打开页面不重播旧汇报，只播打开后的新事件（各一次）。旧内容点「回放今日会议」。全景可见陛下坐龙椅、天在旁主持、众卿两侧伏案；进出特写约 1.5 秒交叉淡入淡出。每人固定声线。语音：点「开启殿中语音」听到提示后才算打开；iPhone 请关掉侧边静音键并调高铃声音量。录制只录画面，要连声音请用屏幕录制。</div>
+  <div class="warnbox">打开页面不重播旧汇报，只播打开后的新事件（各一次）。旧内容点「回放今日会议」，可拖进度条跳到任意发言。全景可见陛下坐龙椅、天在旁主持、众卿两侧伏案；进出特写约 1.5 秒交叉淡入淡出。每人固定声线。语音：点「开启殿中语音」听到提示后才算打开；iPhone 请关掉侧边静音键并调高铃声音量。录制只录画面，要连声音请用屏幕录制。</div>
   <h2>使用说明</h2>
   <div class="note">
     <p>真实 bot 交互按时间顺序开会。特写加载失败会自动退回大殿全景（带推近），不会黑屏。约每 60 秒读取 events.json。点「回放今日会议」从头再播。</p>
@@ -286,6 +333,13 @@ button.rec.on{background:rgba(140,20,10,.95)}
   let speakerToken = 0;
   let audioManifest = {};
   let bootSynced = false; // 首屏只同步历史，不自动播旧汇报
+  let replayMode = false;
+  let timeline = []; // {id,startMs,durMs,event}
+  let timelineTotal = 0;
+  let replayClock0 = 0; // performance.now when current segment began
+  let replaySegStart = 0; // timeline ms at segment start
+  let seekDragging = false;
+  let seekRaf = 0;
 
   function loadPlayed(){ try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]");}catch(e){return[];} }
   function savePlayed(){ try{localStorage.setItem(LS_KEY, JSON.stringify(played.slice(-500)));}catch(e){} }
@@ -460,6 +514,11 @@ button.rec.on{background:rgba(140,20,10,.95)}
   function showIdle(){
     mode = "idle";
     speakerToken++;
+    if(replayMode && !queue.length){
+      replayMode = false;
+      stopSeekTicker();
+      showSeekbar(false);
+    }
     // 拉远 + 交叉淡回全景（含群像）
     empShot.classList.remove("show");
     clearZooms();
@@ -713,6 +772,151 @@ button.rec.on{background:rgba(140,20,10,.95)}
     }, 1200);
   }
 
+
+  function fmtMs(ms){
+    ms = Math.max(0, ms|0);
+    const s = Math.floor(ms/1000);
+    const m = Math.floor(s/60);
+    const ss = s % 60;
+    return m + ":" + String(ss).padStart(2,"0");
+  }
+  function eventSpeakMs(text){
+    return eventDuration(text);
+  }
+  function eventSlotMs(ev){
+    const salute = (ev.from === "wuji") ? 0 : 1200;
+    return salute + eventSpeakMs(ev.text) + GAP_MS + 400; // 含回全景缓冲
+  }
+  function buildTimeline(list){
+    let t = 0;
+    const rows = list.map(ev=>{
+      const dur = eventSlotMs(ev);
+      const row = {id: ev.id, startMs: t, durMs: dur, event: ev};
+      t += dur;
+      return row;
+    });
+    timeline = rows;
+    timelineTotal = t;
+    return rows;
+  }
+  function showSeekbar(on){
+    const w = document.getElementById("seekWrap");
+    if(!w) return;
+    w.classList.toggle("on", !!on);
+  }
+  function renderSeekTicks(){
+    const box = document.getElementById("seekTicks");
+    if(!box || !timelineTotal){ if(box) box.innerHTML=""; return; }
+    box.innerHTML = timeline.map(row=>{
+      const pct = (row.startMs / timelineTotal) * 100;
+      const who = nickOf(row.event);
+      return `<span class="seek-tick" style="left:${pct}%" title="${who}"></span>`;
+    }).join("");
+    document.getElementById("seekTotal").textContent = fmtMs(timelineTotal);
+  }
+  function setSeekUI(ms){
+    if(!timelineTotal) return;
+    const pct = Math.max(0, Math.min(1, ms / timelineTotal));
+    document.getElementById("seekFill").style.width = (pct*100) + "%";
+    document.getElementById("seekThumb").style.left = (pct*100) + "%";
+    document.getElementById("seekNow").textContent = fmtMs(ms);
+    document.getElementById("seekTrack").setAttribute("aria-valuenow", String(Math.round(pct*100)));
+    // label = current event nick
+    let lab = "回放进度";
+    for(let i=timeline.length-1;i>=0;i--){
+      if(ms >= timeline[i].startMs){ lab = nickOf(timeline[i].event) + " · " + (timeline[i].event.kind||"发言"); break; }
+    }
+    document.getElementById("seekLabel").textContent = lab;
+  }
+  function currentReplayMs(){
+    if(!replayMode) return 0;
+    if(meetingPaused) return replaySegStart;
+    const elapsed = Math.max(0, performance.now() - replayClock0);
+    return Math.min(timelineTotal, replaySegStart + elapsed);
+  }
+  function tickSeek(){
+    if(!replayMode || seekDragging) return;
+    setSeekUI(currentReplayMs());
+    seekRaf = requestAnimationFrame(tickSeek);
+  }
+  function startSeekTicker(){
+    cancelAnimationFrame(seekRaf);
+    seekRaf = requestAnimationFrame(tickSeek);
+  }
+  function stopSeekTicker(){
+    cancelAnimationFrame(seekRaf);
+    seekRaf = 0;
+  }
+  function indexAtMs(ms){
+    if(!timeline.length) return 0;
+    for(let i=0;i<timeline.length;i++){
+      if(ms < timeline[i].startMs + timeline[i].durMs) return i;
+    }
+    return timeline.length - 1;
+  }
+  function seekToMs(ms, autoplay){
+    if(!timeline.length) return;
+    ms = Math.max(0, Math.min(timelineTotal, ms));
+    const idx = indexAtMs(ms);
+    const row = timeline[idx];
+    clearTimeout(endTimer);
+    stopVoiceAudio();
+    currentEvent = null;
+    lastSpeaker = null;
+    document.getElementById("saluteOverlay").classList.remove("show");
+    // 从该事件起重建队列（不改 played，回放专用）
+    queue = timeline.slice(idx).map(r=>r.event);
+    replaySegStart = row.startMs;
+    replayClock0 = performance.now();
+    setSeekUI(row.startMs);
+    meetingPaused = false;
+    document.getElementById("btnPause").textContent = "暂停会议";
+    document.getElementById("btnPause").classList.remove("on");
+    if(autoplay !== false){
+      startNextEvent();
+      startSeekTicker();
+    } else {
+      setSeekUI(ms);
+    }
+  }
+  function bindSeekbar(){
+    const track = document.getElementById("seekTrack");
+    if(!track || track._bound) return;
+    track._bound = true;
+    const posMs = (clientX)=>{
+      const rect = track.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      return pct * timelineTotal;
+    };
+    const onDown = (ev)=>{
+      if(!replayMode || !timelineTotal) return;
+      seekDragging = true;
+      track.classList.add("dragging");
+      const x = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      setSeekUI(posMs(x));
+      ev.preventDefault();
+    };
+    const onMove = (ev)=>{
+      if(!seekDragging) return;
+      const x = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      setSeekUI(posMs(x));
+      ev.preventDefault();
+    };
+    const onUp = (ev)=>{
+      if(!seekDragging) return;
+      seekDragging = false;
+      track.classList.remove("dragging");
+      const x = (ev.changedTouches ? ev.changedTouches[0].clientX : ev.clientX);
+      seekToMs(posMs(x), true);
+    };
+    track.addEventListener("pointerdown", onDown, {passive:false});
+    window.addEventListener("pointermove", onMove, {passive:false});
+    window.addEventListener("pointerup", onUp, {passive:false});
+    track.addEventListener("touchstart", onDown, {passive:false});
+    window.addEventListener("touchmove", onMove, {passive:false});
+    window.addEventListener("touchend", onUp, {passive:false});
+  }
+
   function startNextEvent(){
     if(meetingPaused) return;
     if(currentEvent) return;
@@ -721,6 +925,10 @@ button.rec.on{background:rgba(140,20,10,.95)}
     const go = ()=>{
       currentEvent = e;
       lastSpeaker = e.from;
+      if(replayMode){
+        const row = timeline.find(r=>r.id===e.id);
+        if(row){ replaySegStart = row.startMs; replayClock0 = performance.now(); setSeekUI(row.startMs); }
+      }
       const who = nickOf(e);
       const to = e.toName || shortName(e.to);
       document.getElementById("agendaNow").textContent = `${who} → ${to} · ${e.kind||"发言"}`;
@@ -857,13 +1065,43 @@ button.rec.on{background:rgba(140,20,10,.95)}
     document.getElementById("btnPause").textContent="暂停会议";
     document.getElementById("btnPause").classList.remove("on");
     stopVoiceAudio();
-    lastSpeaker=null; rebuildQueue(true); startNextEvent();
+    document.getElementById("saluteOverlay").classList.remove("show");
+    lastSpeaker=null;
+    // 回放：按今日事件建时间轴，显示进度条，可拖动跳转
+    const list = EVENTS.slice();
+    if(!list.length){ alert("暂无会议记录可回放"); return; }
+    rebuildQueue(true);
+    buildTimeline(list);
+    queue = list.slice();
+    replayMode = true;
+    replaySegStart = 0;
+    replayClock0 = performance.now();
+    showSeekbar(true);
+    renderSeekTicks();
+    setSeekUI(0);
+    bindSeekbar();
+    startSeekTicker();
+    startNextEvent();
   };
   document.getElementById("btnPause").onclick = function(){
     meetingPaused=!meetingPaused; this.classList.toggle("on",meetingPaused);
     this.textContent = meetingPaused?"继续会议":"暂停会议";
-    if(meetingPaused){ clearTimeout(endTimer); stopVoiceAudio(); }
-    else if(!currentEvent) startNextEvent();
+    if(meetingPaused){
+      clearTimeout(endTimer); stopVoiceAudio();
+      if(replayMode){ replaySegStart = currentReplayMs(); stopSeekTicker(); setSeekUI(replaySegStart); }
+      try{ stageVideo.pause(); }catch(e){}
+      try{ idleVideo.pause(); }catch(e){}
+    } else {
+      if(replayMode){ replayClock0 = performance.now(); startSeekTicker(); tryPlayIdle(); }
+      if(!currentEvent) startNextEvent();
+      else {
+        // 恢复当前条：重新播语音/特写剩余时间不好精确，简单重开当前条
+        const cur = currentEvent;
+        currentEvent = null;
+        queue.unshift(cur);
+        startNextEvent();
+      }
+    }
   };
 
   const recCanvas = document.createElement("canvas");
