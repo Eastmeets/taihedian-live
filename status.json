@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-11-07 17:28",
+  "asOf": "2026-11-07 18:05",
   "status": [
     {
       "id": "tian",
@@ -8,7 +8,7 @@
       "dept": "内阁（总管）",
       "status": "当值",
       "task": "整理大殿直播与各部状态",
-      "talkingTo": "jb",
+      "talkingTo": "yq",
       "say": "正在当值。"
     },
     {
@@ -52,18 +52,19 @@
       "name": "一气 · 上帝之眼技能开发",
       "figure": "张衡",
       "dept": "将作监（技能开发）",
-      "status": "候旨",
+      "status": "当值",
       "task": "技能开发候批",
-      "say": "事务候批。"
+      "talkingTo": "tian",
+      "say": "正在当值。"
     },
     {
       "id": "ppl",
       "name": "泡泡龙（Mac 本地助手）",
       "figure": "马钧",
       "dept": "杂务司（Mac）",
-      "status": "候旨",
+      "status": "办毕",
       "task": "整理本地助手素材",
-      "say": "事务候批。"
+      "say": "本务已办毕。"
     },
     {
       "id": "jg",
@@ -105,8 +106,10 @@
       "name": "IP Man",
       "figure": "司马迁",
       "dept": "鸿胪寺（内容）",
-      "status": "闲置",
-      "task": "内容发布与数据整理"
+      "status": "候旨",
+      "task": "内容发布与数据整理",
+      "talkingTo": "tian",
+      "say": "事务候批。"
     },
     {
       "id": "ds",
