@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "coordSpace": "hall",
   "fit": "contain",
   "fillFrontFirst": true,
@@ -35,11 +35,11 @@
       "rows": {
         "left": [
           {
-            "hx": 14.0,
+            "hx": 12.0,
             "hy": 59.5,
             "hw": 16.5,
             "seatAnchor": 0.7,
-            "deskDx": 5.0,
+            "deskDx": 5.8,
             "deskDy": 2.2,
             "deskW": 16.0,
             "deskH": 5.5,
@@ -47,11 +47,11 @@
             "tagOffY": -3.5
           },
           {
-            "hx": 15.5,
+            "hx": 13.5,
             "hy": 55.0,
             "hw": 14.5,
             "seatAnchor": 0.7,
-            "deskDx": 4.6,
+            "deskDx": 5.3999999999999995,
             "deskDy": 2.0,
             "deskW": 14.5,
             "deskH": 5.0,
@@ -59,11 +59,11 @@
             "tagOffY": -3.2
           },
           {
-            "hx": 17.0,
+            "hx": 15.0,
             "hy": 50.5,
             "hw": 12.5,
             "seatAnchor": 0.7,
-            "deskDx": 4.2,
+            "deskDx": 5.0,
             "deskDy": 1.8,
             "deskW": 12.5,
             "deskH": 4.4,
@@ -71,11 +71,11 @@
             "tagOffY": -2.8
           },
           {
-            "hx": 18.5,
+            "hx": 16.5,
             "hy": 46.5,
             "hw": 11.0,
             "seatAnchor": 0.7,
-            "deskDx": 3.8,
+            "deskDx": 4.6,
             "deskDy": 1.5,
             "deskW": 11.0,
             "deskH": 3.9,
@@ -83,11 +83,11 @@
             "tagOffY": -2.5
           },
           {
-            "hx": 19.8,
+            "hx": 17.8,
             "hy": 42.5,
             "hw": 9.5,
             "seatAnchor": 0.7,
-            "deskDx": 3.4,
+            "deskDx": 4.2,
             "deskDy": 1.3,
             "deskW": 9.5,
             "deskH": 3.4,
@@ -95,11 +95,11 @@
             "tagOffY": -2.2
           },
           {
-            "hx": 21.0,
+            "hx": 19.0,
             "hy": 38.8,
             "hw": 8.2,
             "seatAnchor": 0.7,
-            "deskDx": 3.0,
+            "deskDx": 3.8,
             "deskDy": 1.1,
             "deskW": 8.2,
             "deskH": 3.0,
@@ -107,11 +107,11 @@
             "tagOffY": -2.0
           },
           {
-            "hx": 22.0,
+            "hx": 20.0,
             "hy": 35.5,
             "hw": 7.2,
             "seatAnchor": 0.7,
-            "deskDx": 2.7,
+            "deskDx": 3.5,
             "deskDy": 1.0,
             "deskW": 7.2,
             "deskH": 2.6,
@@ -119,11 +119,11 @@
             "tagOffY": -1.8
           },
           {
-            "hx": 23.0,
+            "hx": 21.0,
             "hy": 32.5,
             "hw": 6.2,
             "seatAnchor": 0.7,
-            "deskDx": 2.4,
+            "deskDx": 3.2,
             "deskDy": 0.9,
             "deskW": 6.2,
             "deskH": 2.3,
@@ -133,11 +133,11 @@
         ],
         "right": [
           {
-            "hx": 86.0,
+            "hx": 88.0,
             "hy": 59.5,
             "hw": 16.5,
             "seatAnchor": 0.7,
-            "deskDx": -5.0,
+            "deskDx": -5.8,
             "deskDy": 2.2,
             "deskW": 16.0,
             "deskH": 5.5,
@@ -145,11 +145,11 @@
             "tagOffY": -3.5
           },
           {
-            "hx": 84.5,
+            "hx": 86.5,
             "hy": 55.0,
             "hw": 14.5,
             "seatAnchor": 0.7,
-            "deskDx": -4.6,
+            "deskDx": -5.3999999999999995,
             "deskDy": 2.0,
             "deskW": 14.5,
             "deskH": 5.0,
@@ -157,11 +157,11 @@
             "tagOffY": -3.2
           },
           {
-            "hx": 83.0,
+            "hx": 85.0,
             "hy": 50.5,
             "hw": 12.5,
             "seatAnchor": 0.7,
-            "deskDx": -4.2,
+            "deskDx": -5.0,
             "deskDy": 1.8,
             "deskW": 12.5,
             "deskH": 4.4,
@@ -169,11 +169,11 @@
             "tagOffY": -2.8
           },
           {
-            "hx": 81.5,
+            "hx": 83.5,
             "hy": 46.5,
             "hw": 11.0,
             "seatAnchor": 0.7,
-            "deskDx": -3.8,
+            "deskDx": -4.6,
             "deskDy": 1.5,
             "deskW": 11.0,
             "deskH": 3.9,
@@ -181,11 +181,11 @@
             "tagOffY": -2.5
           },
           {
-            "hx": 80.2,
+            "hx": 82.2,
             "hy": 42.5,
             "hw": 9.5,
             "seatAnchor": 0.7,
-            "deskDx": -3.4,
+            "deskDx": -4.2,
             "deskDy": 1.3,
             "deskW": 9.5,
             "deskH": 3.4,
@@ -193,11 +193,11 @@
             "tagOffY": -2.2
           },
           {
-            "hx": 79.0,
+            "hx": 81.0,
             "hy": 38.8,
             "hw": 8.2,
             "seatAnchor": 0.7,
-            "deskDx": -3.0,
+            "deskDx": -3.8,
             "deskDy": 1.1,
             "deskW": 8.2,
             "deskH": 3.0,
@@ -205,11 +205,11 @@
             "tagOffY": -2.0
           },
           {
-            "hx": 78.0,
+            "hx": 80.0,
             "hy": 35.5,
             "hw": 7.2,
             "seatAnchor": 0.7,
-            "deskDx": -2.7,
+            "deskDx": -3.5,
             "deskDy": 1.0,
             "deskW": 7.2,
             "deskH": 2.6,
@@ -217,11 +217,11 @@
             "tagOffY": -1.8
           },
           {
-            "hx": 77.0,
+            "hx": 79.0,
             "hy": 32.5,
             "hw": 6.2,
             "seatAnchor": 0.7,
-            "deskDx": -2.4,
+            "deskDx": -3.2,
             "deskDy": 0.9,
             "deskW": 6.2,
             "deskH": 2.3,
