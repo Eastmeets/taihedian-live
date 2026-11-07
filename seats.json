@@ -20,9 +20,9 @@
           "hidden": true
         },
         "tian": {
-          "hx": 72,
-          "hy": 68,
-          "hw": 11,
+          "hx": 71,
+          "hy": 72,
+          "hw": 10,
           "seatAnchor": 0.98,
           "label": "天",
           "cutout": "img/chars/cutouts_stand/zhugeliang_work.png"
