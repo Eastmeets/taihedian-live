@@ -2,751 +2,389 @@
 <html lang="zh-Hans">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 <title>大殿实时直播 · 太和殿</title>
 <style>
-:root{
-  --gold:#E8C547; --gold2:#F2CF6A; --red:#5A100A; --ink:#1A1208;
-  --paper:#FFF8E6; --panel:rgba(26,10,6,.82); --ok:#2FBF5B; --warn:#FFD45A; --danger:#FF5A4A;
-}
+:root{ --gold:#E8C547; --gold2:#F2CF6A; }
 *{box-sizing:border-box}
-html,body{margin:0;background:#120605;color:#F6E3A8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
-a{color:var(--gold2)}
-.titlebar{
-  max-width:1280px;margin:0 auto;padding:14px 16px 8px;display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between;
+html,body{margin:0;background:#050201;color:#F6E3A8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif;-webkit-tap-highlight-color:transparent}
+.stage-wrap{position:relative;width:100%;height:100vh;height:100dvh;max-height:100vh;overflow:hidden;background:#0a0402}
+#stageVideo,#idleVideo,#transVideo{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0a0402;
 }
-.titlebar h1{margin:0;font-size:20px;color:var(--gold2);letter-spacing:.12em;font-weight:700}
-.titlebar .meta{font-size:12px;color:#C9A86A}
-.stage-wrap{position:relative;width:100%;max-width:1280px;margin:0 auto;overflow:hidden;border-radius:0 0 14px 14px;box-shadow:0 20px 60px rgba(0,0,0,.55)}
-.stage{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#2A0806}
-#liveCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer;touch-action:manipulation}
-.hud{
-  position:absolute;left:10px;top:10px;z-index:40;display:flex;flex-wrap:wrap;gap:6px;align-items:center;pointer-events:none;
-}
-.pill{
-  font-size:11px;padding:4px 9px;border-radius:999px;background:var(--panel);
-  border:1px solid rgba(232,197,71,.45);color:#F6E3A8;backdrop-filter:blur(6px);
-}
-.pill.live{border-color:#FF5A4A;color:#FFD0C0}
-.pill.live .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#FF5A4A;margin-right:5px;vertical-align:middle;animation:blink 1s infinite}
-@keyframes blink{0%,100%{opacity:.35}50%{opacity:1}}
-.panel{max-width:1280px;margin:12px auto;padding:0 14px 28px}
-.card{
-  background:linear-gradient(180deg,rgba(58,18,10,.92),rgba(26,8,6,.95));
-  border:1px solid rgba(201,162,39,.45);border-radius:12px;padding:12px 14px;margin-top:10px;
-}
-.card .who{font-size:13px;color:#C9A86A}
-.card .line{font-size:16px;margin-top:4px;color:#FFF4D6}
-.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
-button{
-  appearance:none;border:1px solid var(--gold);background:#3A160C;color:var(--gold2);
-  border-radius:10px;padding:9px 14px;font-size:14px;cursor:pointer;
-}
-button.primary{background:linear-gradient(180deg,#8A6418,#5A3E0C);color:#FFF4C8;font-weight:600}
-button.rec{border-color:#FF5A4A;color:#FFD0C0}
-button.rec.on{background:#7A1810;color:#FFF;animation:blink 1.2s infinite}
-button:active{transform:scale(.98)}
-.hint{font-size:12px;color:#A89060}
-.detail .name{font-size:16px;font-weight:600;color:#FFF4D6}
-.detail .row{margin-top:6px;font-size:13px;color:#D8C08A}
-.detail .st{font-weight:700}
-.detail .st.warn{color:var(--warn)}.detail .st.danger{color:var(--danger)}.detail .st.ok{color:#9BE8B4}
-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
-th,td{border-bottom:1px solid rgba(201,162,39,.25);padding:8px 6px;text-align:left;vertical-align:top}
-th{color:var(--gold2);font-weight:600}
-.sec{margin-top:18px}
-.sec h2{margin:0 0 8px;font-size:16px;color:var(--gold2);letter-spacing:.08em}
+#idleVideo,#transVideo{opacity:0;pointer-events:none}
+#idleVideo.show,#transVideo.show{opacity:1}
+#stageVideo.hide{opacity:0}
+.hud-top{position:absolute;left:10px;right:10px;top:max(8px,env(safe-area-inset-top));z-index:8;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.brand{font-size:13px;font-weight:700;color:var(--gold2);text-shadow:0 1px 4px #000;letter-spacing:.04em}
+.pills{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+.pill{font-size:10px;padding:3px 7px;border-radius:999px;background:rgba(0,0,0,.55);border:1px solid rgba(232,197,71,.4);color:#F2CF6A;backdrop-filter:blur(4px)}
+.pill.live{border-color:#FF5A4A;color:#FFD0C8}
+.pill.live .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#FF5A4A;margin-right:4px;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.3}}
+
+.agenda{position:absolute;left:10px;right:10px;top:42px;z-index:8;pointer-events:none}
+.agenda-inner{display:inline-block;max-width:92%;background:rgba(0,0,0,.55);border:1px solid rgba(232,197,71,.35);border-radius:8px;padding:6px 10px;backdrop-filter:blur(4px)}
+.agenda-label{font-size:10px;color:#C9A56A}
+.agenda-title{font-size:13px;color:var(--gold2);font-weight:700;margin-top:2px;line-height:1.3}
+.agenda-now{font-size:12px;color:#FFE7A8;margin-top:3px;line-height:1.35}
+
+/* cinematic subtitle — like sample */
+.cine-sub{position:absolute;left:5%;right:5%;bottom:18%;z-index:9;text-align:center;pointer-events:none;opacity:0;transition:opacity .25s}
+.cine-sub.show{opacity:1}
+.cine-who{font-size:13px;color:#FFE7A8;text-shadow:0 2px 6px #000,0 0 2px #000;margin-bottom:6px;font-weight:600}
+.cine-text{font-size:18px;line-height:1.45;color:#fff;font-weight:700;text-shadow:0 2px 8px #000,0 0 3px #000;word-break:break-word}
+
+.controls{position:absolute;left:0;right:0;bottom:0;z-index:10;padding:8px 10px max(10px,env(safe-area-inset-bottom));
+  background:linear-gradient(transparent,rgba(0,0,0,.85));display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+button{appearance:none;border:1px solid rgba(232,197,71,.5);background:rgba(40,15,8,.85);color:#FFE7A8;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:600}
+button.on{background:rgba(120,50,10,.95);border-color:#FFD45A}
+button.rec{border-color:#FF5A4A;color:#FFD0C8}
+button.rec.on{background:rgba(140,20,10,.95)}
+
+.below{background:#0c0504;padding:12px 12px 40px;max-width:720px;margin:0 auto}
+.below h2{font-size:14px;color:var(--gold2);margin:10px 0 6px;border-left:3px solid var(--gold);padding-left:8px}
+.minutes{max-height:320px;overflow:auto;background:rgba(26,10,6,.7);border:1px solid rgba(232,197,71,.25);border-radius:10px}
+.min-item{padding:10px;border-bottom:1px solid rgba(232,197,71,.12);font-size:12px;line-height:1.4}
+.min-item.playing{background:rgba(120,60,10,.35)}
+.min-meta{color:#C9A56A;font-size:10px;margin-bottom:3px}
+.min-text{color:#FFF4D2;word-break:break-word}
 .note{font-size:12px;color:#A89060;line-height:1.5}
-.alert{background:rgba(90,20,10,.85);border:1px solid rgba(255,90,74,.45);border-radius:10px;padding:10px 12px;font-size:13px;color:#FFD0C0}
-.warnbox{background:rgba(60,40,8,.9);border:1px solid rgba(255,212,90,.4);border-radius:10px;padding:10px 12px;font-size:12px;color:#FFE6A0;margin-top:10px}
+.warnbox{margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(80,30,10,.45);border:1px solid rgba(232,197,71,.25);font-size:11px;color:#C9A56A;line-height:1.45}
+
+@media (min-width:900px){
+  .stage-wrap{height:85vh;max-width:480px;margin:0 auto;border-radius:0 0 12px 12px}
+  .cine-text{font-size:20px}
+}
 </style>
 </head>
 <body>
-<div class="titlebar">
-  <h1>大殿实时直播 · 太和殿</h1>
-  <div class="meta" id="asof">数据截至 —（哈拉雷时间）</div>
-</div>
-<div class="stage-wrap">
-  <div class="stage" id="stage">
-    <canvas id="liveCanvas" width="1280" height="720"></canvas>
-    <div class="hud">
+<div class="stage-wrap" id="stageWrap">
+  <video id="idleVideo" class="show" muted loop playsinline webkit-playsinline></video>
+  <video id="stageVideo" class="hide" muted loop playsinline webkit-playsinline></video>
+  <video id="transVideo" muted playsinline webkit-playsinline></video>
+
+  <div class="hud-top">
+    <div class="brand">大殿实时直播 · 太和殿</div>
+    <div class="pills">
       <span class="pill live" id="livepill"><span class="dot"></span>直播中</span>
-      <span class="pill" id="countpill">大臣 —</span>
-      <span class="pill" id="pollpill">状态轮询 60 秒</span>
+      <span class="pill" id="modepill">候场</span>
+      <span class="pill" id="timepill">—</span>
     </div>
+  </div>
+  <div class="agenda">
+    <div class="agenda-inner">
+      <div class="agenda-label">本场议程</div>
+      <div class="agenda-title" id="agendaTitle">今日朝会</div>
+      <div class="agenda-now" id="agendaNow">准备开会…</div>
+    </div>
+  </div>
+  <div class="cine-sub" id="cineSub">
+    <div class="cine-who" id="cineWho"></div>
+    <div class="cine-text" id="cineText"></div>
+  </div>
+  <div class="controls">
+    <button id="btnVoice">开启殿中语音</button>
+    <button id="btnReplay">回放今日会议</button>
+    <button id="btnPause">暂停会议</button>
+    <button class="rec" id="btnRec">开始录制</button>
   </div>
 </div>
 
-<div class="panel">
-  <div class="alert" id="chaobao"></div>
-  <div class="card">
-    <div class="who" id="modeLabel">殿中对话</div>
-    <div class="line" id="subtitle">…</div>
-    <div class="btns">
-      <button class="primary" id="btnVoice">开启殿中语音</button>
-      <button id="btnReport">上朝奏报</button>
-      <button class="rec" id="btnRec">开始录制</button>
-      <span class="hint" id="voiceHint">默认静音，点按钮出声</span>
-    </div>
-    <div class="warnbox" id="recHint">录制说明：点「开始录制」会把大殿画面存成视频文件（iPhone Safari 多为 mp4，电脑多为 webm）。浏览器语音（speechSynthesis）录不进去。要连声音一起录，请用 iPhone 自带的屏幕录制。</div>
-  </div>
-  <div class="card detail" id="detail" style="display:none">
-    <div class="name" id="dName"></div>
-    <div class="row" id="dDept"></div>
-    <div class="row">状态：<span class="st" id="dSt"></span></div>
-    <div class="row" id="dTask"></div>
-    <div class="row" id="dRoutines"></div>
-  </div>
-
-  <div class="sec">
-    <h2>待陛下御批</h2>
-    <table>
-      <thead><tr><th>事项</th><th>相关 bot</th><th>说明</th></tr></thead>
-      <tbody>
-        <tr><td>筹资定位方案</td><td>聚宝</td><td>候批</td></tr>
-        <tr><td>学院课程调整</td><td>OI</td><td>候批</td></tr>
-        <tr><td>交易模型任务书</td><td>姜公</td><td>候批</td></tr>
-        <tr><td>模拟盘主机评估</td><td>姜公、赚钱养家</td><td>候批</td></tr>
-        <tr><td>技能安装范围</td><td>天</td><td>候批</td></tr>
-        <tr><td>组织改进事项</td><td>天</td><td>候批</td></tr>
-        <tr><td>公链评估事项</td><td>一链基座</td><td>候批</td></tr>
-        <tr><td>代码推送</td><td>一气</td><td>须陛下本人批准</td></tr>
-        <tr><td>素材同步</td><td>泡泡龙</td><td>候批</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="sec">
-    <h2>各部例行任务</h2>
-    <table>
-      <thead><tr><th>bot</th><th>例行任务</th><th>时间（哈拉雷）</th><th>近况</th></tr></thead>
-      <tbody>
-        <tr><td>天</td><td>项目总管每日卡点</td><td>每日 09:00</td><td>正常</td></tr>
-        <tr><td>天</td><td>大殿直播刷新</td><td>约每 30 分钟（08:00–20:00）</td><td>已开启</td></tr>
-        <tr><td>其余各 bot</td><td>按各自职责执行</td><td>—</td><td>见殿上状态</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="sec">
-    <h2>其他已知状态</h2>
-    <table>
-      <thead><tr><th>事项</th><th>状态</th></tr></thead>
-      <tbody>
-        <tr><td>纸面模拟盘</td><td>运行中（仅纸面）</td></tr>
-        <tr><td>内容发布</td><td>按审稿节奏进行</td></tr>
-        <tr><td>筹资材料</td><td>整理中</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="sec">
-    <h2>使用说明</h2>
-    <div class="note">
-      <p>这是<strong>直播页</strong>：打开后画面持续动，约每 60 秒自动读取 <code>status.json</code>，状态变了画面跟着变，不用手动刷新。右上角显示「直播中」和数据时间（哈拉雷时间）。</p>
-      <p>定时任务约每 30 分钟写入状态（哈拉雷时间，08:00–20:00 时段内）。页面约每 60 秒读取一次。只是准实时，不是秒级。</p>
-      <p>页面默认静音。点「开启殿中语音」出声，点「上朝奏报」按顺序朗读。点「开始录制」可把画面存成视频；语音录不进去，要连声音请用 iPhone 屏幕录制。</p>
-      <p>iPhone：关掉侧边静音开关，并把音量调大。本页为在线直播版，用 Safari 打开即可。</p>
-      <p>点击任一人物查看详情。金色「候旨」为等陛下拍板，朱红「有本启奏」为卡住或出错。写字的是当值，饮酒/打坐/吃东西的是闲置。</p>
-      <p><b>新 agent 入殿：</b>在 <code>status.json</code>（或 <code>status.js</code>）加一项（id、name、status、task 必填）。不填 figure 时从备用人物池自动分配。也可由总管合并外部 agent 条目后刷新。</p>
-    </div>
+<div class="below">
+  <h2>会议纪要</h2>
+  <div class="minutes" id="minutes"></div>
+  <div class="warnbox">会议发言只播一次，不循环。谁汇报就切到他的说话特写。语音用浏览器朗读；录制按钮只录画面，要连声音请用 iPhone 屏幕录制。</div>
+  <h2>使用说明</h2>
+  <div class="note">
+    <p>真实 bot 交互按时间顺序开会。硬切到发言人特写循环，底部电影字幕；换人时插递竹简过场。约每 60 秒读取 events.json。点「回放今日会议」从头再播。</p>
   </div>
 </div>
 
 <script src="status.js"></script>
 <script>
 (function(){
-  const IMG_BASE = (window.PALACE_IMG_BASE || "img/");
-  const IMGS = window.PALACE_IMGS || null; // single-file embeds
-  const OFFLINE = !!window.PALACE_OFFLINE || !!IMGS;
+  const V = "video/";
   const FIG_KEY = {
     "诸葛亮":"zhugeliang","范蠡":"fanli","孔子":"kongzi","鲁班":"luban","墨子":"mozi",
     "张衡":"zhangheng","马钧":"majun","姜子牙":"jiangziya","桑弘羊":"sanghongyang","管仲":"guanzhong",
     "李白":"libai","司马迁":"simaqian","东方朔":"dongfangshuo","包拯":"baozheng"
   };
-  const POOL = ["萧何","张良","韩信","班超","王羲之","蔡伦","扁鹊","苏轼","魏征","狄仁杰","徐霞客","沈括"];
-  function hash(s){let h=2166136261; for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);} return Math.abs(h);}
-  function short(t){return (t||"").split("；")[0];}
-  function isWork(st){return st==="当值"||st==="候旨"||st==="有本启奏"||st==="办毕";}
-  function resolveImg(path){
-    if(!IMGS) return path;
-    const keys=[path, path.replace(/^img\//,''), 'img/'+path.replace(/^img\//,'')];
-    for(const k of keys){ if(IMGS[k]) return IMGS[k]; }
-    const base=path.split('/').pop();
-    if(IMGS['chars/'+base]) return IMGS['chars/'+base];
-    if(IMGS[base]) return IMGS[base];
-    return path;
-  }
-  function imgPath(fig, st){
-    const key = FIG_KEY[fig] || "pool";
-    const mode = isWork(st) ? "work" : "idle";
-    return resolveImg(IMG_BASE+"chars/"+key+"_"+mode+".webp");
-  }
-
-  const canvas = document.getElementById("liveCanvas");
-  const ctx = canvas.getContext("2d");
-  const stage = document.getElementById("stage");
-
-  // Image cache
-  const cache = {};
-  function loadImg(src){
-    if(cache[src]) return cache[src];
-    const im = new Image();
-    im.decoding = "async";
-    im.src = src;
-    cache[src] = im;
-    return im;
-  }
-  const hallImg = loadImg(resolveImg(IMG_BASE+"hall.webp"));
-  const emperorImg = loadImg(resolveImg(IMG_BASE+"chars/emperor.webp"));
-
-  let AS_OF = window.PALACE_AS_OF || "未查到";
-  let STATUS = (window.PALACE_STATUS || []).slice();
-  let seats = [];
-  let byId = {};
-  let sel = "tian";
-  let bubbleText = "";
-  let bubbleWho = "";
-  let lines = [];
-  let report = [];
-  let li = 0, rep = -1, voice = false, timer = 0;
-  let lastPollOk = false;
-  let smoke = [];
-  for(let i=0;i<18;i++){
-    smoke.push({x:0.38+Math.random()*0.24, y:0.72, r:6+Math.random()*10, sp:0.00025+Math.random()*0.0004, ph:Math.random()*Math.PI*2});
-  }
-
-  function lineOf(m){
-    if(m.say) return m.say;
-    if(m.status==="候旨") return short(m.task)+"，候陛下御批。";
-    if(m.status==="有本启奏") return "臣有本启奏："+short(m.task)+"。";
-    if(m.status==="办毕") return short(m.task)+"，臣已办毕。";
-    if(m.status==="闲置") return "近日无事，臣小憩片刻。";
-    return short(m.task)+"，臣正在书写。";
-  }
-
-  function layout(list){
-    const rest = list.filter(m=>m.id!=="tian");
-    const tian = list.find(m=>m.id==="tian");
-    const placed = [];
-    if(tian) placed.push(Object.assign({}, tian, {x:0.50, y:0.46, s:1.0}));
-    const per = 4;
-    rest.forEach((m,j)=>{
-      const side = j%2;
-      const k = Math.floor(j/2);
-      const row = Math.floor(k/per);
-      const col = k%per;
-      const x = side===0 ? 0.10 + col*0.095 + (row%2)*0.02 : 0.90 - col*0.095 - (row%2)*0.02;
-      const y = 0.62 + row*0.15;
-      placed.push(Object.assign({}, m, {x, y, s: 0.95 - row*0.04}));
-    });
-    return placed;
-  }
-
-  function rebuild(){
-    const used = new Set(STATUS.map(e=>e.figure||""));
-    const free = POOL.filter(p=>!used.has(p));
-    const ms = STATUS.map((e,i)=>{
-      let fig = e.figure || "";
-      if(!fig){
-        fig = free.length ? free[hash(e.id)%free.length] : "无名氏";
-        const k = free.indexOf(fig); if(k>=0) free.splice(k,1);
-      }
-      return Object.assign({}, e, {
-        fig, i,
-        pitch: 0.6 + ((i*37)%11)/10,
-        rate: 0.85 + ((i*53)%7)/20,
-        img: null
-      });
-    });
-    seats = layout(ms);
-    byId = {};
-    seats.forEach(m=>{
-      byId[m.id]=m;
-      m.img = loadImg(imgPath(m.fig, m.status));
-    });
-    document.getElementById("asof").textContent = "数据截至 "+AS_OF+"（哈拉雷时间）";
-    document.getElementById("countpill").textContent = "大臣 "+seats.length+" 位";
-    const wait = STATUS.filter(e=>e.status==="候旨").map(e=>e.name.split(" · ")[0].split("（")[0]);
-    const alarm = STATUS.filter(e=>e.status==="有本启奏").map(e=>e.name.split(" · ")[0].split("（")[0]);
-    document.getElementById("chaobao").textContent =
-      "今日朝报：候旨 "+wait.length+" 位："+(wait.join("、")||"无")+"。有本启奏 "+alarm.length+" 位："+(alarm.join("、")||"无")+"。";
-    // dialogue lines
-    const out=[]; const done=new Set();
-    seats.forEach(m=>{
-      if(m.talkingTo && byId[m.talkingTo] && !done.has(m.id)){
-        const o=byId[m.talkingTo]; done.add(m.id); done.add(o.id);
-        out.push({who:m.id, text: m.id==="tian"&&o.id==="jg" ? (o.fig+"，模拟盘今日如何？") : (o.fig+"，"+short(o.task)+"，进展如何？")});
-        out.push({who:o.id, text:lineOf(o)});
-      }
-    });
-    seats.forEach(m=>{ if(!done.has(m.id)) out.push({who:m.id, text:(m.status==="候旨"||m.status==="有本启奏"?"启禀陛下，":"")+lineOf(m)}); });
-    lines = out;
-    report = [{who:"wuji", text:"众卿有事启奏。"}].concat(seats.map(m=>({who:m.id, text:"臣"+m.fig+"，"+m.status+"："+short(m.task)+"。"})));
-    if(sel && byId[sel]) select(sel, true);
-    else if(byId.tian) select("tian", true);
-  }
-
-  function select(id, quiet){
-    sel=id;
-    const m = byId[id]; if(!m) return;
-    const box=document.getElementById("detail"); box.style.display="block";
-    document.getElementById("dName").textContent = m.fig+" · "+m.name;
-    document.getElementById("dDept").textContent = m.dept || "未分部";
-    const st=document.getElementById("dSt");
-    st.textContent = m.status+(m.talkingTo?" · 协作中":"");
-    st.className="st"+(m.status==="候旨"?" warn":m.status==="有本启奏"?" danger":m.status==="办毕"?" ok":"");
-    document.getElementById("dTask").textContent = "当前事务："+m.task;
-    document.getElementById("dRoutines").textContent = "例行任务："+(m.routines||"未查到");
-  }
-
-  function applyPayload(data){
-    if(!data) return;
-    const nextAs = data.asOf || data.AS_OF || AS_OF;
-    const nextSt = data.status || data.STATUS || STATUS;
-    const sig = JSON.stringify({a:nextAs,s:nextSt});
-    const prev = JSON.stringify({a:AS_OF,s:STATUS});
-    AS_OF = nextAs;
-    STATUS = nextSt.slice();
-    if(sig !== prev) rebuild();
-    else {
-      document.getElementById("asof").textContent = "数据截至 "+AS_OF+"（哈拉雷时间）";
-    }
-  }
-
-  async function pollStatus(){
-    if(OFFLINE){
-      document.getElementById("pollpill").textContent = "离线单文件（不轮询）";
-      return;
-    }
-    try{
-      const r = await fetch("status.json?t="+Date.now(), {cache:"no-store"});
-      if(!r.ok) throw new Error("http "+r.status);
-      const data = await r.json();
-      applyPayload(data);
-      lastPollOk = true;
-      document.getElementById("pollpill").textContent = "状态已同步 · 60 秒轮询";
-      document.getElementById("livepill").innerHTML = '<span class="dot"></span>直播中';
-    }catch(e){
-      lastPollOk = false;
-      document.getElementById("pollpill").textContent = "读 status.json 失败，用内嵌状态";
-    }
-  }
-
-  // ---------- Canvas render ----------
-  function fitCanvas(){
-    const r = stage.getBoundingClientRect();
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = Math.max(640, Math.floor(r.width));
-    const h = Math.max(360, Math.floor(r.height));
-    if(canvas.width !== Math.floor(w*dpr) || canvas.height !== Math.floor(h*dpr)){
-      canvas.width = Math.floor(w*dpr);
-      canvas.height = Math.floor(h*dpr);
-      canvas.style.width = w+"px";
-      canvas.style.height = h+"px";
-    }
-    return {w: canvas.width, h: canvas.height, dpr};
-  }
-
-  function roundRect(c,x,y,w,h,rad){
-    c.beginPath();
-    c.moveTo(x+rad,y);
-    c.arcTo(x+w,y,x+w,y+h,rad);
-    c.arcTo(x+w,y+h,x,y+h,rad);
-    c.arcTo(x,y+h,x,y,rad);
-    c.arcTo(x,y,x+w,y,rad);
-    c.closePath();
-  }
-
-  function draw(){
-    const {w,h} = fitCanvas();
-    const t = performance.now()/1000;
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.clearRect(0,0,w,h);
-
-    // Ken Burns background
-    const scale = 1.05 + 0.045*Math.sin(t/14);
-    const ox = Math.sin(t/18)*0.012*w;
-    const oy = Math.cos(t/22)*0.008*h;
-    const bw = w*scale, bh = h*scale;
-    if(hallImg.complete && hallImg.naturalWidth){
-      ctx.drawImage(hallImg, (w-bw)/2+ox, (h-bh)/2+oy, bw, bh);
-    } else {
-      ctx.fillStyle = "#2A0806"; ctx.fillRect(0,0,w,h);
-    }
-
-    // Vignette
-    const g = ctx.createRadialGradient(w*0.5,h*0.45,h*0.2,w*0.5,h*0.5,h*0.75);
-    g.addColorStop(0,"rgba(0,0,0,0)");
-    g.addColorStop(1,"rgba(10,2,0,0.55)");
-    ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
-
-    // Smoke
-    smoke.forEach((s,i)=>{
-      const yy = (s.y - ((t*s.sp*60 + i*0.07)%0.35));
-      const xx = s.x + Math.sin(t*0.7+s.ph)*0.01;
-      const alpha = 0.22 * (1 - ((s.y-yy)/0.35));
-      ctx.beginPath();
-      ctx.fillStyle = "rgba(255,240,200,"+Math.max(0,alpha)+")";
-      ctx.ellipse(xx*w, yy*h, s.r*(1+(s.y-yy)*2), s.r*1.6, 0, 0, Math.PI*2);
-      ctx.fill();
-    });
-
-    // Candles
-    [[0.42,0.36],[0.57,0.34]].forEach((p,i)=>{
-      const flick = 0.7 + 0.3*Math.sin(t*8 + i);
-      ctx.fillStyle = "rgba(255,210,122,"+flick+")";
-      ctx.shadowColor = "rgba(255,180,60,0.8)";
-      ctx.shadowBlur = 14*flick;
-      ctx.fillRect(p[0]*w-1.5, p[1]*h, 3, 10);
-      ctx.shadowBlur = 0;
-    });
-
-    // Emperor
-    {
-      const ew = w*0.11, eh = ew*1.25;
-      const ex = w*0.5 - ew/2;
-      const ey = h*0.04 + Math.sin(t*1.2)*2;
-      if(emperorImg.complete && emperorImg.naturalWidth){
-        ctx.save();
-        roundRect(ctx, ex-2, ey-2, ew+4, eh+4, 10);
-        ctx.fillStyle = "rgba(26,10,6,0.5)";
-        ctx.fill();
-        roundRect(ctx, ex, ey, ew, eh, 8);
-        ctx.clip();
-        ctx.drawImage(emperorImg, ex, ey, ew, eh);
-        ctx.restore();
-        ctx.strokeStyle = "rgba(232,197,71,0.65)";
-        ctx.lineWidth = 2;
-        roundRect(ctx, ex, ey, ew, eh, 8); ctx.stroke();
-      }
-      // tag
-      ctx.fillStyle = "rgba(26,10,6,0.85)";
-      roundRect(ctx, ex, ey+eh+4, ew, 18, 6); ctx.fill();
-      ctx.strokeStyle = "#E8C547"; ctx.lineWidth = 1;
-      roundRect(ctx, ex, ey+eh+4, ew, 18, 6); ctx.stroke();
-      ctx.fillStyle = "#F2CF6A"; ctx.font = "bold "+Math.max(10, Math.floor(w*0.01))+"px sans-serif";
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText("无极 · 陛下", ex+ew/2, ey+eh+13);
-    }
-
-    // Collab paths
-    const done=new Set();
-    seats.forEach(m=>{
-      if(!m.talkingTo || !byId[m.talkingTo] || done.has(m.id)) return;
-      const o=byId[m.talkingTo];
-      if(m.id > o.id) return;
-      done.add(m.id); done.add(o.id);
-      const x1=m.x*w, y1=m.y*h - h*0.08;
-      const x2=o.x*w, y2=o.y*h - h*0.08;
-      const mx=(x1+x2)/2, my=Math.min(y1,y2)-h*0.06;
-      ctx.beginPath();
-      ctx.moveTo(x1,y1); ctx.quadraticCurveTo(mx,my,x2,y2);
-      ctx.strokeStyle = "rgba(242,207,106,0.75)";
-      ctx.setLineDash([6,5]); ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.setLineDash([]);
-      // flying letter
-      const u = (t/3.2)%1;
-      const px = (1-u)*(1-u)*x1 + 2*(1-u)*u*mx + u*u*x2;
-      const py = (1-u)*(1-u)*y1 + 2*(1-u)*u*my + u*u*y2;
-      ctx.fillStyle = "#F3E6C0";
-      ctx.fillRect(px-9, py-6, 18, 12);
-      ctx.strokeStyle = "#8A7440"; ctx.strokeRect(px-9, py-6, 18, 12);
-      // tag
-      ctx.fillStyle = "#3A1A08";
-      roundRect(ctx, mx-28, my+8, 56, 16, 8); ctx.fill();
-      ctx.strokeStyle = "#E8C547"; ctx.stroke();
-      ctx.fillStyle = "#F2CF6A"; ctx.font = "10px sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
-      ctx.fillText("协作中", mx, my+16);
-    });
-
-    // Seats
-    seats.forEach(m=>{
-      const baseW = w * 0.135 * m.s;
-      const baseH = baseW * (4/3);
-      let bob = 0, sway = 0, bright = 1;
-      if(isWork(m.status)){
-        bob = Math.sin(t*3.2 + m.i)*3;
-        bright = 1 + 0.04*Math.sin(t*2.4 + m.i);
-      } else {
-        sway = Math.sin(t*1.1 + m.i)*2;
-        bob = Math.sin(t*0.8 + m.i)*1.5;
-      }
-      const sw = baseW, sh = baseH;
-      const sx = m.x*w - sw/2 + sway;
-      const sy = m.y*h - sh/2 + bob;
-
-      // badge color
-      let border = "rgba(201,162,39,0.55)";
-      let badge = m.status, badgeCol = "#F2CF6A";
-      if(m.status==="候旨"){ border="#FFD45A"; badgeCol="#FFD45A"; }
-      if(m.status==="有本启奏"){ border="#FF5A4A"; badgeCol="#FF8A7A"; }
-      if(m.status==="办毕"){ border="#2FBF5B"; badgeCol="#9BE8B4"; }
-      if(m.id===sel){ border="#FFF4C8"; }
-
-      ctx.save();
-      ctx.globalAlpha = 1;
-      // card shadow
-      ctx.fillStyle = "rgba(0,0,0,0.45)";
-      roundRect(ctx, sx+3, sy+4, sw, sh, 10); ctx.fill();
-
-      // image
-      ctx.save();
-      roundRect(ctx, sx, sy, sw, sh, 10); ctx.clip();
-      if(m.img && m.img.complete && m.img.naturalWidth){
-        ctx.filter = "brightness("+bright+")";
-        ctx.drawImage(m.img, sx, sy, sw, sh);
-        ctx.filter = "none";
-      } else {
-        ctx.fillStyle = "#1a0a06"; ctx.fillRect(sx,sy,sw,sh);
-      }
-      ctx.restore();
-
-      // border
-      ctx.strokeStyle = border; ctx.lineWidth = m.id===sel ? 3 : 1.5;
-      if(m.status==="候旨" || m.status==="有本启奏"){
-        ctx.shadowColor = border; ctx.shadowBlur = 10;
-      }
-      roundRect(ctx, sx, sy, sw, sh, 10); ctx.stroke();
-      ctx.shadowBlur = 0;
-
-      // speaking mouth flap (approx; volume-like sine while this who has bubble)
-      if(bubbleWho===m.id){
-        const amp = 0.25+0.75*Math.abs(Math.sin(t*10+m.i));
-        const mx = sx+sw*0.5, my = sy+sh*0.72;
-        ctx.fillStyle = "rgba(40,10,10,"+(0.35+0.4*amp)+")";
-        ctx.beginPath();
-        ctx.ellipse(mx, my, sw*0.08*(0.5+amp), sh*0.03*(0.4+amp*1.2), 0, 0, Math.PI*2);
-        ctx.fill();
-      }
-      // writing brush micro-motion for work
-      if(isWork(m.status)){
-        const bx = sx + sw*0.62, by = sy + sh*0.62 + Math.sin(t*5+m.i)*4;
-        ctx.strokeStyle = "rgba(30,20,10,0.55)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(bx, by-8); ctx.lineTo(bx+Math.sin(t*6+m.i)*3, by+10);
-        ctx.stroke();
-        // ink tip
-        ctx.fillStyle = "rgba(20,10,5,0.5)";
-        ctx.beginPath(); ctx.arc(bx+Math.sin(t*6+m.i)*3, by+12, 2, 0, Math.PI*2); ctx.fill();
-      }
-
-      // badge
-      const bw2 = Math.max(36, sw*0.55), bh2 = 16;
-      const bx2 = sx + sw/2 - bw2/2, by2 = sy - 10;
-      ctx.fillStyle = "#2A0C08";
-      roundRect(ctx, bx2, by2, bw2, bh2, 8); ctx.fill();
-      ctx.strokeStyle = badgeCol; ctx.lineWidth = 1;
-      roundRect(ctx, bx2, by2, bw2, bh2, 8); ctx.stroke();
-      ctx.fillStyle = badgeCol; ctx.font = "bold 10px sans-serif";
-      ctx.textAlign="center"; ctx.textBaseline="middle";
-      const alphaBadge = (m.status==="有本启奏") ? (0.5+0.5*Math.sin(t*6)) : (m.status==="候旨" ? (0.6+0.4*Math.sin(t*2)) : 1);
-      ctx.globalAlpha = alphaBadge;
-      ctx.fillText(badge, sx+sw/2, by2+bh2/2);
-      ctx.globalAlpha = 1;
-
-      // label
-      const shortName = m.name.split(" · ")[0].split("（")[0];
-      const label = m.fig+" · "+shortName+(m.talkingTo?" · 协作":"");
-      const lh = 22;
-      ctx.fillStyle = "rgba(26,10,6,0.85)";
-      roundRect(ctx, sx, sy+sh+3, sw, lh, 6); ctx.fill();
-      ctx.strokeStyle = "rgba(201,162,39,0.7)"; ctx.lineWidth=1;
-      roundRect(ctx, sx, sy+sh+3, sw, lh, 6); ctx.stroke();
-      ctx.fillStyle = "#F6E3A8"; ctx.font = Math.max(9, Math.floor(sw*0.11))+"px sans-serif";
-      ctx.textAlign="center"; ctx.textBaseline="middle";
-      ctx.fillText(label, sx+sw/2, sy+sh+3+lh/2, sw-6);
-
-      m._hit = {x:sx, y:sy, w:sw, h:sh+lh+3};
-      ctx.restore();
-    });
-
-    // Bubble
-    if(bubbleText){
-      let bx=w*0.5, by=h*0.16;
-      if(bubbleWho==="wuji"){
-        bx = w*0.5; by = h*0.04;
-      } else if(byId[bubbleWho] && byId[bubbleWho]._hit){
-        const hit = byId[bubbleWho]._hit;
-        bx = hit.x + hit.w/2;
-        by = hit.y - 8;
-      }
-      const text = bubbleText.length>28 ? bubbleText.slice(0,28)+"…" : bubbleText;
-      ctx.font = "13px sans-serif";
-      const tw = Math.min(w*0.35, ctx.measureText(text).width + 24);
-      const th = 34;
-      const rx = bx - tw/2, ry = by - th - 8;
-      ctx.fillStyle = "#FFF8E6";
-      roundRect(ctx, rx, ry, tw, th, 12); ctx.fill();
-      ctx.strokeStyle = "#E8C547"; ctx.lineWidth=1; roundRect(ctx, rx, ry, tw, th, 12); ctx.stroke();
-      // tail
-      ctx.beginPath();
-      ctx.moveTo(bx-7, ry+th); ctx.lineTo(bx, ry+th+8); ctx.lineTo(bx+7, ry+th);
-      ctx.closePath(); ctx.fillStyle="#FFF8E6"; ctx.fill();
-      ctx.fillStyle = "#1A1208"; ctx.textAlign="center"; ctx.textBaseline="middle";
-      ctx.fillText(text, bx, ry+th/2, tw-16);
-    }
-
-    requestAnimationFrame(draw);
-  }
-
-  // Click hit-test
-  canvas.addEventListener("click", (ev)=>{
-    const r = canvas.getBoundingClientRect();
-    const x = (ev.clientX - r.left) * (canvas.width / r.width);
-    const y = (ev.clientY - r.top) * (canvas.height / r.height);
-    // emperor hit
-    const ew = canvas.width*0.11, eh = ew*1.25;
-    const ex = canvas.width*0.5 - ew/2, ey = canvas.height*0.04;
-    if(x>=ex && x<=ex+ew && y>=ey && y<=ey+eh+22){
-      const box=document.getElementById("detail"); box.style.display="block";
-      document.getElementById("dName").textContent = "无极（陛下）";
-      document.getElementById("dDept").textContent = "御座";
-      const st=document.getElementById("dSt"); st.textContent="御览万象"; st.className="st";
-      document.getElementById("dTask").textContent = "当前事务：裁决各部所奏";
-      document.getElementById("dRoutines").textContent = "例行任务：未查到";
-      return;
-    }
-    for(let i=seats.length-1;i>=0;i--){
-      const m=seats[i]; if(!m._hit) continue;
-      const h=m._hit;
-      if(x>=h.x && x<=h.x+h.w && y>=h.y && y<=h.y+h.h){ select(m.id); return; }
-    }
-  });
-
-  // Voice / dialogue
-  function getSynth(){ try{ if("speechSynthesis" in window) return window.speechSynthesis; }catch(e){} return null; }
-  function say(text, pitch, rate, onEnd){
-    const s=getSynth(); if(!s) return false;
-    try{
-      const u=new SpeechSynthesisUtterance(text);
-      u.lang="zh-CN"; u.pitch=Math.min(2,pitch); u.rate=rate;
-      const v=s.getVoices().find(x=>x.lang.toLowerCase().indexOf("zh")===0);
-      if(v) u.voice=v;
-      u.onend=()=>onEnd(); u.onerror=()=>onEnd();
-      s.cancel(); s.speak(u); return true;
-    }catch(e){ return false; }
-  }
-  function voiceOf(who){ const m=byId[who]; return m?[m.pitch,m.rate]:[0.8,0.9]; }
-  function showBubble(who, text){
-    bubbleWho = who; bubbleText = text;
-    const m = who==="wuji" ? null : byId[who];
-    const whoName = who==="wuji" ? "无极（陛下）" : (m ? (m.fig+" · "+m.name) : "");
-    document.getElementById("modeLabel").textContent = (rep>=0?"上朝奏报":"殿中对话")+" · "+whoName;
-    document.getElementById("subtitle").textContent = text;
-    if(m) select(m.id, true);
-  }
-  function tickLines(){
-    if(rep>=0) return;
-    if(!lines.length){ timer=setTimeout(tickLines, 2000); return; }
-    const l=lines[li%lines.length];
-    showBubble(l.who, l.text);
-    let spoke=false;
-    if(voice){ const pr=voiceOf(l.who); spoke=say(l.text, pr[0], pr[1], ()=>{ timer=setTimeout(()=>{li++; tickLines();}, 900); }); }
-    if(!spoke) timer=setTimeout(()=>{li++; tickLines();}, 4200);
-  }
-  function tickReport(){
-    if(rep<0) return;
-    if(rep>=report.length){ rep=-1; document.getElementById("btnReport").textContent="上朝奏报"; tickLines(); return; }
-    const l=report[rep];
-    showBubble(l.who, l.text);
-    let spoke=false;
-    if(voice){ const pr=voiceOf(l.who); spoke=say(l.text, pr[0], pr[1], ()=>{ rep++; tickReport(); }); }
-    if(!spoke) timer=setTimeout(()=>{rep++; tickReport();}, 3500);
-  }
-  const hasSynth=!!getSynth();
-  document.getElementById("voiceHint").textContent = hasSynth ? "默认静音，点按钮出声" : "此浏览器不支持语音，仅显示字幕";
-  document.getElementById("btnVoice").onclick=()=>{
-    voice=!voice;
-    document.getElementById("btnVoice").textContent = voice?"关闭殿中语音":"开启殿中语音";
-    document.getElementById("voiceHint").textContent = voice?"语音已开":(hasSynth?"默认静音，点按钮出声":"此浏览器不支持语音，仅显示字幕");
-    const s=getSynth(); if(!voice && s) s.cancel();
-    if(voice) say("殿中语音已开启。",1,1,()=>{});
+  const ID_FIG = {
+    tian:"诸葛亮", jb:"范蠡", oi:"孔子", yl:"鲁班", ts:"墨子", yq:"张衡", ppl:"马钧",
+    jg:"姜子牙", ylong:"桑弘羊", zq:"管仲", tk:"李白", ip:"司马迁", ds:"东方朔", cs:"包拯", wuji:null
   };
-  document.getElementById("btnReport").onclick=()=>{
-    const s=getSynth(); if(s) s.cancel(); clearTimeout(timer);
-    if(rep>=0){ rep=-1; document.getElementById("btnReport").textContent="上朝奏报"; tickLines(); }
-    else { rep=0; document.getElementById("btnReport").textContent="停止奏报"; tickReport(); }
+  const NAME_SHORT = {
+    tian:"天", jb:"聚宝", oi:"OI", yl:"一链基座", ts:"天师", yq:"一气", ppl:"泡泡龙",
+    jg:"姜公", ylong:"盈龙", zq:"赚钱养家", tk:"内容实验", ip:"IP Man", ds:"赌圣", cs:"项目测试",
+    wuji:"无极", all:"众卿"
   };
+  const VOICE = { // pitch / rate
+    tian:{p:0.95,r:1.0}, jb:{p:1.05,r:1.02}, oi:{p:0.9,r:0.95}, yl:{p:0.85,r:0.98},
+    ts:{p:0.88,r:1.0}, yq:{p:1.0,r:1.05}, ppl:{p:1.1,r:1.08}, jg:{p:0.8,r:0.95},
+    ylong:{p:0.92,r:1.0}, zq:{p:1.0,r:1.05}, tk:{p:1.15,r:1.1}, ip:{p:0.9,r:1.0},
+    ds:{p:1.2,r:1.08}, cs:{p:0.85,r:0.98}, wuji:{p:0.75,r:0.92}, all:{p:1,r:1}
+  };
+  const LS_KEY = "palace_played_v2";
 
-  // ---------- Recording ----------
+  const idleVideo = document.getElementById("idleVideo");
+  const stageVideo = document.getElementById("stageVideo");
+  const transVideo = document.getElementById("transVideo");
+  idleVideo.src = V + "hall_idle.mp4";
+  idleVideo.play().catch(()=>{});
+
+  let STATUS = (window.PALACE_STATUS||[]).slice();
+  let AS_OF = window.PALACE_AS_OF || "—";
+  let EVENTS = [];
+  let AGENDA = "今日朝会";
+  let voiceOn = false, meetingPaused = false;
+  let currentEvent = null, queue = [], played = loadPlayed();
+  let lastSpeaker = null;
+  let mode = "idle"; // idle | speaking | transition
   let mediaRecorder = null;
-  let recChunks = [];
-  let recStart = 0;
-  function pickMime(){
-    const types = [
-      "video/mp4;codecs=avc1.42E01E",
-      "video/mp4",
-      "video/webm;codecs=vp9,opus",
-      "video/webm;codecs=vp8",
-      "video/webm"
-    ];
-    for(const t of types){
-      try{ if(window.MediaRecorder && MediaRecorder.isTypeSupported(t)) return t; }catch(e){}
-    }
-    return "";
+  let endTimer = null;
+
+  function loadPlayed(){ try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]");}catch(e){return[];} }
+  function savePlayed(){ try{localStorage.setItem(LS_KEY, JSON.stringify(played.slice(-500)));}catch(e){} }
+  function shortName(id){ return NAME_SHORT[id]||id; }
+  function figOf(id){
+    const fromStatus = STATUS.find(s=>s.id===id);
+    if(fromStatus && fromStatus.figure) return fromStatus.figure;
+    return ID_FIG[id] || null;
   }
-  function stopRec(){
-    if(mediaRecorder && mediaRecorder.state!=="inactive"){
-      try{ mediaRecorder.stop(); }catch(e){}
-    }
-    const btn=document.getElementById("btnRec");
-    btn.textContent="开始录制"; btn.classList.remove("on");
+  function closeupOf(id){
+    const fig = figOf(id);
+    const key = FIG_KEY[fig] || "pool";
+    return V + key + "_talk_closeup.mp4";
   }
-  function startRec(){
-    if(!window.MediaRecorder || !canvas.captureStream){
-      alert("此浏览器不支持画面录制。请用 iPhone 自带屏幕录制，或换较新的 Safari / Chrome。");
-      return;
+  function bambooSrc(){
+    return Math.random() < 0.5 ? V+"hall_bamboo_2.mp4" : V+"hall_bamboo_1.mp4";
+  }
+
+  function showIdle(){
+    mode = "idle";
+    stageVideo.classList.add("hide"); stageVideo.pause();
+    transVideo.classList.remove("show"); transVideo.pause();
+    idleVideo.classList.add("show");
+    idleVideo.play().catch(()=>{});
+    document.getElementById("modepill").textContent = "候场";
+    document.getElementById("cineSub").classList.remove("show");
+    document.getElementById("agendaNow").textContent = "本场发言已播完，候场中。有新交互会自动接着播。";
+  }
+  function showSpeaker(src){
+    mode = "speaking";
+    idleVideo.classList.remove("show"); idleVideo.pause();
+    transVideo.classList.remove("show"); transVideo.pause();
+    stageVideo.classList.remove("hide");
+    const leaf = src.split('/').pop();
+    if(!stageVideo.currentSrc || stageVideo.currentSrc.indexOf(leaf)<0){
+      stageVideo.src = src;
+      stageVideo.load();
     }
-    const stream = canvas.captureStream(30);
-    const mime = pickMime();
+    stageVideo.loop = true;
+    stageVideo.play().catch(()=>{});
+    document.getElementById("modepill").textContent = "发言中";
+  }
+  function playTransition(then){
+    mode = "transition";
+    document.getElementById("cineSub").classList.remove("show");
+    document.getElementById("modepill").textContent = "传简";
+    stageVideo.classList.add("hide"); stageVideo.pause();
+    idleVideo.classList.remove("show"); idleVideo.pause();
+    transVideo.src = bambooSrc();
+    transVideo.classList.add("show");
+    const done = ()=>{ transVideo.onended = null; clearTimeout(to); then && then(); };
+    const to = setTimeout(done, 2800);
+    transVideo.onended = done;
+    transVideo.play().catch(done);
+  }
+
+  function speakTTS(id, text){
+    if(!voiceOn || !window.speechSynthesis) return;
     try{
-      mediaRecorder = mime
-        ? new MediaRecorder(stream, {mimeType: mime, videoBitsPerSecond: 2500000})
-        : new MediaRecorder(stream, {videoBitsPerSecond: 2500000});
-    }catch(e){
-      try{ mediaRecorder = new MediaRecorder(stream); }
-      catch(e2){ alert("无法启动录制："+e2.message); return; }
-    }
-    recChunks = [];
-    recStart = Date.now();
-    mediaRecorder.ondataavailable = (e)=>{ if(e.data && e.data.size) recChunks.push(e.data); };
-    mediaRecorder.onstop = ()=>{
-      const type = (mediaRecorder && mediaRecorder.mimeType) || mime || "video/webm";
-      const blob = new Blob(recChunks, {type});
-      const ext = type.indexOf("mp4")>=0 ? "mp4" : "webm";
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "taihedian_live_"+new Date().toISOString().replace(/[:.]/g,"-")+"."+ext;
-      document.body.appendChild(a); a.click(); a.remove();
-      // expose for headless tests
-      window.__LAST_REC = {size: blob.size, type, ms: Date.now()-recStart, url, blob};
-      setTimeout(()=>URL.revokeObjectURL(url), 60000);
-    };
-    mediaRecorder.start(500);
-    const btn=document.getElementById("btnRec");
-    btn.textContent="停止录制"; btn.classList.add("on");
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "zh-CN";
+      const v = VOICE[id] || {p:1,r:1};
+      u.pitch = v.p; u.rate = v.r;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
   }
-  document.getElementById("btnRec").onclick=()=>{
-    if(mediaRecorder && mediaRecorder.state==="recording") stopRec();
-    else startRec();
+
+  function eventDuration(text){
+    const len = (text||"").length;
+    return Math.max(4000, Math.min(14000, 2000 + len * 180));
+  }
+
+  function startNextEvent(){
+    if(meetingPaused) return;
+    if(currentEvent) return;
+    if(!queue.length){ showIdle(); renderMinutes(); return; }
+    const e = queue.shift();
+    const go = ()=>{
+      currentEvent = e;
+      lastSpeaker = e.from;
+      const who = e.fromName || shortName(e.from);
+      const fig = figOf(e.from) || "大臣";
+      const to = e.toName || shortName(e.to);
+      document.getElementById("agendaNow").textContent = `${who} → ${to} · ${e.kind||"发言"}`;
+      document.getElementById("cineWho").textContent = `${fig} · ${who}`;
+      document.getElementById("cineText").textContent = e.text || "";
+      document.getElementById("cineSub").classList.add("show");
+      // hard-set video src each time
+      stageVideo.src = closeupOf(e.from);
+      showSpeaker(closeupOf(e.from));
+      speakTTS(e.from, `${who}说：${e.text||""}`);
+      renderMinutes();
+      clearTimeout(endTimer);
+      endTimer = setTimeout(finishEvent, eventDuration(e.text));
+    };
+    if(lastSpeaker && lastSpeaker !== e.from){
+      playTransition(go);
+    } else {
+      go();
+    }
+  }
+
+  function finishEvent(){
+    if(!currentEvent) return;
+    if(!played.includes(currentEvent.id)){ played.push(currentEvent.id); savePlayed(); }
+    currentEvent = null;
+    document.getElementById("cineSub").classList.remove("show");
+    if(voiceOn && window.speechSynthesis) try{window.speechSynthesis.cancel();}catch(e){}
+    setTimeout(startNextEvent, 400);
+  }
+
+  function rebuildQueue(forceAll){
+    if(forceAll){ played=[]; savePlayed(); }
+    queue = EVENTS.filter(e => forceAll || !played.includes(e.id)).slice();
+  }
+
+  function renderMinutes(){
+    const curId = currentEvent && currentEvent.id;
+    document.getElementById("minutes").innerHTML = EVENTS.slice().reverse().map(e=>{
+      const who = e.fromName || shortName(e.from);
+      const to = e.toName || shortName(e.to);
+      return `<div class="min-item${e.id===curId?' playing':''}">
+        <div class="min-meta">${(e.time||'').slice(11)} · ${e.kind||'发言'} · ${who} → ${to}</div>
+        <div class="min-text">${e.text||''}</div>
+      </div>`;
+    }).join('') || `<div class="min-item"><div class="min-text">暂无会议记录</div></div>`;
+  }
+
+  async function poll(){
+    try{
+      const r = await fetch("status.json?t="+Date.now(),{cache:"no-store"});
+      if(r.ok){ const d=await r.json(); AS_OF=d.asOf||AS_OF; STATUS=d.status||STATUS;
+        document.getElementById("timepill").textContent = AS_OF;
+      }
+    }catch(e){}
+    try{
+      const r2 = await fetch("events.json?t="+Date.now(),{cache:"no-store"});
+      if(r2.ok){
+        const d = await r2.json();
+        AGENDA = d.agenda || AGENDA;
+        document.getElementById("agendaTitle").textContent = AGENDA;
+        const known = new Set(EVENTS.map(x=>x.id));
+        let added=0;
+        (d.events||[]).forEach(ev=>{
+          if(!known.has(ev.id)){ EVENTS.push(ev); known.add(ev.id); added++;
+            if(!played.includes(ev.id)) queue.push(ev);
+          }
+        });
+        EVENTS.sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+        renderMinutes();
+        if(added && !currentEvent && mode!=="transition") startNextEvent();
+      }
+    }catch(e){}
+  }
+
+  document.getElementById("btnVoice").onclick = function(){
+    voiceOn=!voiceOn; this.classList.toggle("on",voiceOn);
+    this.textContent = voiceOn?"殿中语音开":"开启殿中语音";
+    if(!voiceOn && window.speechSynthesis) try{window.speechSynthesis.cancel();}catch(e){}
   };
-  // test helpers
-  window.__PALACE = {
-    pollStatus, applyPayload, rebuild,
-    getState: ()=>({AS_OF, count: seats.length, OFFLINE, lastPollOk}),
-    startRec, stopRec,
-    getRecorder: ()=>mediaRecorder
+  document.getElementById("btnReplay").onclick = function(){
+    clearTimeout(endTimer); currentEvent=null; meetingPaused=false;
+    document.getElementById("btnPause").textContent="暂停会议";
+    document.getElementById("btnPause").classList.remove("on");
+    if(window.speechSynthesis) try{window.speechSynthesis.cancel();}catch(e){}
+    lastSpeaker=null; rebuildQueue(true); startNextEvent();
+  };
+  document.getElementById("btnPause").onclick = function(){
+    meetingPaused=!meetingPaused; this.classList.toggle("on",meetingPaused);
+    this.textContent = meetingPaused?"继续会议":"暂停会议";
+    if(meetingPaused){ clearTimeout(endTimer); if(window.speechSynthesis) try{window.speechSynthesis.cancel();}catch(e){} }
+    else if(!currentEvent) startNextEvent();
   };
 
-  rebuild();
-  pollStatus();
-  if(!OFFLINE) setInterval(pollStatus, 60000);
-  requestAnimationFrame(draw);
-  tickLines();
-  window.addEventListener("resize", ()=>fitCanvas());
+  // record whole stage wrap via canvas fallback: capture stage videos visually by html2? Use MediaRecorder on a canvas drawing videos — simpler: captureStream from a composite canvas
+  const recCanvas = document.createElement("canvas");
+  const recCtx = recCanvas.getContext("2d");
+  function drawRecFrame(){
+    if(!(mediaRecorder && mediaRecorder.state==="recording")) return;
+    const w = stageWrap.clientWidth, h = stageWrap.clientHeight;
+    if(recCanvas.width!==w || recCanvas.height!==h){ recCanvas.width=w; recCanvas.height=h; }
+    const vids = [idleVideo, stageVideo, transVideo].filter(v=>v.classList.contains("show") || (v===stageVideo && !v.classList.contains("hide")));
+    const active = transVideo.classList.contains("show") ? transVideo : (!stageVideo.classList.contains("hide") ? stageVideo : idleVideo);
+    try{ recCtx.drawImage(active, 0, 0, w, h); }catch(e){ recCtx.fillStyle="#0a0402"; recCtx.fillRect(0,0,w,h); }
+    // burn subtitles
+    const sub = document.getElementById("cineSub");
+    if(sub.classList.contains("show")){
+      const who = document.getElementById("cineWho").textContent;
+      const text = document.getElementById("cineText").textContent;
+      recCtx.fillStyle="rgba(0,0,0,0.45)";
+      recCtx.fillRect(0, h*0.72, w, h*0.2);
+      recCtx.fillStyle="#FFE7A8"; recCtx.font="600 13px sans-serif"; recCtx.textAlign="center";
+      recCtx.fillText(who, w/2, h*0.78);
+      recCtx.fillStyle="#fff"; recCtx.font="700 16px sans-serif";
+      wrapText(recCtx, text, w/2, h*0.83, w*0.9, 22);
+    }
+    requestAnimationFrame(drawRecFrame);
+  }
+  function wrapText(ctx, text, x, y, maxW, lineH){
+    let line="", yy=y;
+    for(const ch of text){
+      const t=line+ch;
+      if(ctx.measureText(t).width>maxW){ ctx.fillText(line,x,yy); line=ch; yy+=lineH; }
+      else line=t;
+    }
+    if(line) ctx.fillText(line,x,yy);
+  }
+  const stageWrap = document.getElementById("stageWrap");
+  document.getElementById("btnRec").onclick = function(){
+    const btn=this;
+    if(mediaRecorder && mediaRecorder.state==="recording"){
+      mediaRecorder.stop(); btn.textContent="开始录制"; btn.classList.remove("on"); return;
+    }
+    if(!window.MediaRecorder){ alert("不支持录制，请用 iPhone 屏幕录制"); return; }
+    const stream = recCanvas.captureStream(30);
+    const mimes=["video/mp4;codecs=avc1.42E01E","video/mp4","video/webm"];
+    let mime=""; for(const m of mimes){ if(MediaRecorder.isTypeSupported(m)){mime=m;break;} }
+    try{ mediaRecorder = mime? new MediaRecorder(stream,{mimeType:mime}): new MediaRecorder(stream); }
+    catch(e){ alert("无法启动录制："+e.message); return; }
+    const chunks=[];
+    mediaRecorder.ondataavailable = ev=>{ if(ev.data&&ev.data.size) chunks.push(ev.data); };
+    mediaRecorder.onstop = ()=>{
+      const type=(mediaRecorder&&mediaRecorder.mimeType)||mime||"video/webm";
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(new Blob(chunks,{type}));
+      a.download="taihedian_"+Date.now()+"."+(type.indexOf("mp4")>=0?"mp4":"webm");
+      a.click();
+    };
+    mediaRecorder.start(200);
+    btn.textContent="停止录制"; btn.classList.add("on");
+    drawRecFrame();
+  };
+
+  document.getElementById("timepill").textContent = AS_OF;
+  (async function boot(){
+    await poll();
+    rebuildQueue(false);
+    renderMinutes();
+    startNextEvent();
+    setInterval(poll, 60000);
+  })();
 })();
 </script>
 </body>
