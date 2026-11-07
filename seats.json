@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "note": "大殿全景座位：百分比相对 stage-wrap；transform-origin 底部居中；z 随深度自动算",
+  "fixed": {
+    "wuji": {"role": "throne", "x": 50, "y": 26, "w": 30, "anchor": "emperor", "label": "陛下"},
+    "tian": {"role": "host", "x": 66, "y": 36, "w": 24, "figureKey": "zhugeliang", "label": "天"}
+  },
+  "rows": {
+    "left": [
+      {"x": 20, "y": 42, "w": 15},
+      {"x": 16, "y": 52, "w": 17},
+      {"x": 13, "y": 62, "w": 20},
+      {"x": 11, "y": 72, "w": 23},
+      {"x": 10, "y": 82, "w": 26}
+    ],
+    "right": [
+      {"x": 80, "y": 42, "w": 15},
+      {"x": 84, "y": 52, "w": 17},
+      {"x": 87, "y": 62, "w": 20},
+      {"x": 89, "y": 72, "w": 23},
+      {"x": 90, "y": 82, "w": 26}
+    ]
+  },
+  "memberOrder": ["jb", "oi", "yl", "ts", "yq", "ppl", "jg", "ylong", "zq", "tk", "ip", "ds", "cs"],
+  "figureKeyById": {
+    "tian": "zhugeliang", "jb": "fanli", "oi": "kongzi", "yl": "luban", "ts": "mozi",
+    "yq": "zhangheng", "ppl": "majun", "jg": "jiangziya", "ylong": "sanghongyang",
+    "zq": "guanzhong", "tk": "libai", "ip": "simaqian", "ds": "dongfangshuo", "cs": "baozheng",
+    "wuji": "emperor"
+  }
+}

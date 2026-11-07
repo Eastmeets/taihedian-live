@@ -40,6 +40,82 @@ html,body{margin:0;background:#050201;color:#F6E3A8;font-family:-apple-system,Bl
   will-change:opacity;
 }
 #empShot.show{opacity:1}
+
+/* 大殿群像座位层：只用 transform/opacity，iOS 友好 */
+#courtLayer{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  opacity:0;transition:opacity 1.5s ease-in-out, transform 1.6s ease-in-out;
+  transform-origin:50% 38%; will-change:opacity,transform;
+  -webkit-backface-visibility:hidden;backface-visibility:hidden;
+}
+#courtLayer.show{opacity:1}
+#courtLayer.zoom{transform:scale(1.42)}
+#courtLayer.zoom-throne{transform:scale(1.62);transform-origin:50% 34%}
+.seat{
+  position:absolute;left:0;top:0;
+  transform:translate(-50%, -88%);
+  transform-origin:50% 100%;
+  will-change:transform;
+}
+.seat-shadow{
+  position:absolute;left:50%;bottom:2%;width:62%;height:10%;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse at center, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 70%);
+  filter:none; pointer-events:none;
+}
+.seat-anim{
+  display:block;width:100%;transform-origin:50% 100%;
+  animation: courtBreathe 3.6s ease-in-out infinite;
+}
+.seat-anim.work{animation: courtBreathe 3.6s ease-in-out infinite, courtWrite 2.8s ease-in-out infinite;}
+.seat-anim.idle{animation: courtBreathe 4.4s ease-in-out infinite;}
+.seat-anim.throne{animation: courtBreathe 5s ease-in-out infinite;}
+.seat-anim.host{animation: courtBreathe 3.8s ease-in-out infinite;}
+.seat img{
+  display:block;width:100%;height:auto;
+  -webkit-user-drag:none;user-select:none;
+  /* 不用 drop-shadow（iOS 重）；阴影用 seat-shadow */
+}
+.seat-tag{
+  position:absolute;left:50%;bottom:-1.2em;transform:translateX(-50%);
+  font-size:9px;color:#F2CF6A;text-shadow:0 1px 3px #000;
+  white-space:nowrap;opacity:.85;font-weight:600;
+}
+@keyframes courtBreathe{
+  0%,100%{transform:scale(1) translateY(0)}
+  50%{transform:scale(1.015) translateY(-0.4%)}
+}
+@keyframes courtWrite{
+  0%,100%{transform:rotate(0deg)}
+  50%{transform:rotate(-0.7deg)}
+}
+@media (prefers-reduced-motion:reduce){
+  .seat-anim,.seat-anim.work,.seat-anim.idle{animation:none}
+}
+
+
+#saluteOverlay{
+  position:absolute;inset:0;z-index:5;display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .45s ease-in-out;
+  background:radial-gradient(ellipse at 50% 70%, rgba(10,4,2,.35) 0%, rgba(10,4,2,.55) 70%);
+}
+#saluteOverlay.show{opacity:1}
+#saluteOverlay img{
+  width:min(58vw,280px);height:auto;transform-origin:50% 100%;
+  animation:saluteBow 1.15s ease-in-out;
+  filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
+}
+#saluteCaption{
+  position:absolute;left:0;right:0;bottom:22%;text-align:center;
+  color:#FFE7A8;font-size:15px;font-weight:700;text-shadow:0 2px 6px #000;
+}
+@keyframes saluteBow{
+  0%{transform:translateY(8%) scale(0.96)}
+  35%{transform:translateY(0) scale(1) rotate(0deg)}
+  55%{transform:translateY(3%) scale(0.98) rotate(-2deg)}
+  100%{transform:translateY(0) scale(1)}
+}
+
 .hud-top{position:absolute;left:10px;right:10px;top:max(8px,env(safe-area-inset-top));z-index:8;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
 .brand{font-size:13px;font-weight:700;color:var(--gold2);text-shadow:0 1px 4px #000;letter-spacing:.04em}
 .pills{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
@@ -86,6 +162,8 @@ button.rec.on{background:rgba(140,20,10,.95)}
 <div class="stage-wrap" id="stageWrap">
   <img id="hallBg" src="img/hall.webp" alt="" decoding="async" />
   <video id="idleVideo" class="show" muted loop playsinline webkit-playsinline preload="auto"></video>
+  <div id="courtLayer" class="show" aria-hidden="true"></div>
+  <div id="saluteOverlay" aria-hidden="true"><img id="saluteImg" alt=""/><div id="saluteCaption">抱拳行礼</div></div>
   <video id="stageVideo" muted loop playsinline webkit-playsinline preload="metadata"></video>
   <video id="transVideo" muted playsinline webkit-playsinline preload="metadata"></video>
   <img id="empShot" src="img/chars/emperor.webp" alt="" decoding="async" />
@@ -124,7 +202,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
 <div class="below">
   <h2>会议纪要</h2>
   <div class="minutes" id="minutes"></div>
-  <div class="warnbox">会议发言只播一次。进出特写约 1.5 秒交叉淡入淡出并缓慢推拉，两条之间有短暂停顿。每人固定一种殿中声线。语音：点「开启殿中语音」听到提示后才算打开；iPhone 请关掉侧边静音键并调高铃声音量。录制只录画面，要连声音请用屏幕录制。</div>
+  <div class="warnbox">打开页面不重播旧汇报，只播打开后的新事件（各一次）。旧内容点「回放今日会议」。全景可见陛下坐龙椅、天在旁主持、众卿两侧伏案；进出特写约 1.5 秒交叉淡入淡出。每人固定声线。语音：点「开启殿中语音」听到提示后才算打开；iPhone 请关掉侧边静音键并调高铃声音量。录制只录画面，要连声音请用屏幕录制。</div>
   <h2>使用说明</h2>
   <div class="note">
     <p>真实 bot 交互按时间顺序开会。特写加载失败会自动退回大殿全景（带推近），不会黑屏。约每 60 秒读取 events.json。点「回放今日会议」从头再播。</p>
@@ -135,6 +213,8 @@ button.rec.on{background:rgba(140,20,10,.95)}
 <script>
 (function(){
   const V = "video/";
+  const CUT = "img/chars/cutouts/";
+  const SEATS = {"version": 1, "note": "大殿全景座位：百分比相对 stage-wrap；transform-origin 底部居中；z 随深度自动算", "fixed": {"wuji": {"role": "throne", "x": 50, "y": 26, "w": 30, "anchor": "emperor", "label": "陛下"}, "tian": {"role": "host", "x": 66, "y": 36, "w": 24, "figureKey": "zhugeliang", "label": "天"}}, "rows": {"left": [{"x": 20, "y": 42, "w": 15}, {"x": 16, "y": 52, "w": 17}, {"x": 13, "y": 62, "w": 20}, {"x": 11, "y": 72, "w": 23}, {"x": 10, "y": 82, "w": 26}], "right": [{"x": 80, "y": 42, "w": 15}, {"x": 84, "y": 52, "w": 17}, {"x": 87, "y": 62, "w": 20}, {"x": 89, "y": 72, "w": 23}, {"x": 90, "y": 82, "w": 26}]}, "memberOrder": ["jb", "oi", "yl", "ts", "yq", "ppl", "jg", "ylong", "zq", "tk", "ip", "ds", "cs"], "figureKeyById": {"tian": "zhugeliang", "jb": "fanli", "oi": "kongzi", "yl": "luban", "ts": "mozi", "yq": "zhangheng", "ppl": "majun", "jg": "jiangziya", "ylong": "sanghongyang", "zq": "guanzhong", "tk": "libai", "ip": "simaqian", "ds": "dongfangshuo", "cs": "baozheng", "wuji": "emperor"}};
   const FIG_KEY = {
     "诸葛亮":"zhugeliang","范蠡":"fanli","孔子":"kongzi","鲁班":"luban","墨子":"mozi",
     "张衡":"zhangheng","马钧":"majun","姜子牙":"jiangziya","桑弘羊":"sanghongyang","管仲":"guanzhong",
@@ -160,7 +240,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     ylong:{p:0.92,r:1.0}, zq:{p:1.0,r:1.05}, tk:{p:1.15,r:1.1}, ip:{p:0.9,r:1.0},
     ds:{p:1.2,r:1.08}, cs:{p:0.85,r:0.98}, wuji:{p:0.75,r:0.92}, all:{p:1,r:1}
   };
-  const LS_KEY = "palace_played_v2";
+  const LS_KEY = "palace_played_v3";
   // 转场参数（iOS：只用 transform/opacity）
   const XFADE_MS = 1500;      // 交叉淡入淡出
   const ZOOM_MS = 1600;       // 推近/拉远
@@ -205,6 +285,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
   let endTimer = null;
   let speakerToken = 0;
   let audioManifest = {};
+  let bootSynced = false; // 首屏只同步历史，不自动播旧汇报
 
   function loadPlayed(){ try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]");}catch(e){return[];} }
   function savePlayed(){ try{localStorage.setItem(LS_KEY, JSON.stringify(played.slice(-500)));}catch(e){} }
@@ -242,10 +323,135 @@ button.rec.on{background:rgba(140,20,10,.95)}
   function bambooSrc(){
     return Math.random() < 0.5 ? V+"hall_bamboo_2.mp4" : V+"hall_bamboo_1.mp4";
   }
+
+  const courtLayer = document.getElementById("courtLayer");
+  let seatAssign = {}; // id -> {side, index} for auto new members
+
+  function figureKeyOf(id){
+    if(id === "wuji") return "emperor";
+    const map = (SEATS.figureKeyById)||{};
+    if(map[id]) return map[id];
+    const fig = figOf(id);
+    const key = FIG_KEY[fig];
+    return key || "pool";
+  }
+  function poseOf(id){
+    if(id === "wuji") return "throne";
+    const st = (STATUS.find(s=>s.id===id)||{}).status || "";
+    if(st.indexOf("闲置") >= 0) return "idle";
+    return "work";
+  }
+  function cutoutSrc(id, pose){
+    const key = figureKeyOf(id);
+    if(key === "emperor") return CUT + "emperor.png";
+    const file = key + "_" + (pose === "idle" ? "idle" : "work") + ".png";
+    return CUT + file;
+  }
+  function ensureSeatSlot(id){
+    if(id === "wuji" || id === "tian") return null;
+    if(seatAssign[id]) return seatAssign[id];
+    const order = (SEATS.memberOrder)||[];
+    const left = (SEATS.rows&&SEATS.rows.left)||[];
+    const right = (SEATS.rows&&SEATS.rows.right)||[];
+    // 先按预设顺序占座
+    const taken = new Set(Object.keys(seatAssign).map(k=>seatAssign[k].side+":"+seatAssign[k].index));
+    // 给已知 order 预留
+    order.forEach((mid,i)=>{
+      if(seatAssign[mid]) return;
+      const side = (i % 2 === 0) ? "left" : "right";
+      const index = Math.floor(i / 2);
+      const row = side === "left" ? left : right;
+      if(index < row.length) seatAssign[mid] = {side, index};
+    });
+    if(seatAssign[id]) return seatAssign[id];
+    // 新成员：找空位
+    for(const side of ["left","right"]){
+      const row = side === "left" ? left : right;
+      for(let index=0; index<row.length; index++){
+        const key = side+":"+index;
+        const used = Object.values(seatAssign).some(s=>s.side===side && s.index===index);
+        if(!used){ seatAssign[id] = {side, index}; return seatAssign[id]; }
+      }
+    }
+    // 座位满：挤到最后一排略偏移
+    const side = Object.keys(seatAssign).length % 2 === 0 ? "left" : "right";
+    const row = side === "left" ? left : right;
+    seatAssign[id] = {side, index: Math.max(0, row.length-1), bump: true};
+    return seatAssign[id];
+  }
+  function renderCourt(){
+    if(!courtLayer) return;
+    const frag = document.createDocumentFragment();
+    const nodes = [];
+    // 固定：陛下 + 天
+    const fixed = SEATS.fixed || {};
+    function addSeat(id, conf, poseClass){
+      const pose = poseOf(id);
+      const src = cutoutSrc(id, pose);
+      const el = document.createElement("div");
+      el.className = "seat";
+      el.dataset.id = id;
+      const x = conf.x, y = conf.y, w = conf.w;
+      const z = Math.round(y * 10);
+      el.style.left = x + "%";
+      el.style.top = y + "%";
+      el.style.width = w + "%";
+      el.style.zIndex = String(z);
+      if(conf.bump){ el.style.left = (x + (conf.side==="left"?-3:3)) + "%"; }
+      const shadow = document.createElement("div");
+      shadow.className = "seat-shadow";
+      const anim = document.createElement("div");
+      anim.className = "seat-anim " + (poseClass || (pose === "idle" ? "idle" : "work"));
+      const img = document.createElement("img");
+      img.alt = "";
+      img.decoding = "async";
+      img.loading = "eager";
+      img.src = src;
+      img.onerror = function(){ this.src = CUT + "pool_work.png"; };
+      anim.appendChild(img);
+      const tag = document.createElement("div");
+      tag.className = "seat-tag";
+      tag.textContent = (id === "wuji") ? "陛下" : shortName(id);
+      el.appendChild(shadow); el.appendChild(anim); el.appendChild(tag);
+      nodes.push(el);
+    }
+    if(fixed.wuji) addSeat("wuji", fixed.wuji, "throne");
+    if(fixed.tian) addSeat("tian", fixed.tian, "host");
+    // 其余成员：STATUS 里除 wuji/tian
+    const ids = [];
+    STATUS.forEach(s=>{ if(s && s.id && s.id!=="wuji" && s.id!=="tian") ids.push(s.id); });
+    // 也放入 SEATS.memberOrder 中尚未在 STATUS 的（保持队列完整）
+    (SEATS.memberOrder||[]).forEach(id=>{ if(ids.indexOf(id)<0) ids.push(id); });
+    ids.forEach(id=>{
+      const slot = ensureSeatSlot(id);
+      if(!slot) return;
+      const row = ((SEATS.rows||{})[slot.side]||[])[slot.index];
+      if(!row) return;
+      const conf = Object.assign({}, row, {side: slot.side, bump: !!slot.bump});
+      addSeat(id, conf);
+    });
+    // 按 y 排序再挂载，保证遮挡
+    nodes.sort((a,b)=>parseFloat(a.style.top)-parseFloat(b.style.top));
+    courtLayer.innerHTML = "";
+    nodes.forEach(n=>courtLayer.appendChild(n));
+  }
+  function showCourt(zoomKind){
+    if(!courtLayer) return;
+    courtLayer.classList.add("show");
+    courtLayer.classList.remove("zoom","zoom-throne");
+    if(zoomKind === "throne") courtLayer.classList.add("zoom-throne");
+    else if(zoomKind === "zoom") courtLayer.classList.add("zoom");
+  }
+  function hideCourt(){
+    if(!courtLayer) return;
+    courtLayer.classList.remove("show","zoom","zoom-throne");
+  }
+
   function clearZooms(){
     hallBg.classList.remove("zoom","zoom-throne");
     idleVideo.classList.remove("zoom","zoom-throne");
     stageVideo.classList.remove("zoom","zoom-throne");
+    if(courtLayer) courtLayer.classList.remove("zoom","zoom-throne");
   }
   function afterXfade(fn){
     return setTimeout(fn, XFADE_MS + 40);
@@ -254,13 +460,15 @@ button.rec.on{background:rgba(140,20,10,.95)}
   function showIdle(){
     mode = "idle";
     speakerToken++;
-    // 拉远 + 交叉淡回全景
+    // 拉远 + 交叉淡回全景（含群像）
     empShot.classList.remove("show");
     clearZooms();
     idleVideo.classList.add("show");
     tryPlayIdle();
     stageVideo.classList.remove("show");
     transVideo.classList.remove("show");
+    renderCourt();
+    showCourt(null);
     document.getElementById("modepill").textContent = "候场";
     document.getElementById("cineSub").classList.remove("show");
     document.getElementById("agendaNow").textContent = "本场发言已播完，候场中。有新交互会自动接着播。";
@@ -278,9 +486,10 @@ button.rec.on{background:rgba(140,20,10,.95)}
     transVideo.classList.remove("show");
     idleVideo.classList.add("show");
     tryPlayIdle();
-    // 先显示全景，再在下一帧加 zoom，触发 CSS transition
     clearZooms();
-    empShot.classList.remove("show");
+    empShot.classList.remove("show"); // 群像层已有陛下，不再盖整幅 emperor 图
+    renderCourt();
+    showCourt(null);
     requestAnimationFrame(()=>{
       if(token !== speakerToken) return;
       requestAnimationFrame(()=>{
@@ -288,7 +497,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
         const cls = kind === "throne" ? "zoom-throne" : "zoom";
         hallBg.classList.add(cls);
         idleVideo.classList.add(cls);
-        if(kind === "throne") empShot.classList.add("show");
+        showCourt(kind === "throne" ? "throne" : "zoom");
       });
     });
     document.getElementById("modepill").textContent = "发言中";
@@ -314,16 +523,15 @@ button.rec.on{background:rgba(140,20,10,.95)}
     };
     const ready = ()=>{
       if(token !== speakerToken) return;
-      // 交叉：stage 淡入，idle 淡出；全景层同步轻微推近
       empShot.classList.remove("show");
       stageVideo.classList.add("show");
-      // 下一帧再 zoom，保证 transition 触发
       requestAnimationFrame(()=>{
         if(token !== speakerToken) return;
         hallBg.classList.add("zoom");
         stageVideo.classList.add("zoom");
         idleVideo.classList.add("zoom");
         idleVideo.classList.remove("show");
+        hideCourt(); // 特写时收起群像，避免叠层打架
       });
       afterXfade(()=>{
         if(token !== speakerToken) return;
@@ -374,11 +582,12 @@ button.rec.on{background:rgba(140,20,10,.95)}
     document.getElementById("cineSub").classList.remove("show");
     document.getElementById("modepill").textContent = "传简";
     empShot.classList.remove("show");
-    // 先拉回全景再播竹简，交叉淡入
     clearZooms();
     idleVideo.classList.add("show");
     tryPlayIdle();
     stageVideo.classList.remove("show");
+    renderCourt();
+    showCourt(null);
     const src = bambooSrc();
     let doneCalled = false;
     const done = ()=>{
@@ -482,6 +691,28 @@ button.rec.on{background:rgba(140,20,10,.95)}
     return Math.max(4000, Math.min(16000, 2000 + len * 180));
   }
 
+
+  function playSalute(id, then){
+    // 免费方案：用该人抠像做短促抱拳/欠身过渡，再进特写
+    const ov = document.getElementById("saluteOverlay");
+    const img = document.getElementById("saluteImg");
+    const cap = document.getElementById("saluteCaption");
+    if(!ov || id === "wuji"){ then && then(); return; }
+    try{
+      img.src = cutoutSrc(id, "work");
+      cap.textContent = (shortName(id) || "大臣") + " · 抱拳行礼";
+      ov.classList.add("show");
+      // 重启动画
+      img.style.animation = "none";
+      void img.offsetWidth;
+      img.style.animation = "";
+    }catch(e){}
+    setTimeout(()=>{
+      ov.classList.remove("show");
+      then && then();
+    }, 1200);
+  }
+
   function startNextEvent(){
     if(meetingPaused) return;
     if(currentEvent) return;
@@ -496,8 +727,12 @@ button.rec.on{background:rgba(140,20,10,.95)}
       document.getElementById("cineWho").textContent = who;
       document.getElementById("cineText").textContent = speechLine(e.from, e.text || "");
       document.getElementById("cineSub").classList.add("show");
-      showSpeaker(e.from);
-      speakTTS(e.from, speechLine(e.from, e.text || ""));
+      const afterSalute = ()=>{
+        showSpeaker(e.from);
+        speakTTS(e.from, speechLine(e.from, e.text || ""));
+      };
+      if(e.from === "wuji") afterSalute();
+      else playSalute(e.from, afterSalute);
       renderMinutes();
       clearTimeout(endTimer);
       // 若正在播 mp3，结束后再切；否则定时
@@ -532,6 +767,8 @@ button.rec.on{background:rgba(140,20,10,.95)}
     tryPlayIdle();
     stageVideo.classList.remove("show");
     transVideo.classList.remove("show");
+    renderCourt();
+    showCourt(null);
     document.getElementById("modepill").textContent = returning ? "过场" : "候场";
     afterXfade(()=>{
       try{ stageVideo.pause(); }catch(e){}
@@ -561,6 +798,9 @@ button.rec.on{background:rgba(140,20,10,.95)}
       const r = await fetch("status.json?t="+Date.now(),{cache:"no-store"});
       if(r.ok){ const d=await r.json(); AS_OF=d.asOf||AS_OF; STATUS=d.status||STATUS;
         document.getElementById("timepill").textContent = AS_OF;
+        if(mode==="idle" || mode==="transition" || (mode==="speaking" && !stageVideo.classList.contains("show"))){
+          renderCourt();
+        }
       }
     }catch(e){}
     try{
@@ -572,13 +812,20 @@ button.rec.on{background:rgba(140,20,10,.95)}
         const known = new Set(EVENTS.map(x=>x.id));
         let added=0;
         (d.events||[]).forEach(ev=>{
-          if(!known.has(ev.id)){ EVENTS.push(ev); known.add(ev.id); added++;
-            if(!played.includes(ev.id)) queue.push(ev);
+          if(!known.has(ev.id)){
+            EVENTS.push(ev); known.add(ev.id);
+            if(!bootSynced){
+              // 首屏：只收录历史，标记为已确认，绝不入队播放
+              if(!played.includes(ev.id)){ played.push(ev.id); }
+            } else if(!played.includes(ev.id)){
+              queue.push(ev); added++;
+            }
           }
         });
+        if(!bootSynced) savePlayed();
         EVENTS.sort((a,b)=>(a.time||"").localeCompare(b.time||""));
         renderMinutes();
-        if(added && !currentEvent && mode!=="transition") startNextEvent();
+        if(bootSynced && added && !currentEvent && mode!=="transition" && !meetingPaused) startNextEvent();
       }
     }catch(e){}
     try{
@@ -691,10 +938,13 @@ button.rec.on{background:rgba(140,20,10,.95)}
 
   document.getElementById("timepill").textContent = AS_OF;
   (async function boot(){
-    await poll();
-    rebuildQueue(false);
+    await poll(); // 首轮：同步历史事件并记入 played，不播
+    bootSynced = true;
+    renderCourt();
+    showCourt(null);
+    showIdle();
     renderMinutes();
-    startNextEvent();
+    // 不调用 startNextEvent / rebuildQueue：打开页只看当前全景；新事件由后续 poll 入队
     setInterval(poll, 60000);
   })();
 })();
