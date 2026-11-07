@@ -1,8 +1,8 @@
 // 公开版状态（已脱敏）。直播页优先读 status.json。
-window.PALACE_AS_OF = "2026-11-07 17:05";
+window.PALACE_AS_OF = "2026-11-07 17:28";
 window.PALACE_STATUS = [
-  {"id": "tian", "name": "天 · 全球项目调研", "figure": "诸葛亮", "dept": "内阁（总管）", "status": "当值", "task": "整理大殿直播与各部状态", "say": "正在当值。"},
-  {"id": "jb", "name": "聚宝 · 项目筹资", "figure": "范蠡", "dept": "户部（筹资）", "status": "候旨", "task": "整理筹资材料", "say": "事务候批。"},
+  {"id": "tian", "name": "天 · 全球项目调研", "figure": "诸葛亮", "dept": "内阁（总管）", "status": "当值", "task": "整理大殿直播与各部状态", "talkingTo": "jb", "say": "正在当值。"},
+  {"id": "jb", "name": "聚宝 · 项目筹资", "figure": "范蠡", "dept": "户部（筹资）", "status": "候旨", "task": "整理筹资材料", "talkingTo": "tian", "say": "事务候批。"},
   {"id": "oi", "name": "OI", "figure": "孔子", "dept": "礼部（WFA 学院）", "status": "候旨", "task": "准备学院课程材料", "say": "事务候批。"},
   {"id": "yl", "name": "一链基座", "figure": "鲁班", "dept": "工部（公链）", "status": "候旨", "task": "评估公链技术事项", "say": "事务候批。"},
   {"id": "ts", "name": "天师 · 公链发行", "figure": "墨子", "dept": "工部（公链）", "status": "闲置", "task": "公链相关事项待排期"},
