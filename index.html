@@ -247,6 +247,125 @@ button.rec.on{background:rgba(140,20,10,.95)}
   .stage-wrap{height:85vh;max-width:480px;margin:0 auto;border-radius:0 0 12px 12px}
   .cine-text{font-size:20px}
 }
+
+/* —— 大殿日夜光线（本地日出日落） —— */
+#lightOverlay{
+  position:absolute;inset:0;z-index:3;pointer-events:none;
+  opacity:0;transition:opacity 2.8s ease-in-out, background 2.8s ease-in-out;
+  mix-blend-mode:normal;
+}
+#lightOverlay.on{opacity:1}
+#lightOverlay .glow{
+  position:absolute;border-radius:50%;
+  pointer-events:none;
+  mix-blend-mode:screen;
+  opacity:0;transition:opacity 2.8s ease-in-out;
+  filter:blur(2px);
+}
+#lightOverlay .glow.g1{ left:12%; top:18%; width:28%; height:16%; background:radial-gradient(ellipse, rgba(255,190,90,.55) 0%, rgba(255,140,40,.18) 42%, transparent 70%); }
+#lightOverlay .glow.g2{ right:10%; top:20%; width:26%; height:15%; background:radial-gradient(ellipse, rgba(255,190,90,.5) 0%, rgba(255,140,40,.16) 42%, transparent 70%); }
+#lightOverlay .glow.g3{ left:18%; top:42%; width:18%; height:12%; background:radial-gradient(ellipse, rgba(255,170,70,.4) 0%, transparent 68%); }
+#lightOverlay .glow.g4{ right:16%; top:44%; width:18%; height:12%; background:radial-gradient(ellipse, rgba(255,170,70,.38) 0%, transparent 68%); }
+#lightOverlay .glow.g5{ left:22%; top:58%; width:14%; height:10%; background:radial-gradient(ellipse, rgba(255,160,60,.32) 0%, transparent 70%); }
+#lightOverlay .glow.g6{ right:20%; top:60%; width:14%; height:10%; background:radial-gradient(ellipse, rgba(255,160,60,.3) 0%, transparent 70%); }
+#lightOverlay .windowShade{
+  position:absolute;left:28%;right:28%;top:8%;height:22%;
+  background:linear-gradient(180deg, rgba(10,20,40,.0), rgba(10,20,40,.0));
+  transition:background 2.8s ease-in-out, opacity 2.8s ease-in-out;
+  opacity:0;
+}
+#lightOverlay .veil{
+  position:absolute;inset:0;
+  transition:background 2.8s ease-in-out, opacity 2.8s ease-in-out;
+}
+.stage-wrap .hall-bg,
+.stage-wrap #idleVideo,
+.stage-wrap #stageVideo,
+.stage-wrap #transVideo,
+.stage-wrap #courtLayer,
+.stage-wrap #empShot,
+.stage-wrap #empGesture,
+.stage-wrap #saluteOverlay{
+  transition: filter 2.8s ease-in-out, opacity 1.5s ease-in-out, transform 1.6s ease-in-out;
+}
+/* 日间：偏亮中性，门窗有自然光感 */
+.stage-wrap.period-day .hall-bg,
+.stage-wrap.period-day #idleVideo,
+.stage-wrap.period-day #stageVideo,
+.stage-wrap.period-day #transVideo,
+.stage-wrap.period-day #courtLayer,
+.stage-wrap.period-day #empShot,
+.stage-wrap.period-day #empGesture{
+  filter: brightness(1.22) contrast(1.03) saturate(1.06);
+}
+.stage-wrap.period-day #lightOverlay .veil{
+  background:
+    radial-gradient(ellipse at 50% 12%, rgba(255,248,230,.22) 0%, rgba(255,248,230,0) 55%),
+    linear-gradient(180deg, rgba(180,210,255,.08), rgba(0,0,0,0) 40%, rgba(255,240,210,.04));
+  opacity:1;
+}
+.stage-wrap.period-day #lightOverlay .glow{ opacity:0 !important; }
+.stage-wrap.period-day #lightOverlay .windowShade{
+  opacity:1;
+  background:linear-gradient(180deg, rgba(255,250,235,.18), rgba(255,250,235,0));
+}
+/* 黄昏/晨曦：变暖变暗，宫灯渐亮 */
+.stage-wrap.period-dusk .hall-bg,
+.stage-wrap.period-dusk #idleVideo,
+.stage-wrap.period-dusk #stageVideo,
+.stage-wrap.period-dusk #transVideo,
+.stage-wrap.period-dusk #courtLayer,
+.stage-wrap.period-dusk #empShot,
+.stage-wrap.period-dusk #empGesture{
+  filter: brightness(0.78) contrast(1.05) saturate(1.12) sepia(0.18) hue-rotate(-6deg);
+}
+.stage-wrap.period-dusk #lightOverlay .veil{
+  background:
+    linear-gradient(180deg, rgba(40,20,50,.18), rgba(80,30,10,.12) 45%, rgba(20,8,4,.22)),
+    radial-gradient(ellipse at 50% 0%, rgba(255,120,60,.16), transparent 50%);
+  opacity:1;
+}
+.stage-wrap.period-dusk #lightOverlay .glow{ opacity:.55; }
+.stage-wrap.period-dusk #lightOverlay .windowShade{
+  opacity:1;
+  background:linear-gradient(180deg, rgba(255,140,70,.12), rgba(20,10,30,.15));
+}
+/* 夜晚：整体暗偏暖，宫灯光晕+轻闪 */
+.stage-wrap.period-night .hall-bg,
+.stage-wrap.period-night #idleVideo,
+.stage-wrap.period-night #stageVideo,
+.stage-wrap.period-night #transVideo,
+.stage-wrap.period-night #courtLayer,
+.stage-wrap.period-night #empShot,
+.stage-wrap.period-night #empGesture{
+  filter: brightness(0.46) contrast(1.08) saturate(0.95) sepia(0.32) hue-rotate(-10deg);
+}
+.stage-wrap.period-night #lightOverlay .veil{
+  background:
+    linear-gradient(180deg, rgba(4,8,22,.45), rgba(10,4,2,.28) 40%, rgba(0,0,0,.42)),
+    radial-gradient(ellipse at 50% 100%, rgba(40,15,5,.2), transparent 55%);
+  opacity:1;
+}
+.stage-wrap.period-night #lightOverlay .glow{ opacity:.85; animation: lanternFlicker 3.6s ease-in-out infinite; }
+.stage-wrap.period-night #lightOverlay .glow.g2{ animation-delay:.6s; }
+.stage-wrap.period-night #lightOverlay .glow.g3{ animation-delay:1.1s; }
+.stage-wrap.period-night #lightOverlay .glow.g4{ animation-delay:1.7s; }
+.stage-wrap.period-night #lightOverlay .glow.g5{ animation-delay:.3s; }
+.stage-wrap.period-night #lightOverlay .glow.g6{ animation-delay:2.1s; }
+.stage-wrap.period-night #lightOverlay .windowShade{
+  opacity:1;
+  background:linear-gradient(180deg, rgba(5,10,28,.55), rgba(5,10,28,.15) 70%, transparent);
+}
+@keyframes lanternFlicker{
+  0%,100%{ opacity:.78; filter:blur(2px) brightness(1); }
+  40%{ opacity:.92; filter:blur(1.5px) brightness(1.08); }
+  70%{ opacity:.7; filter:blur(2.5px) brightness(.95); }
+}
+@media (prefers-reduced-motion:reduce){
+  .stage-wrap.period-night #lightOverlay .glow{ animation:none; opacity:.82; }
+}
+#periodpill{ letter-spacing:.06em; min-width:2.2em; text-align:center; }
+
 </style>
 </head>
 <body>
@@ -256,6 +375,13 @@ button.rec.on{background:rgba(140,20,10,.95)}
   <img id="empGesture" src="img/chars/emperor_gesture.webp" alt="" decoding="async" />
   <video id="idleVideo" class="show" muted loop playsinline webkit-playsinline preload="auto"></video>
   <div id="courtLayer" class="show" aria-hidden="true"></div>
+  <div id="lightOverlay" class="on" aria-hidden="true">
+    <div class="veil"></div>
+    <div class="windowShade"></div>
+    <div class="glow g1"></div><div class="glow g2"></div>
+    <div class="glow g3"></div><div class="glow g4"></div>
+    <div class="glow g5"></div><div class="glow g6"></div>
+  </div>
   <div id="saluteOverlay" aria-hidden="true"><img id="saluteImg" alt=""/><div id="saluteCaption">抱拳行礼</div></div>
   <video id="stageVideo" muted loop playsinline webkit-playsinline preload="metadata"></video>
   <video id="transVideo" muted playsinline webkit-playsinline preload="metadata"></video>
@@ -266,6 +392,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     <div class="pills">
       <span class="pill live" id="livepill"><span class="dot"></span>直播中</span>
       <span class="pill" id="modepill">候场</span>
+      <span class="pill" id="periodpill" title="大殿光线时段">日间</span>
       <span class="pill" id="timepill">—</span>
     </div>
   </div>
@@ -350,6 +477,167 @@ button.rec.on{background:rgba(140,20,10,.95)}
     ds:{p:1.2,r:1.08}, cs:{p:0.85,r:0.98}, wuji:{p:0.75,r:0.92}, all:{p:1,r:1}
   };
   const LS_KEY = "palace_played_v3";
+
+  // —— 本地日出日落光线（不上传定位、不写日志）——
+  const TZ_FALLBACK = {
+    "Africa/Harare":[-17.83,31.05], "Africa/Johannesburg":[-26.2,28.0],
+    "Asia/Shanghai":[31.23,121.47], "Asia/Hong_Kong":[22.3,114.2],
+    "Asia/Taipei":[25.03,121.57], "Asia/Tokyo":[35.68,139.76],
+    "Asia/Singapore":[1.35,103.82], "Asia/Bangkok":[13.75,100.5],
+    "Asia/Dubai":[25.2,55.27], "Asia/Kolkata":[28.61,77.21],
+    "Europe/London":[51.51,-0.13], "Europe/Paris":[48.86,2.35],
+    "Europe/Berlin":[52.52,13.41], "America/New_York":[40.71,-74.01],
+    "America/Los_Angeles":[34.05,-118.24], "America/Chicago":[41.88,-87.63],
+    "Australia/Sydney":[-33.87,151.21], "Pacific/Auckland":[-36.85,174.76],
+    "UTC":[0,0]
+  };
+  let lightLat = null, lightLon = null;
+  let lightPeriod = "day"; // day | dusk | night
+  let lightForced = null;  // from ?time=
+  const PERIOD_LABEL = {day:"日间", dusk:"黄昏", night:"夜"};
+
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  /** 简化 NOAA 太阳公式：返回当日日出/日落的本地 Date；极昼/极夜返回 null */
+  function sunTimes(date, lat, lon){
+    const rad = Math.PI/180;
+    const dayMs = 86400000;
+    const J1970 = 2440588, J2000 = 2451545;
+    const toJulian = d => d.valueOf()/dayMs - 0.5 + J1970;
+    const fromJulian = j => new Date((j + 0.5 - J1970) * dayMs);
+    const julianCycle = (d, lw) => Math.round(d - J2000 - 0.0009 - lw/(2*Math.PI));
+    const approxTransit = (Ht, lw, n) => J2000 + 0.0009 + (Ht + lw)/(2*Math.PI) + n;
+    const solarMeanAnomaly = M => { const d = M - J2000; return (357.5291 + 0.98560028*d)*rad; };
+    const eclipticLongitude = M => {
+      const C = (1.9148*Math.sin(M) + 0.02*Math.sin(2*M) + 0.0003*Math.sin(3*M))*rad;
+      const P = 102.9372*rad;
+      return M + C + P + Math.PI;
+    };
+    const sunCoords = d => {
+      const M = solarMeanAnomaly(d);
+      const L = eclipticLongitude(M);
+      return {
+        dec: Math.asin(Math.sin(L) * Math.sin(23.4397*rad)),
+        ra: Math.atan2(Math.sin(L)*Math.cos(23.4397*rad), Math.cos(L))
+      };
+    };
+    const hourAngle = (h, phi, d) => {
+      const x = (Math.sin(h) - Math.sin(phi)*Math.sin(d)) / (Math.cos(phi)*Math.cos(d));
+      if(x < -1 || x > 1) return null;
+      return Math.acos(x);
+    };
+    const lw = -lon * rad;
+    const phi = lat * rad;
+    const d = toJulian(date);
+    const n = julianCycle(d, lw);
+    const ds = approxTransit(0, lw, n);
+    const M = solarMeanAnomaly(ds);
+    const L = eclipticLongitude(M);
+    const dec = Math.asin(Math.sin(L) * Math.sin(23.4397*rad));
+    const Jnoon = approxTransit(0, lw, n);
+    // 日出日落：太阳高度角 -0.833°
+    const h0 = -0.833 * rad;
+    const H0 = hourAngle(h0, phi, dec);
+    if(H0 == null) return {sunrise:null, sunset:null, solarNoon: fromJulian(Jnoon)};
+    const Jset = approxTransit(H0, lw, n);
+    const Jrise = Jnoon - (Jset - Jnoon);
+    // 民用晨昏：-6°
+    const hCivil = -6 * rad;
+    const Hc = hourAngle(hCivil, phi, dec);
+    let dawn=null, dusk=null;
+    if(Hc != null){
+      const Jcd = approxTransit(Hc, lw, n);
+      dusk = fromJulian(Jcd);
+      dawn = fromJulian(Jnoon - (Jcd - Jnoon));
+    }
+    return {
+      sunrise: fromJulian(Jrise),
+      sunset: fromJulian(Jset),
+      dawn: dawn,
+      dusk: dusk,
+      solarNoon: fromJulian(Jnoon)
+    };
+  }
+  function tzFallbackCoords(){
+    let tz = "UTC";
+    try{ tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }catch(e){}
+    if(TZ_FALLBACK[tz]) return {lat:TZ_FALLBACK[tz][0], lon:TZ_FALLBACK[tz][1], tz};
+    // 粗匹配前缀
+    const key = Object.keys(TZ_FALLBACK).find(k => tz.indexOf(k.split("/")[0])===0 && tz.indexOf("/")>0 && k.split("/")[0]===tz.split("/")[0]);
+    if(key) return {lat:TZ_FALLBACK[key][0], lon:TZ_FALLBACK[key][1], tz};
+    // 按时区偏移粗估经度
+    const offMin = -new Date().getTimezoneOffset();
+    const lon = clamp(offMin / 4, -179, 179);
+    return {lat: 20, lon: lon, tz};
+  }
+  function periodFromSun(now, times){
+    if(!times || !times.sunrise || !times.sunset){
+      const h = now.getHours() + now.getMinutes()/60;
+      if(h >= 7 && h < 17.5) return "day";
+      if((h >= 5.5 && h < 7) || (h >= 17.5 && h < 19.5)) return "dusk";
+      return "night";
+    }
+    const t = now.getTime();
+    const rise = times.sunrise.getTime();
+    const set = times.sunset.getTime();
+    const dawn = times.dawn ? times.dawn.getTime() : (rise - 40*60000);
+    const dusk = times.dusk ? times.dusk.getTime() : (set + 40*60000);
+    // 晨曦：dawn→sunrise+35min；黄昏：sunset-35min→dusk
+    const morningEnd = rise + 35*60000;
+    const eveningStart = set - 35*60000;
+    if(t >= morningEnd && t < eveningStart) return "day";
+    if((t >= dawn && t < morningEnd) || (t >= eveningStart && t < dusk)) return "dusk";
+    return "night";
+  }
+  function applyLightPeriod(period){
+    const wrap = document.getElementById("stageWrap");
+    if(!wrap) return;
+    const next = (period === "dusk" || period === "night") ? period : "day";
+    lightPeriod = next;
+    wrap.classList.remove("period-day","period-dusk","period-night");
+    wrap.classList.add("period-" + next);
+    const pill = document.getElementById("periodpill");
+    if(pill) pill.textContent = PERIOD_LABEL[next] || "日间";
+    const overlay = document.getElementById("lightOverlay");
+    if(overlay) overlay.classList.add("on");
+  }
+  function refreshLightPeriod(){
+    if(lightForced){ applyLightPeriod(lightForced); return; }
+    const now = new Date();
+    const lat = (lightLat != null) ? lightLat : tzFallbackCoords().lat;
+    const lon = (lightLon != null) ? lightLon : tzFallbackCoords().lon;
+    let times = null;
+    try{ times = sunTimes(now, lat, lon); }catch(e){ times = null; }
+    applyLightPeriod(periodFromSun(now, times));
+  }
+  function initHallLighting(){
+    // ?time=day|dusk|night 调试截图；兼容 dawn/evening
+    try{
+      const q = new URLSearchParams(location.search || "");
+      let t = (q.get("time") || "").toLowerCase();
+      if(t === "dawn" || t === "evening" || t === "twilight") t = "dusk";
+      if(t === "day" || t === "dusk" || t === "night") lightForced = t;
+      const scene = (q.get("scene") || "").toLowerCase();
+      if(scene === "stand" || scene === "office"){
+        setTimeout(function(){ try{ setCourtMode(scene, {force:true}); }catch(e){} }, 40);
+      }
+    }catch(e){}
+    const fb = tzFallbackCoords();
+    lightLat = fb.lat; lightLon = fb.lon;
+    refreshLightPeriod();
+    // 定位仅本地使用；拒绝/失败保持时区兜底
+    try{
+      if(!lightForced && navigator.geolocation && navigator.geolocation.getCurrentPosition){
+        navigator.geolocation.getCurrentPosition(function(pos){
+          if(!pos || !pos.coords) return;
+          lightLat = pos.coords.latitude;
+          lightLon = pos.coords.longitude;
+          refreshLightPeriod();
+        }, function(){ /* keep fallback */ }, {enableHighAccuracy:false, timeout:6000, maximumAge:3600000});
+      }
+    }catch(e){}
+    setInterval(refreshLightPeriod, 60000);
+  }
+
   // 转场参数（iOS：只用 transform/opacity）
   const XFADE_MS = 1500;      // 交叉淡入淡出
   const ZOOM_MS = 1600;       // 推近/拉远
@@ -1560,6 +1848,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     await poll(); // 首轮：同步历史事件并记入 played，不播
     bootSynced = true;
     setCourtMode("office", {force:true});
+  initHallLighting();
     showCourt(null);
     showIdle();
     renderMinutes();
