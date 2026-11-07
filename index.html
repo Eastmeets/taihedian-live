@@ -8,13 +8,35 @@
 :root{ --gold:#E8C547; --gold2:#F2CF6A; }
 *{box-sizing:border-box}
 html,body{margin:0;background:#050201;color:#F6E3A8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif;-webkit-tap-highlight-color:transparent}
-.stage-wrap{position:relative;width:100%;height:100vh;height:100dvh;max-height:100vh;overflow:hidden;background:#0a0402}
-#stageVideo,#idleVideo,#transVideo{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0a0402;
+.stage-wrap{position:relative;width:100%;height:100vh;height:100dvh;max-height:100vh;overflow:hidden;background:#1a0a04}
+/* 永远垫底的大殿图：任何视频失败都不黑屏 */
+#hallBg{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  z-index:0;transform-origin:50% 38%;transition:transform .7s ease;
+  background:#1a0a04;
+}
+#hallBg.zoom{transform:scale(1.45)}
+#hallBg.zoom-throne{transform:scale(1.65);transform-origin:50% 34%}
+#idleVideo,#stageVideo,#transVideo{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  z-index:1;background:transparent;transform-origin:50% 38%;
+  transition:opacity .25s ease, transform .7s ease;
+  /* iOS：避免 filter/巨大 canvas；不用 filter */
+  -webkit-transform:translateZ(0);transform:translateZ(0);
 }
 #idleVideo,#transVideo{opacity:0;pointer-events:none}
 #idleVideo.show,#transVideo.show{opacity:1}
-#stageVideo.hide{opacity:0}
+#stageVideo{opacity:0;pointer-events:none}
+#stageVideo.show{opacity:1}
+#idleVideo.zoom,#stageVideo.zoom{transform:scale(1.45)}
+#idleVideo.zoom-throne{transform:scale(1.65);transform-origin:50% 34%}
+#empShot{
+  position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);
+  width:min(78vw,340px);max-height:62%;object-fit:contain;z-index:2;
+  opacity:0;pointer-events:none;transition:opacity .35s ease;
+  filter:drop-shadow(0 10px 28px rgba(0,0,0,.65));
+}
+#empShot.show{opacity:1}
 .hud-top{position:absolute;left:10px;right:10px;top:max(8px,env(safe-area-inset-top));z-index:8;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
 .brand{font-size:13px;font-weight:700;color:var(--gold2);text-shadow:0 1px 4px #000;letter-spacing:.04em}
 .pills{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
@@ -29,7 +51,6 @@ html,body{margin:0;background:#050201;color:#F6E3A8;font-family:-apple-system,Bl
 .agenda-title{font-size:13px;color:var(--gold2);font-weight:700;margin-top:2px;line-height:1.3}
 .agenda-now{font-size:12px;color:#FFE7A8;margin-top:3px;line-height:1.35}
 
-/* cinematic subtitle — like sample */
 .cine-sub{position:absolute;left:5%;right:5%;bottom:18%;z-index:9;text-align:center;pointer-events:none;opacity:0;transition:opacity .25s}
 .cine-sub.show{opacity:1}
 .cine-who{font-size:13px;color:#FFE7A8;text-shadow:0 2px 6px #000,0 0 2px #000;margin-bottom:6px;font-weight:600}
@@ -60,9 +81,11 @@ button.rec.on{background:rgba(140,20,10,.95)}
 </head>
 <body>
 <div class="stage-wrap" id="stageWrap">
-  <video id="idleVideo" class="show" muted loop playsinline webkit-playsinline></video>
-  <video id="stageVideo" class="hide" muted loop playsinline webkit-playsinline></video>
-  <video id="transVideo" muted playsinline webkit-playsinline></video>
+  <img id="hallBg" src="img/hall.webp" alt="" decoding="async" />
+  <video id="idleVideo" class="show" muted loop playsinline webkit-playsinline preload="auto"></video>
+  <video id="stageVideo" muted loop playsinline webkit-playsinline preload="metadata"></video>
+  <video id="transVideo" muted playsinline webkit-playsinline preload="metadata"></video>
+  <img id="empShot" src="img/chars/emperor.webp" alt="" decoding="async" />
 
   <div class="hud-top">
     <div class="brand">大殿实时直播 · 太和殿</div>
@@ -84,20 +107,24 @@ button.rec.on{background:rgba(140,20,10,.95)}
     <div class="cine-text" id="cineText"></div>
   </div>
   <div class="controls">
-    <button id="btnVoice">开启殿中语音</button>
-    <button id="btnReplay">回放今日会议</button>
-    <button id="btnPause">暂停会议</button>
-    <button class="rec" id="btnRec">开始录制</button>
+    <button id="btnVoice" type="button">开启殿中语音</button>
+    <button id="btnReplay" type="button">回放今日会议</button>
+    <button id="btnPause" type="button">暂停会议</button>
+    <button class="rec" id="btnRec" type="button">开始录制</button>
   </div>
 </div>
+
+<!-- iOS：用 HTMLAudioElement 播语音（静音键下 WebAudio/speechSynthesis 常无声） -->
+<audio id="voiceAudio" playsinline webkit-playsinline preload="auto"></audio>
+<audio id="unlockAudio" playsinline webkit-playsinline preload="auto" src="audio/voice_unlock.mp3"></audio>
 
 <div class="below">
   <h2>会议纪要</h2>
   <div class="minutes" id="minutes"></div>
-  <div class="warnbox">会议发言只播一次，不循环。谁汇报就切到他的说话特写。语音用浏览器朗读；录制按钮只录画面，要连声音请用 iPhone 屏幕录制。</div>
+  <div class="warnbox">会议发言只播一次，不循环。谁汇报就切到他的说话特写；陛下发言推近龙椅。语音：请点「开启殿中语音」，听到一声提示后才算打开；iPhone 请关掉侧边静音键并把铃声音量调高。录制按钮只录画面，要连声音请用 iPhone 屏幕录制。</div>
   <h2>使用说明</h2>
   <div class="note">
-    <p>真实 bot 交互按时间顺序开会。硬切到发言人特写循环，底部电影字幕；换人时插递竹简过场。约每 60 秒读取 events.json。点「回放今日会议」从头再播。</p>
+    <p>真实 bot 交互按时间顺序开会。特写加载失败会自动退回大殿全景（带推近），不会黑屏。约每 60 秒读取 events.json。点「回放今日会议」从头再播。</p>
   </div>
 </div>
 
@@ -110,6 +137,11 @@ button.rec.on{background:rgba(140,20,10,.95)}
     "张衡":"zhangheng","马钧":"majun","姜子牙":"jiangziya","桑弘羊":"sanghongyang","管仲":"guanzhong",
     "李白":"libai","司马迁":"simaqian","东方朔":"dongfangshuo","包拯":"baozheng"
   };
+  // 仓库里实际有的特写（缺则退回全景推近，绝不黑屏）
+  const CLOSEUP_KEYS = {
+    zhugeliang:1,fanli:1,kongzi:1,luban:1,mozi:1,zhangheng:1,majun:1,
+    jiangziya:1,sanghongyang:1,guanzhong:1,libai:1,simaqian:1,dongfangshuo:1,baozheng:1,pool:1
+  };
   const ID_FIG = {
     tian:"诸葛亮", jb:"范蠡", oi:"孔子", yl:"鲁班", ts:"墨子", yq:"张衡", ppl:"马钧",
     jg:"姜子牙", ylong:"桑弘羊", zq:"管仲", tk:"李白", ip:"司马迁", ds:"东方朔", cs:"包拯", wuji:null
@@ -119,7 +151,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     jg:"姜公", ylong:"盈龙", zq:"赚钱养家", tk:"内容实验", ip:"IP Man", ds:"赌圣", cs:"项目测试",
     wuji:"无极", all:"众卿"
   };
-  const VOICE = { // pitch / rate
+  const VOICE = {
     tian:{p:0.95,r:1.0}, jb:{p:1.05,r:1.02}, oi:{p:0.9,r:0.95}, yl:{p:0.85,r:0.98},
     ts:{p:0.88,r:1.0}, yq:{p:1.0,r:1.05}, ppl:{p:1.1,r:1.08}, jg:{p:0.8,r:0.95},
     ylong:{p:0.92,r:1.0}, zq:{p:1.0,r:1.05}, tk:{p:1.15,r:1.1}, ip:{p:0.9,r:1.0},
@@ -127,22 +159,43 @@ button.rec.on{background:rgba(140,20,10,.95)}
   };
   const LS_KEY = "palace_played_v2";
 
+  const hallBg = document.getElementById("hallBg");
+  const empShot = document.getElementById("empShot");
   const idleVideo = document.getElementById("idleVideo");
   const stageVideo = document.getElementById("stageVideo");
   const transVideo = document.getElementById("transVideo");
+  const voiceAudio = document.getElementById("voiceAudio");
+  const unlockAudio = document.getElementById("unlockAudio");
+
+  // iOS Safari：显式属性双保险
+  [idleVideo, stageVideo, transVideo].forEach(v=>{
+    v.setAttribute("playsinline","");
+    v.setAttribute("webkit-playsinline","");
+    v.muted = true;
+    v.defaultMuted = true;
+    v.setAttribute("muted","");
+  });
+  voiceAudio.setAttribute("playsinline","");
+  unlockAudio.setAttribute("playsinline","");
+
   idleVideo.src = V + "hall_idle.mp4";
-  idleVideo.play().catch(()=>{});
+  const tryPlayIdle = ()=> idleVideo.play().catch(()=>{});
+  tryPlayIdle();
+  // 用户任意点击也尝试恢复 idle（iOS 自动播放策略）
+  document.addEventListener("touchstart", function once(){ tryPlayIdle(); }, {passive:true, once:true});
 
   let STATUS = (window.PALACE_STATUS||[]).slice();
   let AS_OF = window.PALACE_AS_OF || "—";
   let EVENTS = [];
   let AGENDA = "今日朝会";
-  let voiceOn = false, meetingPaused = false;
+  let voiceOn = false, voiceUnlocked = false, meetingPaused = false;
   let currentEvent = null, queue = [], played = loadPlayed();
   let lastSpeaker = null;
   let mode = "idle"; // idle | speaking | transition
   let mediaRecorder = null;
   let endTimer = null;
+  let speakerToken = 0;
+  let audioManifest = {};
 
   function loadPlayed(){ try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]");}catch(e){return[];} }
   function savePlayed(){ try{localStorage.setItem(LS_KEY, JSON.stringify(played.slice(-500)));}catch(e){} }
@@ -152,54 +205,177 @@ button.rec.on{background:rgba(140,20,10,.95)}
     if(fromStatus && fromStatus.figure) return fromStatus.figure;
     return ID_FIG[id] || null;
   }
-  function closeupOf(id){
+  function closeupKeyOf(id){
+    if(id === "wuji") return null; // 陛下：推近龙椅，不用大臣特写
     const fig = figOf(id);
-    const key = FIG_KEY[fig] || "pool";
-    return V + key + "_talk_closeup.mp4";
+    const key = FIG_KEY[fig];
+    if(key && CLOSEUP_KEYS[key]) return key;
+    if(CLOSEUP_KEYS.pool) return "pool";
+    return null;
+  }
+  function closeupOf(id){
+    const key = closeupKeyOf(id);
+    return key ? (V + key + "_talk_closeup.mp4") : null;
   }
   function bambooSrc(){
     return Math.random() < 0.5 ? V+"hall_bamboo_2.mp4" : V+"hall_bamboo_1.mp4";
   }
+  function clearZooms(){
+    hallBg.classList.remove("zoom","zoom-throne");
+    idleVideo.classList.remove("zoom","zoom-throne");
+    stageVideo.classList.remove("zoom","zoom-throne");
+    empShot.classList.remove("show");
+  }
 
   function showIdle(){
     mode = "idle";
-    stageVideo.classList.add("hide"); stageVideo.pause();
+    speakerToken++;
+    stageVideo.classList.remove("show"); stageVideo.pause();
     transVideo.classList.remove("show"); transVideo.pause();
+    clearZooms();
     idleVideo.classList.add("show");
-    idleVideo.play().catch(()=>{});
+    tryPlayIdle();
     document.getElementById("modepill").textContent = "候场";
     document.getElementById("cineSub").classList.remove("show");
     document.getElementById("agendaNow").textContent = "本场发言已播完，候场中。有新交互会自动接着播。";
   }
-  function showSpeaker(src){
+
+  /** 特写缺失/失败/陛下发言：大殿全景 + 推近，绝不黑屏 */
+  function showHallZoom(kind){
     mode = "speaking";
-    idleVideo.classList.remove("show"); idleVideo.pause();
+    stageVideo.classList.remove("show"); stageVideo.pause();
     transVideo.classList.remove("show"); transVideo.pause();
-    stageVideo.classList.remove("hide");
-    const leaf = src.split('/').pop();
-    if(!stageVideo.currentSrc || stageVideo.currentSrc.indexOf(leaf)<0){
-      stageVideo.src = src;
-      stageVideo.load();
-    }
-    stageVideo.loop = true;
-    stageVideo.play().catch(()=>{});
+    clearZooms();
+    idleVideo.classList.add("show");
+    tryPlayIdle();
+    const cls = kind === "throne" ? "zoom-throne" : "zoom";
+    hallBg.classList.add(cls);
+    idleVideo.classList.add(cls);
+    if(kind === "throne") empShot.classList.add("show");
     document.getElementById("modepill").textContent = "发言中";
   }
+
+  /**
+   * iOS 关键：切发言时不要立刻把全景藏掉；
+   * 等 stageVideo 真正 playing 再切层。失败则退回全景推近。
+   * stageVideo 默认 opacity:0，避免未解码时露出黑底。
+   */
+  function showSpeaker(id){
+    const token = ++speakerToken;
+    document.getElementById("modepill").textContent = "发言中";
+
+    if(id === "wuji" || !closeupOf(id)){
+      showHallZoom(id === "wuji" ? "throne" : "zoom");
+      return;
+    }
+    const src = closeupOf(id);
+
+    const fail = ()=>{
+      if(token !== speakerToken) return;
+      showHallZoom("zoom");
+    };
+    const ready = ()=>{
+      if(token !== speakerToken) return;
+      clearZooms();
+      idleVideo.classList.remove("show"); idleVideo.pause();
+      transVideo.classList.remove("show"); transVideo.pause();
+      stageVideo.classList.add("show");
+    };
+
+    // 保持当前画面（idle/hall）直到新视频开播
+    let settled = false;
+    const settleFail = ()=>{ if(settled) return; settled = true; cleanup(); fail(); };
+    const settleOk = ()=>{ if(settled) return; settled = true; cleanup(); ready(); };
+    const onPlaying = ()=> settleOk();
+    const onError = ()=> settleFail();
+    const cleanup = ()=>{
+      stageVideo.removeEventListener("playing", onPlaying);
+      stageVideo.removeEventListener("error", onError);
+      clearTimeout(timer);
+    };
+    stageVideo.addEventListener("playing", onPlaying);
+    stageVideo.addEventListener("error", onError);
+    const timer = setTimeout(()=>{
+      if(token !== speakerToken) return;
+      if(stageVideo.readyState >= 2 && !stageVideo.paused) settleOk();
+      else settleFail();
+    }, 2800);
+
+    try{
+      const leaf = src.split("/").pop();
+      if(!stageVideo.currentSrc || stageVideo.currentSrc.indexOf(leaf) < 0){
+        stageVideo.src = src;
+        stageVideo.load();
+      }
+      stageVideo.loop = true;
+      stageVideo.muted = true;
+      const p = stageVideo.play();
+      if(p && p.then) p.then(()=>{}).catch(settleFail);
+    }catch(e){ settleFail(); }
+  }
+
   function playTransition(then){
     mode = "transition";
+    const token = ++speakerToken;
     document.getElementById("cineSub").classList.remove("show");
     document.getElementById("modepill").textContent = "传简";
-    stageVideo.classList.add("hide"); stageVideo.pause();
-    idleVideo.classList.remove("show"); idleVideo.pause();
-    transVideo.src = bambooSrc();
-    transVideo.classList.add("show");
-    const done = ()=>{ transVideo.onended = null; clearTimeout(to); then && then(); };
+    // 传简失败也不黑：底下 hallBg / idle 仍在
+    stageVideo.classList.remove("show"); stageVideo.pause();
+    clearZooms();
+    // 先保持 idle，等 trans playing 再切
+    const src = bambooSrc();
+    let doneCalled = false;
+    const done = ()=>{
+      if(doneCalled) return; doneCalled = true;
+      transVideo.onended = null;
+      clearTimeout(to);
+      transVideo.classList.remove("show"); transVideo.pause();
+      if(token === speakerToken) then && then();
+    };
     const to = setTimeout(done, 2800);
+    const onPlaying = ()=>{
+      transVideo.removeEventListener("playing", onPlaying);
+      if(token !== speakerToken) return;
+      idleVideo.classList.remove("show"); idleVideo.pause();
+      transVideo.classList.add("show");
+    };
+    transVideo.addEventListener("playing", onPlaying);
     transVideo.onended = done;
-    transVideo.play().catch(done);
+    try{
+      transVideo.src = src;
+      transVideo.load();
+      const p = transVideo.play();
+      if(p && p.then) p.then(()=>{}).catch(done);
+    }catch(e){ done(); }
+  }
+
+  function stopVoiceAudio(){
+    try{ voiceAudio.pause(); voiceAudio.removeAttribute("src"); voiceAudio.load(); }catch(e){}
+    if(window.speechSynthesis) try{ window.speechSynthesis.cancel(); }catch(e){}
   }
 
   function speakTTS(id, text){
+    if(!voiceOn) return;
+    // 优先 <audio> 播预生成 mp3（iOS 静音键下仍可出声）
+    const ev = currentEvent;
+    const mp3 = ev && audioManifest[ev.id];
+    if(mp3){
+      try{
+        stopVoiceAudio();
+        voiceAudio.src = mp3 + (mp3.indexOf("?")>=0 ? "&" : "?") + "t=" + Date.now();
+        voiceAudio.load();
+        const p = voiceAudio.play();
+        if(p && p.then) p.catch(err=>{
+          console.warn("audio play fail, fallback TTS", err);
+          speakSynth(id, text);
+        });
+        return;
+      }catch(e){ /* fall through */ }
+    }
+    speakSynth(id, text);
+  }
+
+  function speakSynth(id, text){
     if(!voiceOn || !window.speechSynthesis) return;
     try{
       window.speechSynthesis.cancel();
@@ -211,9 +387,32 @@ button.rec.on{background:rgba(140,20,10,.95)}
     }catch(e){}
   }
 
-  function eventDuration(text){
+  /** 必须在用户点击回调里同步调用，才能解锁 iOS 音频 */
+  function unlockVoiceInGesture(){
+    voiceUnlocked = true;
+    // 1) HTMLAudioElement 提示音（不受静音键影响）
+    try{
+      unlockAudio.currentTime = 0;
+      const p = unlockAudio.play();
+      if(p && p.then) p.catch(()=>{});
+    }catch(e){}
+    // 2) speechSynthesis 必须在手势栈内同步 speak 一次
+    try{
+      if(window.speechSynthesis){
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance("殿中语音已开");
+        u.lang = "zh-CN"; u.rate = 1; u.volume = 1;
+        window.speechSynthesis.speak(u);
+      }
+    }catch(e){}
+    // 3) 顺带恢复 idle 视频
+    tryPlayIdle();
+  }
+
+  function eventDuration(text, ev){
+    // 若有音频，等音频大致播完；否则按字数
     const len = (text||"").length;
-    return Math.max(4000, Math.min(14000, 2000 + len * 180));
+    return Math.max(4000, Math.min(16000, 2000 + len * 180));
   }
 
   function startNextEvent(){
@@ -225,19 +424,25 @@ button.rec.on{background:rgba(140,20,10,.95)}
       currentEvent = e;
       lastSpeaker = e.from;
       const who = e.fromName || shortName(e.from);
-      const fig = figOf(e.from) || "大臣";
+      const fig = e.from === "wuji" ? "陛下" : (figOf(e.from) || "大臣");
       const to = e.toName || shortName(e.to);
       document.getElementById("agendaNow").textContent = `${who} → ${to} · ${e.kind||"发言"}`;
       document.getElementById("cineWho").textContent = `${fig} · ${who}`;
       document.getElementById("cineText").textContent = e.text || "";
       document.getElementById("cineSub").classList.add("show");
-      // hard-set video src each time
-      stageVideo.src = closeupOf(e.from);
-      showSpeaker(closeupOf(e.from));
+      showSpeaker(e.from);
       speakTTS(e.from, `${who}说：${e.text||""}`);
       renderMinutes();
       clearTimeout(endTimer);
-      endTimer = setTimeout(finishEvent, eventDuration(e.text));
+      // 若正在播 mp3，结束后再切；否则定时
+      const finish = ()=> finishEvent();
+      const onEnded = ()=>{ voiceAudio.removeEventListener("ended", onEnded); finish(); };
+      if(voiceOn && audioManifest[e.id]){
+        voiceAudio.addEventListener("ended", onEnded);
+        endTimer = setTimeout(finish, Math.max(eventDuration(e.text), 20000));
+      } else {
+        endTimer = setTimeout(finish, eventDuration(e.text));
+      }
     };
     if(lastSpeaker && lastSpeaker !== e.from){
       playTransition(go);
@@ -251,7 +456,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     if(!played.includes(currentEvent.id)){ played.push(currentEvent.id); savePlayed(); }
     currentEvent = null;
     document.getElementById("cineSub").classList.remove("show");
-    if(voiceOn && window.speechSynthesis) try{window.speechSynthesis.cancel();}catch(e){}
+    stopVoiceAudio();
     setTimeout(startNextEvent, 400);
   }
 
@@ -297,38 +502,63 @@ button.rec.on{background:rgba(140,20,10,.95)}
         if(added && !currentEvent && mode!=="transition") startNextEvent();
       }
     }catch(e){}
+    try{
+      const r3 = await fetch("audio/manifest.json?t="+Date.now(),{cache:"no-store"});
+      if(r3.ok){ audioManifest = await r3.json(); }
+    }catch(e){}
   }
 
   document.getElementById("btnVoice").onclick = function(){
-    voiceOn=!voiceOn; this.classList.toggle("on",voiceOn);
-    this.textContent = voiceOn?"殿中语音开":"开启殿中语音";
-    if(!voiceOn && window.speechSynthesis) try{window.speechSynthesis.cancel();}catch(e){}
+    // 开关都在手势回调里处理解锁
+    if(!voiceOn){
+      voiceOn = true;
+      this.classList.add("on");
+      this.textContent = "殿中语音开";
+      unlockVoiceInGesture();
+      // 若当前正有发言，立刻用 audio 播当前句
+      if(currentEvent){
+        const who = currentEvent.fromName || shortName(currentEvent.from);
+        speakTTS(currentEvent.from, `${who}说：${currentEvent.text||""}`);
+      }
+    } else {
+      voiceOn = false;
+      this.classList.remove("on");
+      this.textContent = "开启殿中语音";
+      stopVoiceAudio();
+    }
   };
   document.getElementById("btnReplay").onclick = function(){
     clearTimeout(endTimer); currentEvent=null; meetingPaused=false;
     document.getElementById("btnPause").textContent="暂停会议";
     document.getElementById("btnPause").classList.remove("on");
-    if(window.speechSynthesis) try{window.speechSynthesis.cancel();}catch(e){}
+    stopVoiceAudio();
     lastSpeaker=null; rebuildQueue(true); startNextEvent();
   };
   document.getElementById("btnPause").onclick = function(){
     meetingPaused=!meetingPaused; this.classList.toggle("on",meetingPaused);
     this.textContent = meetingPaused?"继续会议":"暂停会议";
-    if(meetingPaused){ clearTimeout(endTimer); if(window.speechSynthesis) try{window.speechSynthesis.cancel();}catch(e){} }
+    if(meetingPaused){ clearTimeout(endTimer); stopVoiceAudio(); }
     else if(!currentEvent) startNextEvent();
   };
 
-  // record whole stage wrap via canvas fallback: capture stage videos visually by html2? Use MediaRecorder on a canvas drawing videos — simpler: captureStream from a composite canvas
   const recCanvas = document.createElement("canvas");
   const recCtx = recCanvas.getContext("2d");
   function drawRecFrame(){
     if(!(mediaRecorder && mediaRecorder.state==="recording")) return;
     const w = stageWrap.clientWidth, h = stageWrap.clientHeight;
     if(recCanvas.width!==w || recCanvas.height!==h){ recCanvas.width=w; recCanvas.height=h; }
-    const vids = [idleVideo, stageVideo, transVideo].filter(v=>v.classList.contains("show") || (v===stageVideo && !v.classList.contains("hide")));
-    const active = transVideo.classList.contains("show") ? transVideo : (!stageVideo.classList.contains("hide") ? stageVideo : idleVideo);
-    try{ recCtx.drawImage(active, 0, 0, w, h); }catch(e){ recCtx.fillStyle="#0a0402"; recCtx.fillRect(0,0,w,h); }
-    // burn subtitles
+    // 永远先画大殿底图，避免录到黑帧
+    try{ recCtx.drawImage(hallBg, 0, 0, w, h); }catch(e){ recCtx.fillStyle="#1a0a04"; recCtx.fillRect(0,0,w,h); }
+    const active = transVideo.classList.contains("show") ? transVideo
+      : (stageVideo.classList.contains("show") ? stageVideo
+      : (idleVideo.classList.contains("show") ? idleVideo : null));
+    if(active){ try{ recCtx.drawImage(active, 0, 0, w, h); }catch(e){} }
+    if(empShot.classList.contains("show")){
+      try{
+        const ew = Math.min(w*0.78, 340), eh = h*0.55;
+        recCtx.drawImage(empShot, (w-ew)/2, h*0.2, ew, eh);
+      }catch(e){}
+    }
     const sub = document.getElementById("cineSub");
     if(sub.classList.contains("show")){
       const who = document.getElementById("cineWho").textContent;
@@ -358,10 +588,14 @@ button.rec.on{background:rgba(140,20,10,.95)}
       mediaRecorder.stop(); btn.textContent="开始录制"; btn.classList.remove("on"); return;
     }
     if(!window.MediaRecorder){ alert("不支持录制，请用 iPhone 屏幕录制"); return; }
-    const stream = recCanvas.captureStream(30);
+    // 限制录制画布，避免 iOS 内存爆
+    const maxW = Math.min(stageWrap.clientWidth, 540);
+    const maxH = Math.min(stageWrap.clientHeight, 960);
+    recCanvas.width = maxW; recCanvas.height = maxH;
+    const stream = recCanvas.captureStream(24);
     const mimes=["video/mp4;codecs=avc1.42E01E","video/mp4","video/webm"];
     let mime=""; for(const m of mimes){ if(MediaRecorder.isTypeSupported(m)){mime=m;break;} }
-    try{ mediaRecorder = mime? new MediaRecorder(stream,{mimeType:mime}): new MediaRecorder(stream); }
+    try{ mediaRecorder = mime? new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:2500000}): new MediaRecorder(stream); }
     catch(e){ alert("无法启动录制："+e.message); return; }
     const chunks=[];
     mediaRecorder.ondataavailable = ev=>{ if(ev.data&&ev.data.size) chunks.push(ev.data); };
