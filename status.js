@@ -1,5 +1,5 @@
 // 公开版状态（已脱敏）。直播页优先读 status.json。
-window.PALACE_AS_OF = "2026-11-07 18:28";
+window.PALACE_AS_OF = "2026-11-07 19:00";
 window.PALACE_STATUS = [
   {"id": "tian", "name": "天 · 全球项目调研", "figure": "诸葛亮", "dept": "内阁（总管）", "status": "当值", "task": "整理大殿直播与各部状态", "say": "正在当值。"},
   {"id": "jb", "name": "聚宝 · 项目筹资", "figure": "范蠡", "dept": "户部（筹资）", "status": "候旨", "task": "整理筹资材料", "talkingTo": "tian", "say": "事务候批。"},
