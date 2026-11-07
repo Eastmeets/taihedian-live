@@ -209,6 +209,19 @@ button.rec.on{background:rgba(140,20,10,.95)}
   function loadPlayed(){ try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]");}catch(e){return[];} }
   function savePlayed(){ try{localStorage.setItem(LS_KEY, JSON.stringify(played.slice(-500)));}catch(e){} }
   function shortName(id){ return NAME_SHORT[id]||id; }
+  function nickOf(ev){
+    if(ev && ev.from === "wuji") return "陛下";
+    if(ev && (ev.fromName || ev.from)) return ev.fromName || shortName(ev.from);
+    return shortName(ev);
+  }
+  function speechLine(id, text){
+    var body = (text || "").trim();
+    body = body.replace(/^[一-鿿A-Za-z0-9_ ·・]{1,20}说[：:]\s*/, "");
+    body = body.replace(/^启禀陛下[，,：:\s]*/, "");
+    if(!body) return "";
+    if(id === "wuji") return body;
+    return "启禀陛下，" + body;
+  }
   function figOf(id){
     const fromStatus = STATUS.find(s=>s.id===id);
     if(fromStatus && fromStatus.figure) return fromStatus.figure;
@@ -477,15 +490,14 @@ button.rec.on{background:rgba(140,20,10,.95)}
     const go = ()=>{
       currentEvent = e;
       lastSpeaker = e.from;
-      const who = e.fromName || shortName(e.from);
-      const fig = e.from === "wuji" ? "陛下" : (figOf(e.from) || "大臣");
+      const who = nickOf(e);
       const to = e.toName || shortName(e.to);
       document.getElementById("agendaNow").textContent = `${who} → ${to} · ${e.kind||"发言"}`;
-      document.getElementById("cineWho").textContent = `${fig} · ${who}`;
-      document.getElementById("cineText").textContent = e.text || "";
+      document.getElementById("cineWho").textContent = who;
+      document.getElementById("cineText").textContent = speechLine(e.from, e.text || "");
       document.getElementById("cineSub").classList.add("show");
       showSpeaker(e.from);
-      speakTTS(e.from, `${who}说：${e.text||""}`);
+      speakTTS(e.from, speechLine(e.from, e.text || ""));
       renderMinutes();
       clearTimeout(endTimer);
       // 若正在播 mp3，结束后再切；否则定时
@@ -584,8 +596,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
       unlockVoiceInGesture();
       // 若当前正有发言，立刻用 audio 播当前句
       if(currentEvent){
-        const who = currentEvent.fromName || shortName(currentEvent.from);
-        speakTTS(currentEvent.from, `${who}说：${currentEvent.text||""}`);
+        speakTTS(currentEvent.from, speechLine(currentEvent.from, currentEvent.text||""));
       }
     } else {
       voiceOn = false;
