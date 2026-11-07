@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "asOf": "2026-11-07 18:36",
+  "note": "edge-tts 中文神经语音；不使用任何影视演员原声或克隆。rate/pitch 为 edge-tts 参数。新成员走 autoAssign。",
+  "defaults": {
+    "voice": "zh-CN-YunyangNeural",
+    "rate": "+0%",
+    "pitch": "+0Hz",
+    "prefix": true
+  },
+  "pool": [
+    {
+      "voice": "zh-CN-YunyangNeural",
+      "rate": "+0%",
+      "pitch": "+0Hz",
+      "tag": "沉稳"
+    },
+    {
+      "voice": "zh-CN-YunjianNeural",
+      "rate": "-5%",
+      "pitch": "-2Hz",
+      "tag": "厚重"
+    },
+    {
+      "voice": "zh-CN-YunxiNeural",
+      "rate": "+5%",
+      "pitch": "+2Hz",
+      "tag": "明快"
+    },
+    {
+      "voice": "zh-CN-YunxiaNeural",
+      "rate": "+8%",
+      "pitch": "+4Hz",
+      "tag": "活泼"
+    },
+    {
+      "voice": "zh-HK-WanLungNeural",
+      "rate": "-8%",
+      "pitch": "-3Hz",
+      "tag": "庄重"
+    },
+    {
+      "voice": "zh-TW-YunJheNeural",
+      "rate": "+0%",
+      "pitch": "+1Hz",
+      "tag": "清朗"
+    },
+    {
+      "voice": "zh-CN-YunyangNeural",
+      "rate": "-12%",
+      "pitch": "-6Hz",
+      "tag": "低沉"
+    },
+    {
+      "voice": "zh-CN-YunjianNeural",
+      "rate": "+10%",
+      "pitch": "+3Hz",
+      "tag": "干练"
+    },
+    {
+      "voice": "zh-CN-YunxiNeural",
+      "rate": "-3%",
+      "pitch": "-1Hz",
+      "tag": "从容"
+    },
+    {
+      "voice": "zh-CN-YunxiaNeural",
+      "rate": "+12%",
+      "pitch": "+6Hz",
+      "tag": "诙谐"
+    }
+  ],
+  "byId": {
+    "wuji": {
+      "name": "无极",
+      "figure": "陛下",
+      "voice": "zh-CN-YunyangNeural",
+      "rate": "-15%",
+      "pitch": "-8Hz",
+      "temperament": "帝王威严低沉"
+    },
+    "tian": {
+      "name": "天",
+      "figure": "诸葛亮",
+      "voice": "zh-CN-YunyangNeural",
+      "rate": "-8%",
+      "pitch": "-3Hz",
+      "temperament": "沉稳儒雅"
+    },
+    "jb": {
+      "name": "聚宝",
+      "figure": "范蠡",
+      "voice": "zh-CN-YunxiNeural",
+      "rate": "-2%",
+      "pitch": "+0Hz",
+      "temperament": "从容精明"
+    },
+    "oi": {
+      "name": "OI",
+      "figure": "孔子",
+      "voice": "zh-HK-WanLungNeural",
+      "rate": "-10%",
+      "pitch": "-4Hz",
+      "temperament": "温厚庄重"
+    },
+    "tk": {
+      "name": "TikTok自主实验Bot",
+      "figure": "李白",
+      "voice": "zh-CN-YunxiaNeural",
+      "rate": "+12%",
+      "pitch": "+5Hz",
+      "temperament": "洒脱豪放"
+    },
+    "jg": {
+      "name": "姜公",
+      "figure": "姜子牙",
+      "voice": "zh-CN-YunjianNeural",
+      "rate": "-18%",
+      "pitch": "-10Hz",
+      "temperament": "苍老睿智"
+    },
+    "yl": {
+      "name": "一链基座",
+      "figure": "鲁班",
+      "voice": "zh-TW-YunJheNeural",
+      "rate": "+0%",
+      "pitch": "+1Hz",
+      "temperament": "工匠沉稳、条理清晰"
+    },
+    "ts": {
+      "name": "天师",
+      "figure": "墨子",
+      "voice": "zh-CN-YunjianNeural",
+      "rate": "-6%",
+      "pitch": "-4Hz",
+      "temperament": "朴拙笃实"
+    },
+    "ppl": {
+      "name": "泡泡龙",
+      "figure": "马钧",
+      "voice": "zh-CN-YunxiNeural",
+      "rate": "+8%",
+      "pitch": "+3Hz",
+      "temperament": "灵巧轻快"
+    },
+    "yq": {
+      "name": "一气",
+      "figure": "张衡",
+      "voice": "zh-CN-YunyangNeural",
+      "rate": "+3%",
+      "pitch": "+2Hz",
+      "temperament": "精密冷静"
+    },
+    "ds": {
+      "name": "赌圣",
+      "figure": "东方朔",
+      "voice": "zh-CN-YunxiaNeural",
+      "rate": "+15%",
+      "pitch": "+7Hz",
+      "temperament": "诙谐机敏"
+    },
+    "zq": {
+      "name": "赚钱养家",
+      "figure": "管仲",
+      "voice": "zh-CN-YunjianNeural",
+      "rate": "+8%",
+      "pitch": "+2Hz",
+      "temperament": "干练果断"
+    },
+    "ylong": {
+      "name": "盈龙",
+      "figure": "桑弘羊",
+      "voice": "zh-CN-YunxiNeural",
+      "rate": "+2%",
+      "pitch": "-1Hz",
+      "temperament": "理财干练、略沉"
+    },
+    "ip": {
+      "name": "IP Man",
+      "figure": "司马迁",
+      "voice": "zh-HK-WanLungNeural",
+      "rate": "-4%",
+      "pitch": "-1Hz",
+      "temperament": "史笔庄重"
+    },
+    "cs": {
+      "name": "项目测试",
+      "figure": "包拯",
+      "voice": "zh-CN-YunjianNeural",
+      "rate": "-4%",
+      "pitch": "-6Hz",
+      "temperament": "刚正不阿"
+    },
+    "all": {
+      "name": "众卿",
+      "figure": "众卿",
+      "voice": "zh-CN-YunyangNeural",
+      "rate": "+0%",
+      "pitch": "+0Hz",
+      "temperament": "齐声默认"
+    }
+  },
+  "byFigure": {
+    "诸葛亮": "tian",
+    "范蠡": "jb",
+    "孔子": "oi",
+    "李白": "tk",
+    "姜子牙": "jg",
+    "鲁班": "yl",
+    "墨子": "ts",
+    "马钧": "ppl",
+    "张衡": "yq",
+    "东方朔": "ds",
+    "管仲": "zq",
+    "桑弘羊": "ylong",
+    "司马迁": "ip",
+    "包拯": "cs",
+    "陛下": "wuji"
+  }
+}
