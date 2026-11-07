@@ -1,5 +1,5 @@
 // 公开版状态（已脱敏）。直播页优先读 status.json。
-window.PALACE_AS_OF = "2026-11-07 16:33";
+window.PALACE_AS_OF = "2026-11-07 17:05";
 window.PALACE_STATUS = [
   {"id": "tian", "name": "天 · 全球项目调研", "figure": "诸葛亮", "dept": "内阁（总管）", "status": "当值", "task": "整理大殿直播与各部状态", "say": "正在当值。"},
   {"id": "jb", "name": "聚宝 · 项目筹资", "figure": "范蠡", "dept": "户部（筹资）", "status": "候旨", "task": "整理筹资材料", "say": "事务候批。"},
@@ -12,7 +12,7 @@ window.PALACE_STATUS = [
   {"id": "ylong", "name": "盈龙", "figure": "桑弘羊", "dept": "兵部（交易 · 支付对接）", "status": "有本启奏", "task": "支付对接测试与上线准备", "say": "有事启奏。"},
   {"id": "zq", "name": "赚钱养家", "figure": "管仲", "dept": "户部（模拟盘与收入）", "status": "当值", "task": "纸面模拟盘运行中", "say": "正在当值。"},
   {"id": "tk", "name": "TikTok自主实验Bot", "figure": "李白", "dept": "鸿胪寺（内容）", "status": "闲置", "task": "内容实验暂无新动态"},
-  {"id": "ip", "name": "IP Man", "figure": "司马迁", "dept": "鸿胪寺（内容）", "status": "当值", "task": "内容发布与数据整理", "say": "正在当值。"},
+  {"id": "ip", "name": "IP Man", "figure": "司马迁", "dept": "鸿胪寺（内容）", "status": "闲置", "task": "内容发布与数据整理"},
   {"id": "ds", "name": "赌圣 · 真人视讯", "figure": "东方朔", "dept": "杂务司", "status": "有本启奏", "task": "项目暂停，待核验", "say": "有事启奏。"},
   {"id": "cs", "name": "项目测试", "figure": "包拯", "dept": "杂务司（测试）", "status": "办毕", "task": "测试问题清单已交", "say": "本务已办毕。"}
 ];
