@@ -422,6 +422,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
       </div>
     </div>
     <button id="btnVoice" type="button">开启殿中语音</button>
+    <button id="btnBgm" type="button">背景音乐 关</button>
     <button id="btnReplay" type="button">回放今日会议</button>
     <button id="btnPause" type="button">暂停会议</button>
     <button class="rec" id="btnRec" type="button">开始录制</button>
@@ -430,17 +431,27 @@ button.rec.on{background:rgba(140,20,10,.95)}
 
 <!-- iOS：用 HTMLAudioElement 播语音（静音键下 WebAudio/speechSynthesis 常无声） -->
 <audio id="voiceAudio" playsinline webkit-playsinline preload="auto"></audio>
+<audio id="bgmAudio" playsinline webkit-playsinline preload="metadata" loop></audio>
 <audio id="unlockAudio" playsinline webkit-playsinline preload="auto" src="audio/voice_unlock.mp3"></audio>
 
 <div class="below">
   <h2>会议纪要</h2>
   <div class="minutes" id="minutes"></div>
-  <div class="warnbox">打开页面不重播旧汇报，只播打开后的新事件（各一次）。旧内容点「回放今日会议」，可拖进度条跳到任意发言。平时办公伏案；开会淡入站班；陛下发言：全景→全身推近→半身近景（可带手势），讲完拉回。进出约 1.5 秒淡入淡出。每人固定声线。语音：点「开启殿中语音」听到提示后才算打开；iPhone 请关掉侧边静音键并调高铃声音量。录制只录画面，要连声音请用屏幕录制。</div>
+  <div class="warnbox">打开页面不重播旧汇报，只播打开后的新事件（各一次）。旧内容点「回放今日会议」，可拖进度条跳到任意发言。平时办公伏案；开会淡入站班；陛下发言：全景→全身推近→半身近景（可带手势），讲完拉回。进出约 1.5 秒淡入淡出。每人固定声线。语音：点「开启殿中语音」听到提示后才算打开；iPhone 请关掉侧边静音键并调高铃声音量。录制会尝试带上背景音乐（需先开「背景音乐」）；殿中语音亦同。若手机浏览器不支持混音，请改用屏幕录制。</div>
   <h2>使用说明</h2>
   <div class="note">
     <p>真实 bot 交互按时间顺序开会。特写加载失败会自动退回大殿全景（带推近），不会黑屏。约每 60 秒读取 events.json。点「回放今日会议」从头再播。</p>
   </div>
 </div>
+<div class="below" style="padding-top:0">
+  <div class="note" id="bgmCredit" style="font-size:11px;color:#8a7350;line-height:1.55;margin:4px 12px 8px">
+    背景音乐（古琴，候场循环）：《酒狂》《孔子读易》《阳关三叠》《醉渔唱晚》演奏 Charlie Huang，来源
+    <a href="https://commons.wikimedia.org/wiki/Category:Guqin_music" target="_blank" rel="noopener" style="color:#C9A56A">Wikimedia Commons</a>
+    （CC BY 2.5 / CC BY-SA 3.0）；《五声音境》本页自制（CC0）。详见
+    <a href="audio/bgm/LICENSES.md" target="_blank" rel="noopener" style="color:#C9A56A">audio/bgm/LICENSES.md</a>。
+  </div>
+</div>
+
 
 <script src="status.js"></script>
 <script>
@@ -666,6 +677,121 @@ button.rec.on{background:rgba(140,20,10,.95)}
   });
   voiceAudio.setAttribute("playsinline","");
   unlockAudio.setAttribute("playsinline","");
+
+
+  // —— 古典背景音乐（公有领域/CC 古琴；候场播放，发言时压低）——
+  const BGM_TRACKS = [
+    {src:"audio/bgm/01_jiukuang.mp3", title:"酒狂"},
+    {src:"audio/bgm/02_kongzi_duyi.mp3", title:"孔子读易"},
+    {src:"audio/bgm/03_yangguan_sandie.mp3", title:"阳关三叠"},
+    {src:"audio/bgm/04_zuiyu_changwan.mp3", title:"醉渔唱晚"},
+    {src:"audio/bgm/05_wuyin_ambient.mp3", title:"五声音境"}
+  ];
+  const bgmAudio = document.getElementById("bgmAudio");
+  let bgmOn = false, bgmUnlocked = false, bgmIndex = 0;
+  let bgmTargetVol = 0.28, bgmDuckVol = 0.04, bgmFading = null;
+  let audioCtx = null, bgmSourceNode = null, voiceSourceNode = null, recDest = null;
+  if(bgmAudio){
+    bgmAudio.setAttribute("playsinline","");
+    bgmAudio.setAttribute("webkit-playsinline","");
+    bgmAudio.loop = false;
+    bgmAudio.volume = bgmTargetVol;
+    bgmAudio.addEventListener("ended", ()=>{ nextBgmTrack(true); });
+  }
+  function ensureAudioGraph(){
+    if(audioCtx) return audioCtx;
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      audioCtx = new AC();
+      recDest = audioCtx.createMediaStreamDestination();
+      if(bgmAudio && !bgmSourceNode){
+        bgmSourceNode = audioCtx.createMediaElementSource(bgmAudio);
+        bgmSourceNode.connect(audioCtx.destination);
+        bgmSourceNode.connect(recDest);
+      }
+      if(voiceAudio && !voiceSourceNode){
+        try{
+          voiceSourceNode = audioCtx.createMediaElementSource(voiceAudio);
+          voiceSourceNode.connect(audioCtx.destination);
+          voiceSourceNode.connect(recDest);
+        }catch(e){ /* already connected */ }
+      }
+    }catch(e){ audioCtx = null; }
+    return audioCtx;
+  }
+  function fadeBgmTo(vol, ms){
+    if(!bgmAudio) return;
+    if(bgmFading){ clearInterval(bgmFading); bgmFading = null; }
+    const start = bgmAudio.volume;
+    const dest = Math.max(0, Math.min(1, vol));
+    const steps = Math.max(8, Math.round((ms||900)/40));
+    let i = 0;
+    bgmFading = setInterval(()=>{
+      i++;
+      const t = i/steps;
+      bgmAudio.volume = start + (dest - start) * t;
+      if(i >= steps){ clearInterval(bgmFading); bgmFading = null; bgmAudio.volume = dest; }
+    }, 40);
+  }
+  function loadBgm(i){
+    if(!bgmAudio || !BGM_TRACKS.length) return;
+    bgmIndex = ((i % BGM_TRACKS.length) + BGM_TRACKS.length) % BGM_TRACKS.length;
+    const tr = BGM_TRACKS[bgmIndex];
+    if(!bgmAudio.src || bgmAudio.src.indexOf(tr.src.split("/").pop()) < 0){
+      bgmAudio.src = tr.src;
+      try{ bgmAudio.load(); }catch(e){}
+    }
+  }
+  function nextBgmTrack(autoplay){
+    loadBgm(bgmIndex + 1);
+    if(autoplay && bgmOn) playBgmInternal();
+  }
+  function playBgmInternal(){
+    if(!bgmAudio || !bgmOn) return;
+    ensureAudioGraph();
+    if(audioCtx && audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    if(!bgmAudio.src) loadBgm(bgmIndex);
+    const wantDuck = (mode === "speaking" || mode === "transition" || !!currentEvent);
+    bgmAudio.volume = wantDuck ? bgmDuckVol : bgmTargetVol;
+    const p = bgmAudio.play();
+    if(p && p.then) p.catch(()=>{});
+  }
+  function pauseBgmInternal(){
+    if(!bgmAudio) return;
+    try{ bgmAudio.pause(); }catch(e){}
+  }
+  function syncBgmToMode(){
+    if(!bgmOn){ pauseBgmInternal(); return; }
+    // 无会议/发言时正常音量；奏报/发言/传简时压低
+    if(mode === "speaking" || mode === "transition" || currentEvent){
+      fadeBgmTo(bgmDuckVol, 700);
+      if(bgmAudio && bgmAudio.paused) playBgmInternal();
+    } else {
+      playBgmInternal();
+      fadeBgmTo(bgmTargetVol, 1400);
+    }
+  }
+  function duckBgmForSpeech(){ if(bgmOn) fadeBgmTo(bgmDuckVol, 600); }
+  function restoreBgmAfterSpeech(){
+    if(!bgmOn) return;
+    if(mode === "idle" && !currentEvent) fadeBgmTo(bgmTargetVol, 1600);
+  }
+  function unlockBgmInGesture(){
+    bgmUnlocked = true;
+    ensureAudioGraph();
+    if(audioCtx && audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    // 轻触播一下解锁（与殿中语音共用手势）
+    if(bgmAudio){
+      if(!bgmAudio.src) loadBgm(0);
+      const was = bgmOn;
+      const v = bgmAudio.volume;
+      bgmAudio.volume = 0.01;
+      const p = bgmAudio.play();
+      if(p && p.then) p.then(()=>{ if(!was){ try{ bgmAudio.pause(); }catch(e){} } bgmAudio.volume = v; }).catch(()=>{ bgmAudio.volume = v; });
+      else bgmAudio.volume = v;
+    }
+  }
 
   idleVideo.src = V + "hall_idle.mp4";
   const tryPlayIdle = ()=> idleVideo.play().catch(()=>{});
@@ -1146,6 +1272,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     setCourtMode("office");
     showCourt(null);
     document.getElementById("modepill").textContent = "候场·办公";
+    restoreBgmAfterSpeech(); syncBgmToMode();
     document.getElementById("cineSub").classList.remove("show");
     document.getElementById("agendaNow").textContent = "本场发言已播完，候场办公中。有新交互会自动站班开会。";
     afterXfade(()=>{
@@ -1169,6 +1296,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     }
   }
   function showHallZoom(kind, speakerId){
+    duckBgmForSpeech();
     mode = "speaking";
     const token = speakerToken;
     stageVideo.classList.remove("show");
@@ -1215,6 +1343,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
    * 失败则退回全景推近。
    */
   function showSpeaker(id){
+    duckBgmForSpeech();
     const token = ++speakerToken;
     document.getElementById("modepill").textContent = "发言中";
 
@@ -1285,6 +1414,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
   }
 
   function playTransition(then){
+    duckBgmForSpeech();
     mode = "transition";
     const token = ++speakerToken;
     document.getElementById("cineSub").classList.remove("show");
@@ -1691,6 +1821,26 @@ button.rec.on{background:rgba(140,20,10,.95)}
     }catch(e){}
   }
 
+
+  document.getElementById("btnBgm").onclick = function(){
+    if(!bgmOn){
+      bgmOn = true;
+      this.classList.add("on");
+      this.textContent = "背景音乐 开";
+      unlockVoiceInGesture(); // 共用 iOS 手势解锁
+      unlockBgmInGesture();
+      loadBgm(bgmIndex);
+      playBgmInternal();
+      syncBgmToMode();
+    } else {
+      bgmOn = false;
+      this.classList.remove("on");
+      this.textContent = "背景音乐 关";
+      fadeBgmTo(0, 400);
+      setTimeout(pauseBgmInternal, 450);
+    }
+  };
+
   document.getElementById("btnVoice").onclick = function(){
     // 开关都在手势回调里处理解锁
     if(!voiceOn){
@@ -1698,6 +1848,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
       this.classList.add("on");
       this.textContent = "殿中语音开";
       unlockVoiceInGesture();
+      try{ unlockBgmInGesture(); }catch(e){}
       // 若当前正有发言，立刻用 audio 播当前句
       if(currentEvent){
         speakTTS(currentEvent.from, speechLine(currentEvent.from, currentEvent.text||""));
@@ -1811,6 +1962,14 @@ button.rec.on{background:rgba(140,20,10,.95)}
     const maxH = Math.min(stageWrap.clientHeight, 960);
     recCanvas.width = maxW; recCanvas.height = maxH;
     const stream = recCanvas.captureStream(24);
+    // 录制包含背景音乐（及已解锁的殿中语音）：混入 AudioContext 目的流
+    try{
+      ensureAudioGraph();
+      if(audioCtx && audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+      if(recDest && recDest.stream){
+        recDest.stream.getAudioTracks().forEach(tr=>{ try{ stream.addTrack(tr); }catch(e){} });
+      }
+    }catch(e){}
     const mimes=["video/mp4;codecs=avc1.42E01E","video/mp4","video/webm"];
     let mime=""; for(const m of mimes){ if(MediaRecorder.isTypeSupported(m)){mime=m;break;} }
     try{ mediaRecorder = mime? new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:2500000}): new MediaRecorder(stream); }
