@@ -103,16 +103,21 @@ html,body{margin:0;background:#050201;color:#F6E3A8;font-family:-apple-system,Bl
   border-top:1px solid rgba(180,140,80,.35);
 }
 .seat-tag{
-  position:absolute;left:50%;top:-1.35em;transform:translateX(-50%);
-  font-size:10px;color:#F2CF6A;text-shadow:0 1px 3px #000,0 0 6px #000;
-  white-space:nowrap;opacity:.92;font-weight:700;z-index:2;
-  padding:0 4px; pointer-events:none;
+  position:absolute;left:50%;top:-1.85em;transform:translateX(-50%);
+  font-size:8px;color:#F2CF6A;text-shadow:0 1px 2px rgba(0,0,0,.85);
+  white-space:nowrap;opacity:.88;font-weight:600;z-index:2;
+  padding:0 3px; pointer-events:none;
+  display:inline-flex;align-items:center;gap:2px;
+  background:rgba(10,5,2,.52);border:1px solid rgba(232,197,71,.32);
+  border-radius:2px;line-height:1.25;
+  box-shadow:0 1px 2px rgba(0,0,0,.3);
 }
 #courtLayer{ overflow:visible; }
 
 .seat-headonly{
   width:auto !important; min-width:0;
-  transform:translate(-50%, -100%);
+  transform:translate(-50%, calc(-100% - 3px));
+  transform-origin:50% 100%;
   z-index:6;
 }
 .seat-headonly .seat-shadow,
@@ -120,20 +125,18 @@ html,body{margin:0;background:#050201;color:#F6E3A8;font-family:-apple-system,Bl
 .seat-headonly .seat-desk{display:none !important}
 .seat-headonly .seat-tag{
   position:relative; left:auto; top:auto; transform:none;
-  display:inline-flex; align-items:center; gap:3px;
-  font-size:10px; line-height:1.2;
-  background:rgba(18,8,2,.72); border:1px solid rgba(232,197,71,.55);
-  border-radius:4px; padding:2px 5px 2px 6px;
-  box-shadow:0 1px 4px rgba(0,0,0,.45);
+  font-size:8px; padding:0 3px; gap:2px;
+  background:rgba(10,5,2,.52); border:1px solid rgba(232,197,71,.32);
+  border-radius:2px; box-shadow:0 1px 2px rgba(0,0,0,.3);
 }
 .seat-status{
-  display:inline-flex; align-items:center; justify-content:center;
-  width:1.15em; height:1.15em; font-size:11px; line-height:1;
-  filter:drop-shadow(0 1px 1px #000);
+  display:inline-block; flex:none;
+  width:4px; height:4px; border-radius:50%;
+  box-shadow:0 0 0 1px rgba(0,0,0,.3);
 }
-.seat-status.work::before{content:"📜"}
-.seat-status.idle::before{content:"🍵"}
-
+.seat-status.work{ background:#E8C547; }
+.seat-status.idle{ background:#7ec8c4; }
+.seat-status::before{ content:none !important; }
 
 @keyframes courtBreathe{
   0%,100%{transform:scale(1) translateY(0)}
@@ -316,7 +319,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
 <script>
 (function(){
   const V = "video/";
-  const SEATS = {"version":13,"coordSpace":"hall","fit":"contain","fillFrontFirst":true,"modes":{"office":{"bg":"img/hall_court_9x16.webp","hallSize":{"w":720,"h":1280},"baked":true,"bakedIds":["tian","jb","yl","yq","jg","zq","ip","cs","oi","ts","ppl","ylong","tk","ds"],"heads":{"tian":{"hx":70.0,"hy":58.5},"jb":{"hx":18.0,"hy":47.5},"yl":{"hx":21.0,"hy":43.5},"yq":{"hx":23.5,"hy":40.0},"jg":{"hx":25.5,"hy":37.0},"zq":{"hx":27.5,"hy":34.3},"ip":{"hx":29.0,"hy":32.0},"cs":{"hx":30.5,"hy":30.0},"oi":{"hx":82.0,"hy":47.5},"ts":{"hx":79.0,"hy":43.5},"ppl":{"hx":76.5,"hy":40.0},"ylong":{"hx":74.5,"hy":37.0},"tk":{"hx":72.5,"hy":34.3},"ds":{"hx":71.0,"hy":32.0}},"cutoutDir":"img/chars/cutouts_kneel/","cutoutSuffix":"_kneel.png","mirrorSuffix":"_kneel_R.png","fallbackCutoutDir":"img/chars/cutouts_bust/","fixed":{"wuji":{"hx":50,"hy":88,"hw":0,"seatAnchor":0.8,"label":"陛下","hidden":true},"tian":{"hx":70.0,"hy":58.5,"hw":0,"seatAnchor":0.98,"label":"天","baked":true}},"rows":{"left":[],"right":[]},"overflowRows":{"left":[{"hx":31.5,"hy":28.2,"hw":5.5,"seatAnchor":0.88,"tagOffX":-0.8,"tagOffY":-1.4},{"hx":32.5,"hy":26.5,"hw":5.0,"seatAnchor":0.88,"tagOffX":-0.8,"tagOffY":-1.4}],"right":[{"hx":69.5,"hy":30.0,"hw":5.5,"seatAnchor":0.88,"tagOffX":0.8,"tagOffY":-1.4},{"hx":68.5,"hy":28.2,"hw":5.0,"seatAnchor":0.88,"tagOffX":0.8,"tagOffY":-1.4}]}},"stand":{"bg":"img/hall_stand_9x16.webp","hallSize":{"w":720,"h":1280},"cutoutDir":"img/chars/cutouts_stand/","fixed":{"wuji":{"hx":50.0,"hy":44.0,"hw":12.5,"seatAnchor":0.76,"label":"陛下"},"tian":{"hx":61.0,"hy":47.0,"hw":8.5,"seatAnchor":0.98,"label":"天"}},"rows":{"left":[{"hx":28,"hy":55,"hw":7.5,"seatAnchor":0.98,"tagOffX":-0.8,"tagOffY":-1.5},{"hx":26,"hy":61,"hw":8.5,"seatAnchor":0.98,"tagOffX":-0.8,"tagOffY":-1.5},{"hx":24,"hy":67,"hw":9.5,"seatAnchor":0.98,"tagOffX":-0.8,"tagOffY":-1.5},{"hx":22,"hy":74,"hw":11.0,"seatAnchor":0.98,"tagOffX":-0.9,"tagOffY":-1.6},{"hx":20,"hy":81,"hw":12.5,"seatAnchor":0.98,"tagOffX":-1.0,"tagOffY":-1.8},{"hx":19,"hy":88,"hw":14.0,"seatAnchor":0.98,"tagOffX":-1.1,"tagOffY":-2.0},{"hx":18,"hy":94,"hw":15.5,"seatAnchor":0.98,"tagOffX":-1.2,"tagOffY":-2.2}],"right":[{"hx":72,"hy":55,"hw":7.5,"seatAnchor":0.98,"tagOffX":0.8,"tagOffY":-1.5},{"hx":74,"hy":61,"hw":8.5,"seatAnchor":0.98,"tagOffX":0.8,"tagOffY":-1.5},{"hx":76,"hy":67,"hw":9.5,"seatAnchor":0.98,"tagOffX":0.8,"tagOffY":-1.5},{"hx":78,"hy":74,"hw":11.0,"seatAnchor":0.98,"tagOffX":0.9,"tagOffY":-1.6},{"hx":80,"hy":81,"hw":12.5,"seatAnchor":0.98,"tagOffX":1.0,"tagOffY":-1.8},{"hx":81,"hy":88,"hw":14.0,"seatAnchor":0.98,"tagOffX":1.1,"tagOffY":-2.0},{"hx":82,"hy":94,"hw":15.5,"seatAnchor":0.98,"tagOffX":1.2,"tagOffY":-2.2}]}}},"memberOrder":["jb","oi","yl","ts","yq","ppl","jg","ylong","zq","tk","ip","ds","cs"],"figureKeyById":{"tian":"zhugeliang","jb":"fanli","oi":"kongzi","yl":"luban","ts":"mozi","yq":"zhangheng","ppl":"majun","jg":"jiangziya","ylong":"sanghongyang","zq":"guanzhong","tk":"libai","ip":"simaqian","ds":"dongfangshuo","cs":"baozheng","wuji":"emperor"}};
+  const SEATS = {"version":14,"coordSpace":"hall","fit":"contain","fillFrontFirst":true,"modes":{"office":{"bg":"img/hall_court_9x16.webp","hallSize":{"w":720,"h":1280},"baked":true,"bakedIds":["tian","jb","yl","yq","jg","zq","ip","cs","oi","ts","ppl","ylong","tk","ds"],"heads":{"tian":{"hx":70.0,"hy":50.0},"jb":{"hx":16.5,"hy":41.0},"yl":{"hx":19.5,"hy":37.2},"yq":{"hx":22.2,"hy":34.2},"jg":{"hx":24.5,"hy":31.6},"zq":{"hx":26.5,"hy":29.4},"ip":{"hx":28.2,"hy":27.5},"cs":{"hx":29.8,"hy":25.8},"oi":{"hx":83.5,"hy":41.0},"ts":{"hx":80.5,"hy":37.2},"ppl":{"hx":78.0,"hy":34.2},"ylong":{"hx":76.0,"hy":31.6},"tk":{"hx":74.0,"hy":29.4},"ds":{"hx":72.5,"hy":27.5}},"cutoutDir":"img/chars/cutouts_kneel/","cutoutSuffix":"_kneel.png","mirrorSuffix":"_kneel_R.png","fallbackCutoutDir":"img/chars/cutouts_bust/","fixed":{"wuji":{"hx":50,"hy":88,"hw":0,"seatAnchor":0.8,"label":"陛下","hidden":true},"tian":{"hx":70.0,"hy":50.0,"hw":0,"seatAnchor":0.98,"label":"天","baked":true}},"rows":{"left":[],"right":[]},"overflowRows":{"left":[{"hx":31.5,"hy":28.2,"hw":5.5,"seatAnchor":0.88,"tagOffX":-0.8,"tagOffY":-1.4},{"hx":32.5,"hy":26.5,"hw":5.0,"seatAnchor":0.88,"tagOffX":-0.8,"tagOffY":-1.4}],"right":[{"hx":69.5,"hy":30.0,"hw":5.5,"seatAnchor":0.88,"tagOffX":0.8,"tagOffY":-1.4},{"hx":68.5,"hy":28.2,"hw":5.0,"seatAnchor":0.88,"tagOffX":0.8,"tagOffY":-1.4}]}},"stand":{"bg":"img/hall_stand_9x16.webp","hallSize":{"w":720,"h":1280},"cutoutDir":"img/chars/cutouts_stand/","fixed":{"wuji":{"hx":50.0,"hy":44.0,"hw":12.5,"seatAnchor":0.76,"label":"陛下"},"tian":{"hx":61.0,"hy":47.0,"hw":8.5,"seatAnchor":0.98,"label":"天"}},"rows":{"left":[{"hx":28,"hy":55,"hw":7.5,"seatAnchor":0.98,"tagOffX":-0.9199999999999999,"tagOffY":-2.2},{"hx":26,"hy":61,"hw":8.5,"seatAnchor":0.98,"tagOffX":-0.9199999999999999,"tagOffY":-2.2},{"hx":24,"hy":67,"hw":9.5,"seatAnchor":0.98,"tagOffX":-0.9199999999999999,"tagOffY":-2.2},{"hx":22,"hy":74,"hw":11.0,"seatAnchor":0.98,"tagOffX":-1.035,"tagOffY":-2.2},{"hx":20,"hy":81,"hw":12.5,"seatAnchor":0.98,"tagOffX":-1.15,"tagOffY":-2.2},{"hx":19,"hy":88,"hw":14.0,"seatAnchor":0.98,"tagOffX":-1.265,"tagOffY":-2.2},{"hx":18,"hy":94,"hw":15.5,"seatAnchor":0.98,"tagOffX":-1.38,"tagOffY":-2.2}],"right":[{"hx":72,"hy":55,"hw":7.5,"seatAnchor":0.98,"tagOffX":0.9199999999999999,"tagOffY":-2.2},{"hx":74,"hy":61,"hw":8.5,"seatAnchor":0.98,"tagOffX":0.9199999999999999,"tagOffY":-2.2},{"hx":76,"hy":67,"hw":9.5,"seatAnchor":0.98,"tagOffX":0.9199999999999999,"tagOffY":-2.2},{"hx":78,"hy":74,"hw":11.0,"seatAnchor":0.98,"tagOffX":1.035,"tagOffY":-2.2},{"hx":80,"hy":81,"hw":12.5,"seatAnchor":0.98,"tagOffX":1.15,"tagOffY":-2.2},{"hx":81,"hy":88,"hw":14.0,"seatAnchor":0.98,"tagOffX":1.265,"tagOffY":-2.2},{"hx":82,"hy":94,"hw":15.5,"seatAnchor":0.98,"tagOffX":1.38,"tagOffY":-2.2}]}}},"memberOrder":["jb","oi","yl","ts","yq","ppl","jg","ylong","zq","tk","ip","ds","cs"],"figureKeyById":{"tian":"zhugeliang","jb":"fanli","oi":"kongzi","yl":"luban","ts":"mozi","yq":"zhangheng","ppl":"majun","jg":"jiangziya","ylong":"sanghongyang","zq":"guanzhong","tk":"libai","ip":"simaqian","ds":"dongfangshuo","cs":"baozheng","wuji":"emperor"}};
   let courtMode = "office"; // office | stand | throne
   function modeConf(){ const modes = SEATS.modes || {}; return modes[courtMode] || modes.office || SEATS; }
   function activeCutDir(){ const m = modeConf(); return (m && m.cutoutDir) || "img/chars/cutouts_bust/"; }
@@ -336,7 +339,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     jg:"姜子牙", ylong:"桑弘羊", zq:"管仲", tk:"李白", ip:"司马迁", ds:"东方朔", cs:"包拯", wuji:null
   };
   const NAME_SHORT = {
-    tian:"天", jb:"聚宝", oi:"OI", yl:"一链基座", ts:"天师", yq:"一气", ppl:"泡泡龙",
+    tian:"天", jb:"聚宝", oi:"OI", yl:"一链基座", ts:"天师", yq:"一气", ppl:"泡泡",
     jg:"姜公", ylong:"盈龙", zq:"赚钱养家", tk:"内容实验", ip:"IP Man", ds:"赌圣", cs:"项目测试",
     wuji:"无极", all:"众卿"
   };
@@ -405,6 +408,19 @@ button.rec.on{background:rgba(140,20,10,.95)}
   function loadPlayed(){ try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]");}catch(e){return[];} }
   function savePlayed(){ try{localStorage.setItem(LS_KEY, JSON.stringify(played.slice(-500)));}catch(e){} }
   function shortName(id){ return NAME_SHORT[id]||id; }
+  function tagName(id){
+    if(id === "wuji") return "陛下";
+    // 名牌收窄：过长昵称用短称，避免挡住人物
+    const compact = {yl:"一链", zq:"赚钱", tk:"内容", cs:"测试", ip:"IP", ppl:"泡泡", ylong:"盈龙"};
+    if(compact[id]) return compact[id];
+    const n = shortName(id);
+    return (n && n.length > 4) ? n.slice(0, 4) : n;
+  }
+  function tagScaleForHy(hy){
+    // 前排 ~41 → 0.92；后排 ~26 → 0.52
+    const t = Math.max(0, Math.min(1, ((hy == null ? 40 : hy) - 25) / 18));
+    return 0.52 + t * 0.40;
+  }
   function nickOf(ev){
     if(ev && ev.from === "wuji") return "陛下";
     if(ev && (ev.fromName || ev.from)) return ev.fromName || shortName(ev.from);
@@ -541,24 +557,32 @@ button.rec.on{background:rgba(140,20,10,.95)}
   }
   function addHeadLabelEl(id, head){
     if(!head) return null;
-    const mapped = hallToStage(head.hx, head.hy, 0);
-    if(mapped.x < -8 || mapped.x > 108 || mapped.y < 4 || mapped.y > 104) return null;
+    const scale = tagScaleForHy(head.hy);
+    // 名牌锚在头顶冠部之上（厅坐标再上抬），避免压脸/压身
+    const lift = 3.8 + (1 - scale) * 2.0;
+    const labelHy = head.hy - lift;
+    const mapped = hallToStage(head.hx, labelHy, 0);
+    if(mapped.x < -8 || mapped.x > 108 || mapped.y < 2 || mapped.y > 104) return null;
     const el = document.createElement("div");
     el.className = "seat seat-headonly";
     el.dataset.id = id;
+    el.dataset.hy = String(labelHy);
+    el.dataset.hx = String(head.hx);
+    el.dataset.headHy = String(head.hy);
     el.style.left = mapped.x + "%";
     el.style.top = mapped.y + "%";
     el.style.width = "auto";
-    el.style.transform = "translate(-50%, -100%)";
+    el.style.transform = "translate(-50%, -100%) scale(" + scale.toFixed(3) + ")";
+    el.style.transformOrigin = "50% 100%";
     el.style.zIndex = String(Math.round(mapped.y * 10) + 20);
     const tag = document.createElement("div");
     tag.className = "seat-tag";
-    const name = document.createElement("span");
-    name.textContent = (id === "wuji") ? "陛下" : shortName(id);
     const icon = document.createElement("span");
     icon.className = "seat-status " + statusIconClass(id);
     icon.setAttribute("aria-hidden", "true");
-    tag.appendChild(name); tag.appendChild(icon);
+    const name = document.createElement("span");
+    name.textContent = tagName(id);
+    tag.appendChild(icon); tag.appendChild(name);
     el.appendChild(tag);
     return el;
   }
@@ -594,19 +618,26 @@ button.rec.on{background:rgba(140,20,10,.95)}
     anim.appendChild(img);
     const tag = document.createElement("div");
     tag.className = "seat-tag";
-    const name = document.createElement("span");
-    name.textContent = (id === "wuji") ? "陛下" : shortName(id);
     const icon = document.createElement("span");
     icon.className = "seat-status " + statusIconClass(id);
     icon.setAttribute("aria-hidden", "true");
-    tag.appendChild(name); tag.appendChild(icon);
+    const name = document.createElement("span");
+    name.textContent = tagName(id);
+    tag.appendChild(icon); tag.appendChild(name);
+    const scale = tagScaleForHy(hallConf.hy);
+    tag.style.fontSize = (8 * Math.min(scale, 0.95)).toFixed(1) + "px";
+    tag.style.transform = "translateX(-50%) scale(" + scale.toFixed(3) + ")";
+    tag.style.transformOrigin = "50% 100%";
+    // 名牌抬到头顶上方，避免压脸
     if(hallConf.tagOffX || hallConf.tagOffY){
-      tag.style.left = "calc(50% + " + ((hallConf.tagOffX||0)*1.2) + "vw)";
-      tag.style.top = ((hallConf.tagOffY||0) * 0.55 - 1.35) + "em";
+      tag.style.left = "calc(50% + " + ((hallConf.tagOffX||0)*1.15) + "vw)";
+      tag.style.top = ((hallConf.tagOffY||0) * 0.7 - 2.15) + "em";
     } else if(hallConf._side === "left"){
-      tag.style.left = "35%"; tag.style.top = "-1.55em";
+      tag.style.left = "30%"; tag.style.top = "-2.15em";
     } else if(hallConf._side === "right"){
-      tag.style.left = "65%"; tag.style.top = "-1.55em";
+      tag.style.left = "70%"; tag.style.top = "-2.15em";
+    } else {
+      tag.style.top = "-2.1em";
     }
     el.appendChild(shadow); el.appendChild(anim); el.appendChild(tag);
     // 办公 overflow 兜底才允许桌面遮挡条；baked 主路径不再叠 desk / 调试圈
@@ -745,6 +776,45 @@ button.rec.on{background:rgba(140,20,10,.95)}
     nodes.sort((a,b)=>parseFloat(a.style.top)-parseFloat(b.style.top));
     courtLayer.innerHTML = "";
     nodes.forEach(n=>courtLayer.appendChild(n));
+    deconflictTags();
+  }
+  function deconflictTags(){
+    if(!courtLayer) return;
+    const els = Array.from(courtLayer.querySelectorAll(".seat-headonly"));
+    if(els.length){
+      const items = els.map(el=>{
+        const hx = parseFloat(el.dataset.hx || "50");
+        const hy = parseFloat(el.dataset.hy || "40");
+        const headHy = parseFloat(el.dataset.headHy || hy);
+        return {el, hx, hy, headHy, side: hx < 50 ? "L" : "R"};
+      });
+      ["L","R"].forEach(side=>{
+        const row = items.filter(it=>it.side===side).sort((a,b)=>b.hy-a.hy);
+        for(let i=1;i<row.length;i++){
+          const prev = row[i-1], cur = row[i];
+          const minGap = 1.85;
+          if(prev.hy - cur.hy < minGap){
+            cur.hy = prev.hy - minGap;
+            const scale = tagScaleForHy(cur.headHy);
+            const mapped = hallToStage(cur.hx, cur.hy);
+            cur.el.style.left = mapped.x + "%";
+            cur.el.style.top = mapped.y + "%";
+            cur.el.style.transform = "translate(-50%, -100%) scale(" + scale.toFixed(3) + ")";
+            cur.el.dataset.hy = String(cur.hy);
+          }
+          // 极轻左右错开，避免后排字叠字
+          const outward = (side === "L" ? -1 : 1) * (0.2 + i * 0.08);
+          const mapped2 = hallToStage(cur.hx + outward, parseFloat(cur.el.dataset.hy));
+          cur.el.style.left = mapped2.x + "%";
+        }
+      });
+      return;
+    }
+    const tags = Array.from(courtLayer.querySelectorAll(".seat .seat-tag"));
+    tags.forEach(tag=>{
+      const top = parseFloat(String(tag.style.top||"-1.85").replace("em","")) || -1.85;
+      if(top > -1.75) tag.style.top = "-2.05em";
+    });
   }
   function showCourt(zoomKind){
     if(!courtLayer) return;

@@ -1,5 +1,5 @@
 {
-  "version": 13,
+  "version": 14,
   "coordSpace": "hall",
   "fit": "contain",
   "fillFrontFirst": true,
@@ -30,59 +30,59 @@
       "heads": {
         "tian": {
           "hx": 70.0,
-          "hy": 58.5
+          "hy": 50.0
         },
         "jb": {
-          "hx": 18.0,
-          "hy": 47.5
+          "hx": 16.5,
+          "hy": 41.0
         },
         "yl": {
-          "hx": 21.0,
-          "hy": 43.5
+          "hx": 19.5,
+          "hy": 37.2
         },
         "yq": {
-          "hx": 23.5,
-          "hy": 40.0
+          "hx": 22.2,
+          "hy": 34.2
         },
         "jg": {
-          "hx": 25.5,
-          "hy": 37.0
+          "hx": 24.5,
+          "hy": 31.6
         },
         "zq": {
-          "hx": 27.5,
-          "hy": 34.3
+          "hx": 26.5,
+          "hy": 29.4
         },
         "ip": {
-          "hx": 29.0,
-          "hy": 32.0
+          "hx": 28.2,
+          "hy": 27.5
         },
         "cs": {
-          "hx": 30.5,
-          "hy": 30.0
+          "hx": 29.8,
+          "hy": 25.8
         },
         "oi": {
-          "hx": 82.0,
-          "hy": 47.5
+          "hx": 83.5,
+          "hy": 41.0
         },
         "ts": {
-          "hx": 79.0,
-          "hy": 43.5
+          "hx": 80.5,
+          "hy": 37.2
         },
         "ppl": {
-          "hx": 76.5,
-          "hy": 40.0
+          "hx": 78.0,
+          "hy": 34.2
         },
         "ylong": {
-          "hx": 74.5,
-          "hy": 37.0
+          "hx": 76.0,
+          "hy": 31.6
         },
         "tk": {
-          "hx": 72.5,
-          "hy": 34.3
+          "hx": 74.0,
+          "hy": 29.4
         },
         "ds": {
-          "hx": 71.0,
-          "hy": 32.0
+          "hx": 72.5,
+          "hy": 27.5
         }
       },
       "cutoutDir": "img/chars/cutouts_kneel/",
@@ -100,7 +100,7 @@
         },
         "tian": {
           "hx": 70.0,
-          "hy": 58.5,
+          "hy": 50.0,
           "hw": 0,
           "seatAnchor": 0.98,
           "label": "天",
@@ -180,55 +180,55 @@
             "hy": 55,
             "hw": 7.5,
             "seatAnchor": 0.98,
-            "tagOffX": -0.8,
-            "tagOffY": -1.5
+            "tagOffX": -0.9199999999999999,
+            "tagOffY": -2.2
           },
           {
             "hx": 26,
             "hy": 61,
             "hw": 8.5,
             "seatAnchor": 0.98,
-            "tagOffX": -0.8,
-            "tagOffY": -1.5
+            "tagOffX": -0.9199999999999999,
+            "tagOffY": -2.2
           },
           {
             "hx": 24,
             "hy": 67,
             "hw": 9.5,
             "seatAnchor": 0.98,
-            "tagOffX": -0.8,
-            "tagOffY": -1.5
+            "tagOffX": -0.9199999999999999,
+            "tagOffY": -2.2
           },
           {
             "hx": 22,
             "hy": 74,
             "hw": 11.0,
             "seatAnchor": 0.98,
-            "tagOffX": -0.9,
-            "tagOffY": -1.6
+            "tagOffX": -1.035,
+            "tagOffY": -2.2
           },
           {
             "hx": 20,
             "hy": 81,
             "hw": 12.5,
             "seatAnchor": 0.98,
-            "tagOffX": -1.0,
-            "tagOffY": -1.8
+            "tagOffX": -1.15,
+            "tagOffY": -2.2
           },
           {
             "hx": 19,
             "hy": 88,
             "hw": 14.0,
             "seatAnchor": 0.98,
-            "tagOffX": -1.1,
-            "tagOffY": -2.0
+            "tagOffX": -1.265,
+            "tagOffY": -2.2
           },
           {
             "hx": 18,
             "hy": 94,
             "hw": 15.5,
             "seatAnchor": 0.98,
-            "tagOffX": -1.2,
+            "tagOffX": -1.38,
             "tagOffY": -2.2
           }
         ],
@@ -238,55 +238,55 @@
             "hy": 55,
             "hw": 7.5,
             "seatAnchor": 0.98,
-            "tagOffX": 0.8,
-            "tagOffY": -1.5
+            "tagOffX": 0.9199999999999999,
+            "tagOffY": -2.2
           },
           {
             "hx": 74,
             "hy": 61,
             "hw": 8.5,
             "seatAnchor": 0.98,
-            "tagOffX": 0.8,
-            "tagOffY": -1.5
+            "tagOffX": 0.9199999999999999,
+            "tagOffY": -2.2
           },
           {
             "hx": 76,
             "hy": 67,
             "hw": 9.5,
             "seatAnchor": 0.98,
-            "tagOffX": 0.8,
-            "tagOffY": -1.5
+            "tagOffX": 0.9199999999999999,
+            "tagOffY": -2.2
           },
           {
             "hx": 78,
             "hy": 74,
             "hw": 11.0,
             "seatAnchor": 0.98,
-            "tagOffX": 0.9,
-            "tagOffY": -1.6
+            "tagOffX": 1.035,
+            "tagOffY": -2.2
           },
           {
             "hx": 80,
             "hy": 81,
             "hw": 12.5,
             "seatAnchor": 0.98,
-            "tagOffX": 1.0,
-            "tagOffY": -1.8
+            "tagOffX": 1.15,
+            "tagOffY": -2.2
           },
           {
             "hx": 81,
             "hy": 88,
             "hw": 14.0,
             "seatAnchor": 0.98,
-            "tagOffX": 1.1,
-            "tagOffY": -2.0
+            "tagOffX": 1.265,
+            "tagOffY": -2.2
           },
           {
             "hx": 82,
             "hy": 94,
             "hw": 15.5,
             "seatAnchor": 0.98,
-            "tagOffX": 1.2,
+            "tagOffX": 1.38,
             "tagOffY": -2.2
           }
         ]
