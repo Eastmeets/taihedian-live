@@ -248,121 +248,58 @@ button.rec.on{background:rgba(140,20,10,.95)}
   .cine-text{font-size:20px}
 }
 
-/* —— 大殿日夜光线（本地日出日落） —— */
-#lightOverlay{
-  position:absolute;inset:0;z-index:3;pointer-events:none;
-  opacity:0;transition:opacity 2.8s ease-in-out, background 2.8s ease-in-out;
-  mix-blend-mode:normal;
+/* —— 白天关灯自然光 / 日落后宫灯亮（对齐加效果前亮度，绝不压暗） —— */
+#hallBgOfficeNight, #hallBgStandNight{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center center;
+  z-index:1;transform-origin:50% 38%;
+  transition:opacity 2.6s ease-in-out, transform 1.6s ease-in-out;
+  opacity:0;pointer-events:none;background:#1a0a04;
 }
-#lightOverlay.on{opacity:1}
+#hallBgOfficeNight.show, #hallBgStandNight.show{opacity:1}
+#lightOverlay{ position:absolute;inset:0;z-index:3;pointer-events:none; opacity:1; }
+#lightOverlay .veil, #lightOverlay .windowShade{ display:none !important; }
 #lightOverlay .glow{
-  position:absolute;border-radius:50%;
-  pointer-events:none;
-  mix-blend-mode:screen;
-  opacity:0;transition:opacity 2.8s ease-in-out;
-  filter:blur(2px);
+  position:absolute;border-radius:50%;pointer-events:none;opacity:0;
+  transition:opacity 2.6s ease-in-out;
+  background:radial-gradient(ellipse, rgba(255,220,140,.45) 0%, rgba(255,170,70,.12) 42%, transparent 70%);
 }
-#lightOverlay .glow.g1{ left:12%; top:18%; width:28%; height:16%; background:radial-gradient(ellipse, rgba(255,190,90,.55) 0%, rgba(255,140,40,.18) 42%, transparent 70%); }
-#lightOverlay .glow.g2{ right:10%; top:20%; width:26%; height:15%; background:radial-gradient(ellipse, rgba(255,190,90,.5) 0%, rgba(255,140,40,.16) 42%, transparent 70%); }
-#lightOverlay .glow.g3{ left:18%; top:42%; width:18%; height:12%; background:radial-gradient(ellipse, rgba(255,170,70,.4) 0%, transparent 68%); }
-#lightOverlay .glow.g4{ right:16%; top:44%; width:18%; height:12%; background:radial-gradient(ellipse, rgba(255,170,70,.38) 0%, transparent 68%); }
-#lightOverlay .glow.g5{ left:22%; top:58%; width:14%; height:10%; background:radial-gradient(ellipse, rgba(255,160,60,.32) 0%, transparent 70%); }
-#lightOverlay .glow.g6{ right:20%; top:60%; width:14%; height:10%; background:radial-gradient(ellipse, rgba(255,160,60,.3) 0%, transparent 70%); }
-#lightOverlay .windowShade{
-  position:absolute;left:28%;right:28%;top:8%;height:22%;
-  background:linear-gradient(180deg, rgba(10,20,40,.0), rgba(10,20,40,.0));
-  transition:background 2.8s ease-in-out, opacity 2.8s ease-in-out;
-  opacity:0;
-}
-#lightOverlay .veil{
-  position:absolute;inset:0;
-  transition:background 2.8s ease-in-out, opacity 2.8s ease-in-out;
-}
+#lightOverlay .glow.g1{ left:8%; top:14%; width:24%; height:13%; }
+#lightOverlay .glow.g2{ right:6%; top:16%; width:22%; height:12%; }
+#lightOverlay .glow.g3{ left:14%; top:36%; width:16%; height:10%; }
+#lightOverlay .glow.g4{ right:12%; top:38%; width:16%; height:10%; }
+#lightOverlay .glow.g5{ left:18%; top:52%; width:12%; height:8%; }
+#lightOverlay .glow.g6{ right:16%; top:54%; width:12%; height:8%; }
 .stage-wrap .hall-bg,
+.stage-wrap #hallBgOfficeNight,
+.stage-wrap #hallBgStandNight,
 .stage-wrap #idleVideo,
 .stage-wrap #stageVideo,
 .stage-wrap #transVideo,
 .stage-wrap #courtLayer,
 .stage-wrap #empShot,
-.stage-wrap #empGesture,
-.stage-wrap #saluteOverlay{
-  transition: filter 2.8s ease-in-out, opacity 1.5s ease-in-out, transform 1.6s ease-in-out;
+.stage-wrap #empGesture{
+  transition: opacity 1.5s ease-in-out, transform 1.6s ease-in-out;
+  filter: none !important; /* 永不压暗：亮度只靠底图本身 */
 }
-/* 日间：偏亮中性，门窗有自然光感 */
-.stage-wrap.period-day .hall-bg,
-.stage-wrap.period-day #idleVideo,
-.stage-wrap.period-day #stageVideo,
-.stage-wrap.period-day #transVideo,
-.stage-wrap.period-day #courtLayer,
-.stage-wrap.period-day #empShot,
-.stage-wrap.period-day #empGesture{
-  filter: brightness(1.22) contrast(1.03) saturate(1.06);
-}
-.stage-wrap.period-day #lightOverlay .veil{
-  background:
-    radial-gradient(ellipse at 50% 12%, rgba(255,248,230,.22) 0%, rgba(255,248,230,0) 55%),
-    linear-gradient(180deg, rgba(180,210,255,.08), rgba(0,0,0,0) 40%, rgba(255,240,210,.04));
-  opacity:1;
-}
+/* 白天：关灯自然光底图，无宫灯光晕 */
 .stage-wrap.period-day #lightOverlay .glow{ opacity:0 !important; }
-.stage-wrap.period-day #lightOverlay .windowShade{
-  opacity:1;
-  background:linear-gradient(180deg, rgba(255,250,235,.18), rgba(255,250,235,0));
+/* 黄昏/夜晚：切到宫灯亮起的日落底图（原图亮度），轻晕加亮宫灯 */
+.stage-wrap.period-dusk #lightOverlay .glow{ opacity:.25; }
+.stage-wrap.period-night #lightOverlay .glow{ opacity:.35; }
+.stage-wrap.period-night .seat-tag,
+.stage-wrap.period-dusk .seat-tag{
+  background:rgba(12,6,2,.68); border-color:rgba(255,220,120,.55);
+  text-shadow:0 1px 2px #000,0 0 4px rgba(0,0,0,.75);
 }
-/* 黄昏/晨曦：变暖变暗，宫灯渐亮 */
-.stage-wrap.period-dusk .hall-bg,
-.stage-wrap.period-dusk #idleVideo,
-.stage-wrap.period-dusk #stageVideo,
-.stage-wrap.period-dusk #transVideo,
-.stage-wrap.period-dusk #courtLayer,
-.stage-wrap.period-dusk #empShot,
-.stage-wrap.period-dusk #empGesture{
-  filter: brightness(0.78) contrast(1.05) saturate(1.12) sepia(0.18) hue-rotate(-6deg);
+.stage-wrap.period-night .seat-tag,
+.stage-wrap.period-dusk .seat-tag{
+  background:rgba(12,6,2,.68); border-color:rgba(255,220,120,.55);
+  text-shadow:0 1px 2px #000,0 0 4px rgba(0,0,0,.75);
 }
-.stage-wrap.period-dusk #lightOverlay .veil{
-  background:
-    linear-gradient(180deg, rgba(40,20,50,.18), rgba(80,30,10,.12) 45%, rgba(20,8,4,.22)),
-    radial-gradient(ellipse at 50% 0%, rgba(255,120,60,.16), transparent 50%);
-  opacity:1;
-}
-.stage-wrap.period-dusk #lightOverlay .glow{ opacity:.55; }
-.stage-wrap.period-dusk #lightOverlay .windowShade{
-  opacity:1;
-  background:linear-gradient(180deg, rgba(255,140,70,.12), rgba(20,10,30,.15));
-}
-/* 夜晚：整体暗偏暖，宫灯光晕+轻闪 */
-.stage-wrap.period-night .hall-bg,
-.stage-wrap.period-night #idleVideo,
-.stage-wrap.period-night #stageVideo,
-.stage-wrap.period-night #transVideo,
-.stage-wrap.period-night #courtLayer,
-.stage-wrap.period-night #empShot,
-.stage-wrap.period-night #empGesture{
-  filter: brightness(0.46) contrast(1.08) saturate(0.95) sepia(0.32) hue-rotate(-10deg);
-}
-.stage-wrap.period-night #lightOverlay .veil{
-  background:
-    linear-gradient(180deg, rgba(4,8,22,.45), rgba(10,4,2,.28) 40%, rgba(0,0,0,.42)),
-    radial-gradient(ellipse at 50% 100%, rgba(40,15,5,.2), transparent 55%);
-  opacity:1;
-}
-.stage-wrap.period-night #lightOverlay .glow{ opacity:.85; animation: lanternFlicker 3.6s ease-in-out infinite; }
-.stage-wrap.period-night #lightOverlay .glow.g2{ animation-delay:.6s; }
-.stage-wrap.period-night #lightOverlay .glow.g3{ animation-delay:1.1s; }
-.stage-wrap.period-night #lightOverlay .glow.g4{ animation-delay:1.7s; }
-.stage-wrap.period-night #lightOverlay .glow.g5{ animation-delay:.3s; }
-.stage-wrap.period-night #lightOverlay .glow.g6{ animation-delay:2.1s; }
-.stage-wrap.period-night #lightOverlay .windowShade{
-  opacity:1;
-  background:linear-gradient(180deg, rgba(5,10,28,.55), rgba(5,10,28,.15) 70%, transparent);
-}
-@keyframes lanternFlicker{
-  0%,100%{ opacity:.78; filter:blur(2px) brightness(1); }
-  40%{ opacity:.92; filter:blur(1.5px) brightness(1.08); }
-  70%{ opacity:.7; filter:blur(2.5px) brightness(.95); }
-}
-@media (prefers-reduced-motion:reduce){
-  .stage-wrap.period-night #lightOverlay .glow{ animation:none; opacity:.82; }
+.stage-wrap.period-night .seat-tag,
+.stage-wrap.period-dusk .seat-tag{
+  background:rgba(12,6,2,.68); border-color:rgba(255,220,120,.5);
+  text-shadow:0 1px 2px #000,0 0 4px rgba(0,0,0,.8);
 }
 #periodpill{ letter-spacing:.06em; min-width:2.2em; text-align:center; }
 
@@ -370,10 +307,12 @@ button.rec.on{background:rgba(140,20,10,.95)}
 </head>
 <body>
 <div class="stage-wrap" id="stageWrap">
-  <img id="hallBgOffice" class="hall-bg show" src="img/hall_court_9x16.webp" alt="" decoding="async" />
-  <img id="hallBgStand" class="hall-bg" src="img/hall_stand_9x16.webp" alt="" decoding="async" />
+  <img id="hallBgOffice" class="hall-bg show" src="img/hall_court_day_9x16.jpg?v=83" alt="" decoding="async" />
+  <img id="hallBgStand" class="hall-bg" src="img/hall_stand_day_9x16.jpg?v=83" alt="" decoding="async" />
+  <img id="hallBgOfficeNight" src="img/hall_court_night_9x16.jpg?v=83" alt="" decoding="async" />
+  <img id="hallBgStandNight" src="img/hall_stand_night_9x16.jpg?v=83" alt="" decoding="async" />
   <img id="empGesture" src="img/chars/emperor_gesture.webp" alt="" decoding="async" />
-  <video id="idleVideo" class="show" muted loop playsinline webkit-playsinline preload="auto"></video>
+  <video id="idleVideo" class="" muted loop playsinline webkit-playsinline preload="auto"></video>
   <div id="courtLayer" class="show" aria-hidden="true"></div>
   <div id="lightOverlay" class="on" aria-hidden="true">
     <div class="veil"></div>
@@ -445,9 +384,8 @@ button.rec.on{background:rgba(140,20,10,.95)}
 </div>
 <div class="below" style="padding-top:0">
   <div class="note" id="bgmCredit" style="font-size:11px;color:#8a7350;line-height:1.55;margin:4px 12px 8px">
-    背景音乐（古琴，候场循环）：《酒狂》《孔子读易》《阳关三叠》《醉渔唱晚》演奏 Charlie Huang，来源
-    <a href="https://commons.wikimedia.org/wiki/Category:Guqin_music" target="_blank" rel="noopener" style="color:#C9A56A">Wikimedia Commons</a>
-    （CC BY 2.5 / CC BY-SA 3.0）；《五声音境》本页自制（CC0）。详见
+    背景音乐（候场轮播，共15首）：古琴《酒狂》《孔子读易》《阳关三叠》《醉渔唱晚》《流水》《佩兰》《平沙落雁》《神人畅》《秋风词》《凤求凰》《梅花三弄》片段、即兴与调式辑，演奏
+    Charlie Huang（<a href="https://commons.wikimedia.org/wiki/User:CharlieHuang" target="_blank" rel="noopener" style="color:#C9A56A">Wikimedia Commons</a>，CC BY / CC BY-SA / PD）；竹笛采样 Gorgoroth6669（CC0）；《五声音境》本页自制（CC0）。详见
     <a href="audio/bgm/LICENSES.md" target="_blank" rel="noopener" style="color:#C9A56A">audio/bgm/LICENSES.md</a>。
   </div>
 </div>
@@ -599,17 +537,46 @@ button.rec.on{background:rgba(140,20,10,.95)}
     if((t >= dawn && t < morningEnd) || (t >= eveningStart && t < dusk)) return "dusk";
     return "night";
   }
+  // 恒亮补光：naturalLight∈[0,1]，lampLight=1-naturalLight；整体亮度≈白天
+  const LIGHT_BALANCE = {
+    day:  { natural: 1.00, label: "日间" },
+    dusk: { natural: 0.45, label: "黄昏" },
+    night:{ natural: 0.08, label: "夜" }
+  };
   function applyLightPeriod(period){
     const wrap = document.getElementById("stageWrap");
     if(!wrap) return;
     const next = (period === "dusk" || period === "night") ? period : "day";
     lightPeriod = next;
+    const bal = LIGHT_BALANCE[next] || LIGHT_BALANCE.day;
+    const naturalLight = bal.natural;
+    const lampLight = 1 - naturalLight;
+    wrap.dataset.naturalLight = String(naturalLight);
+    wrap.dataset.lampLight = String(lampLight);
     wrap.classList.remove("period-day","period-dusk","period-night");
     wrap.classList.add("period-" + next);
     const pill = document.getElementById("periodpill");
-    if(pill) pill.textContent = PERIOD_LABEL[next] || "日间";
+    if(pill) pill.textContent = bal.label;
     const overlay = document.getElementById("lightOverlay");
     if(overlay) overlay.classList.add("on");
+    // 夜景底图交叉淡入：夜=满显夜景；黄昏=半显；日间=隐藏
+    syncNightBgs(next, lampLight);
+  }
+  function syncNightBgs(period, lampLight){
+    // 白天：日间关灯自然光底图；黄昏/夜晚：淡入宫灯亮起的日落原图（亮度≥加效果前）
+    const officeN = document.getElementById("hallBgOfficeNight");
+    const standN = document.getElementById("hallBgStandNight");
+    const nightOn = (period === "night" || period === "dusk");
+    const op = (period === "night" || period === "dusk") ? 1 : 0;
+    if(hallBgOffice) hallBgOffice.classList.toggle("show", courtMode === "office");
+    if(hallBgStand) hallBgStand.classList.toggle("show", courtMode !== "office");
+    [officeN, standN].forEach(el=>{
+      if(!el) return;
+      const isOffice = (el.id === "hallBgOfficeNight");
+      const active = nightOn && ((courtMode === "office") ? isOffice : !isOffice);
+      el.style.opacity = active ? String(op) : "0";
+      el.classList.toggle("show", active && op > 0.05);
+    });
   }
   function refreshLightPeriod(){
     if(lightForced){ applyLightPeriod(lightForced); return; }
@@ -621,21 +588,19 @@ button.rec.on{background:rgba(140,20,10,.95)}
     applyLightPeriod(periodFromSun(now, times));
   }
   function initHallLighting(){
-    // ?time=day|dusk|night 调试截图；兼容 dawn/evening
     try{
       const q = new URLSearchParams(location.search || "");
-      let t = (q.get("time") || "").toLowerCase();
-      if(t === "dawn" || t === "evening" || t === "twilight") t = "dusk";
-      if(t === "day" || t === "dusk" || t === "night") lightForced = t;
+      let tq = (q.get("time") || "").toLowerCase();
+      if(tq === "dawn" || tq === "evening" || tq === "twilight") tq = "dusk";
+      if(tq === "day" || tq === "dusk" || tq === "night") lightForced = tq;
       const scene = (q.get("scene") || "").toLowerCase();
       if(scene === "stand" || scene === "office"){
-        setTimeout(function(){ try{ setCourtMode(scene, {force:true}); }catch(e){} }, 40);
+        try{ setCourtMode(scene, {force:true, rerender:true}); }catch(e){}
       }
     }catch(e){}
     const fb = tzFallbackCoords();
     lightLat = fb.lat; lightLon = fb.lon;
     refreshLightPeriod();
-    // 定位仅本地使用；拒绝/失败保持时区兜底
     try{
       if(!lightForced && navigator.geolocation && navigator.geolocation.getCurrentPosition){
         navigator.geolocation.getCurrentPosition(function(pos){
@@ -643,7 +608,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
           lightLat = pos.coords.latitude;
           lightLon = pos.coords.longitude;
           refreshLightPeriod();
-        }, function(){ /* keep fallback */ }, {enableHighAccuracy:false, timeout:6000, maximumAge:3600000});
+        }, function(){}, {enableHighAccuracy:false, timeout:6000, maximumAge:3600000});
       }
     }catch(e){}
     setInterval(refreshLightPeriod, 60000);
@@ -685,7 +650,17 @@ button.rec.on{background:rgba(140,20,10,.95)}
     {src:"audio/bgm/02_kongzi_duyi.mp3", title:"孔子读易"},
     {src:"audio/bgm/03_yangguan_sandie.mp3", title:"阳关三叠"},
     {src:"audio/bgm/04_zuiyu_changwan.mp3", title:"醉渔唱晚"},
-    {src:"audio/bgm/05_wuyin_ambient.mp3", title:"五声音境"}
+    {src:"audio/bgm/05_wuyin_ambient.mp3", title:"五声音境"},
+    {src:"audio/bgm/06_liushui.mp3", title:"流水"},
+    {src:"audio/bgm/07_peilan.mp3", title:"佩兰"},
+    {src:"audio/bgm/08_pingsha_luoyan.mp3", title:"平沙落雁"},
+    {src:"audio/bgm/09_improvisation.mp3", title:"古琴即兴"},
+    {src:"audio/bgm/10_shenren_chang.mp3", title:"神人畅"},
+    {src:"audio/bgm/11_qiufeng_ci.mp3", title:"秋风词"},
+    {src:"audio/bgm/12_feng_qiu_huang.mp3", title:"凤求凰"},
+    {src:"audio/bgm/13_meihua_sannong_clip.mp3", title:"梅花三弄（片段）"},
+    {src:"audio/bgm/14_dizi_sample.mp3", title:"竹笛采样"},
+    {src:"audio/bgm/15_qin_diao_suite.mp3", title:"古琴调式辑"}
   ];
   const bgmAudio = document.getElementById("bgmAudio");
   let bgmOn = false, bgmUnlocked = false, bgmIndex = 0;
@@ -696,7 +671,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     bgmAudio.setAttribute("webkit-playsinline","");
     bgmAudio.loop = false;
     bgmAudio.volume = bgmTargetVol;
-    bgmAudio.addEventListener("ended", ()=>{ nextBgmTrack(true); });
+    bgmAudio.addEventListener("ended", ()=>{ if(bgmIndex >= BGM_TRACKS.length-1) shuffleBgmOrder(); nextBgmTrack(true); });
   }
   function ensureAudioGraph(){
     if(audioCtx) return audioCtx;
@@ -734,6 +709,16 @@ button.rec.on{background:rgba(140,20,10,.95)}
       if(i >= steps){ clearInterval(bgmFading); bgmFading = null; bgmAudio.volume = dest; }
     }, 40);
   }
+
+  function shuffleBgmOrder(){
+    // Fisher–Yates；一轮内不重复，播完再洗牌
+    for(let i=BGM_TRACKS.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      const tmp=BGM_TRACKS[i]; BGM_TRACKS[i]=BGM_TRACKS[j]; BGM_TRACKS[j]=tmp;
+    }
+    bgmIndex = 0;
+  }
+
   function loadBgm(i){
     if(!bgmAudio || !BGM_TRACKS.length) return;
     bgmIndex = ((i % BGM_TRACKS.length) + BGM_TRACKS.length) % BGM_TRACKS.length;
@@ -1078,6 +1063,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     courtMode = next;
     if(hallBgOffice) hallBgOffice.classList.toggle("show", courtMode === "office");
     if(hallBgStand) hallBgStand.classList.toggle("show", courtMode !== "office");
+    try{ refreshLightPeriod(); }catch(e){}
     seatAssign = {};
     if(opts.rerender !== false) renderCourt();
     const bg = activeHallBg();
@@ -1123,12 +1109,12 @@ button.rec.on{background:rgba(140,20,10,.95)}
     } else if(id === "wuji"){
       ox = "50%"; oy = "34%";
     }
-    [hallBgOffice, hallBgStand, idleVideo, stageVideo, courtLayer].forEach(el=>{
+    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), idleVideo, stageVideo, courtLayer].forEach(el=>{
       if(el) el.style.transformOrigin = ox + " " + oy;
     });
   }
   function clearZoomOrigin(){
-    [hallBgOffice, hallBgStand, idleVideo, stageVideo, courtLayer].forEach(el=>{
+    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), idleVideo, stageVideo, courtLayer].forEach(el=>{
       if(el) el.style.transformOrigin = "";
     });
   }
@@ -1244,7 +1230,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
   }
 
   function clearZooms(){
-    [hallBgOffice, hallBgStand, idleVideo, stageVideo].forEach(el=>{
+    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), idleVideo, stageVideo].forEach(el=>{
       if(el) el.classList.remove("zoom","zoom-throne","zoom-medium");
     });
     if(courtLayer) courtLayer.classList.remove("zoom","zoom-throne","zoom-medium");
@@ -1269,9 +1255,14 @@ button.rec.on{background:rgba(140,20,10,.95)}
     idleVideo.classList.remove("show"); idleVideo.pause();
     stageVideo.classList.remove("show");
     transVideo.classList.remove("show");
-    setCourtMode("office");
+    // 调试 ?scene=stand 时保持站班，便于截图；正式候场仍回办公
+    if(!(lightForced && (new URLSearchParams(location.search||"").get("scene")||"").toLowerCase()==="stand")){
+      setCourtMode("office");
+    } else {
+      try{ refreshLightPeriod(); }catch(e){}
+    }
     showCourt(null);
-    document.getElementById("modepill").textContent = "候场·办公";
+    document.getElementById("modepill").textContent = (courtMode==="stand" ? "候场·站班" : "候场·办公");
     restoreBgmAfterSpeech(); syncBgmToMode();
     document.getElementById("cineSub").classList.remove("show");
     document.getElementById("agendaNow").textContent = "本场发言已播完，候场办公中。有新交互会自动站班开会。";
@@ -1283,7 +1274,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
 
   /** 两级推镜：全景 → 全身特写 → 半身近景；陛下开会用手势半身图 */
   function applyZoomClass(cls){
-    [hallBgOffice, hallBgStand, idleVideo, stageVideo].forEach(el=>{
+    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), idleVideo, stageVideo].forEach(el=>{
       if(!el) return;
       el.classList.remove("zoom","zoom-throne","zoom-medium");
       if(cls) el.classList.add(cls);
@@ -1829,7 +1820,8 @@ button.rec.on{background:rgba(140,20,10,.95)}
       this.textContent = "背景音乐 开";
       unlockVoiceInGesture(); // 共用 iOS 手势解锁
       unlockBgmInGesture();
-      loadBgm(bgmIndex);
+      shuffleBgmOrder();
+      loadBgm(0);
       playBgmInternal();
       syncBgmToMode();
     } else {
@@ -2007,9 +1999,9 @@ button.rec.on{background:rgba(140,20,10,.95)}
     await poll(); // 首轮：同步历史事件并记入 played，不播
     bootSynced = true;
     setCourtMode("office", {force:true});
-  initHallLighting();
     showCourt(null);
     showIdle();
+    initHallLighting(); // 在 showIdle 之后，便于 ?scene=stand 覆盖
     renderMinutes();
     // 不调用 startNextEvent / rebuildQueue：打开页只看当前全景；新事件由后续 poll 入队
     setInterval(poll, 60000);

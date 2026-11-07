@@ -3,5 +3,15 @@
   {"src":"audio/bgm/02_kongzi_duyi.mp3","title":"孔子读易","credit":"Charlie Huang","license":"CC BY 2.5"},
   {"src":"audio/bgm/03_yangguan_sandie.mp3","title":"阳关三叠","credit":"Charlie Huang","license":"CC BY-SA 3.0"},
   {"src":"audio/bgm/04_zuiyu_changwan.mp3","title":"醉渔唱晚","credit":"Charlie Huang","license":"CC BY-SA 3.0"},
-  {"src":"audio/bgm/05_wuyin_ambient.mp3","title":"五声音境","credit":"太和殿直播自制","license":"CC0"}
+  {"src":"audio/bgm/05_wuyin_ambient.mp3","title":"五声音境","credit":"太和殿直播自制","license":"CC0"},
+  {"src":"audio/bgm/06_liushui.mp3","title":"流水","credit":"Charlie Huang","license":"CC BY 2.5"},
+  {"src":"audio/bgm/07_peilan.mp3","title":"佩兰","credit":"Charlie Huang","license":"CC BY 2.5"},
+  {"src":"audio/bgm/08_pingsha_luoyan.mp3","title":"平沙落雁","credit":"Charlie Huang","license":"CC BY 2.5"},
+  {"src":"audio/bgm/09_improvisation.mp3","title":"古琴即兴","credit":"Charlie Huang","license":"CC BY-SA 3.0"},
+  {"src":"audio/bgm/10_shenren_chang.mp3","title":"神人畅","credit":"Charlie Huang","license":"CC BY-SA 2.5"},
+  {"src":"audio/bgm/11_qiufeng_ci.mp3","title":"秋风词","credit":"Charlie Huang","license":"CC BY 2.5"},
+  {"src":"audio/bgm/12_feng_qiu_huang.mp3","title":"凤求凰","credit":"Charlie Huang","license":"CC BY 2.5"},
+  {"src":"audio/bgm/13_meihua_sannong_clip.mp3","title":"梅花三弄（片段）","credit":"Charlie Huang","license":"CC BY-SA 3.0"},
+  {"src":"audio/bgm/14_dizi_sample.mp3","title":"竹笛采样","credit":"Gorgoroth6669","license":"CC0"},
+  {"src":"audio/bgm/15_qin_diao_suite.mp3","title":"古琴调式辑","credit":"Charlie Huang","license":"Public domain"}
 ]
