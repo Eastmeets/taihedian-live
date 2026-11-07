@@ -10,15 +10,32 @@
 html,body{margin:0;background:#050201;color:#F6E3A8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif;-webkit-tap-highlight-color:transparent}
 .stage-wrap{position:relative;width:100%;height:100vh;height:100dvh;max-height:100vh;overflow:hidden;background:#1a0a04}
 /* 永远垫底的大殿图：任何视频失败都不黑屏 */
-#hallBg{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+.hall-bg{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center center;
   z-index:0;transform-origin:50% 38%;
-  transition:transform 1.6s ease-in-out;
+  transition:opacity 1.5s ease-in-out, transform 1.6s ease-in-out;
   background:#1a0a04;
-  will-change:transform;
+  will-change:opacity,transform;
+  opacity:0;pointer-events:none;
 }
-#hallBg.zoom{transform:scale(1.42)}
-#hallBg.zoom-throne{transform:scale(1.62);transform-origin:50% 34%}
+.hall-bg.show{opacity:1}
+.hall-bg.zoom{transform:scale(1.42)}
+.hall-bg.zoom-throne{transform:scale(1.62);transform-origin:50% 34%}
+.hall-bg.zoom-medium{transform:scale(2.15);transform-origin:50% 36%}
+#empGesture{
+  position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+  width:min(88vw,420px);max-height:78%;object-fit:contain;z-index:3;
+  opacity:0;pointer-events:none;transition:opacity 1.4s ease-in-out, transform 2.2s ease-in-out;
+  filter:drop-shadow(0 12px 28px rgba(0,0,0,.7));
+  will-change:opacity,transform;
+}
+#empGesture.show{opacity:1}
+#empGesture.push{transform:translate(-50%,-50%) scale(1.08)}
+@keyframes empSpeakSway{
+  0%,100%{transform:translate(-50%,-50%) scale(1.08) rotate(0deg)}
+  50%{transform:translate(-50%,-52%) scale(1.1) rotate(-0.6deg)}
+}
+#empGesture.speak{animation:empSpeakSway 3.2s ease-in-out infinite}
 #idleVideo,#stageVideo,#transVideo{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   z-index:1;background:transparent;transform-origin:50% 38%;
@@ -51,20 +68,22 @@ html,body{margin:0;background:#050201;color:#F6E3A8;font-family:-apple-system,Bl
 #courtLayer.show{opacity:1}
 #courtLayer.zoom{transform:scale(1.42)}
 #courtLayer.zoom-throne{transform:scale(1.62);transform-origin:50% 34%}
+#courtLayer.zoom-medium{transform:scale(2.15);transform-origin:50% 36%}
 .seat{
   position:absolute;left:0;top:0;
-  transform:translate(-50%, -88%);
+  transform:translate(-50%, -100%);
   transform-origin:50% 100%;
   will-change:transform;
+  pointer-events:none;
 }
 .seat-shadow{
-  position:absolute;left:50%;bottom:2%;width:62%;height:10%;
+  position:absolute;left:50%;bottom:0;width:70%;height:12%;
   transform:translateX(-50%);
-  background:radial-gradient(ellipse at center, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 70%);
-  filter:none; pointer-events:none;
+  background:radial-gradient(ellipse at center, rgba(0,0,0,.5) 0%, rgba(0,0,0,0) 72%);
+  filter:none; pointer-events:none; z-index:0;
 }
 .seat-anim{
-  display:block;width:100%;transform-origin:50% 100%;
+  display:block;width:100%;transform-origin:50% 100%; position:relative; z-index:1;
   animation: courtBreathe 3.6s ease-in-out infinite;
 }
 .seat-anim.work{animation: courtBreathe 3.6s ease-in-out infinite, courtWrite 2.8s ease-in-out infinite;}
@@ -74,13 +93,15 @@ html,body{margin:0;background:#050201;color:#F6E3A8;font-family:-apple-system,Bl
 .seat img{
   display:block;width:100%;height:auto;
   -webkit-user-drag:none;user-select:none;
-  /* 不用 drop-shadow（iOS 重）；阴影用 seat-shadow */
 }
 .seat-tag{
-  position:absolute;left:50%;bottom:-1.2em;transform:translateX(-50%);
-  font-size:9px;color:#F2CF6A;text-shadow:0 1px 3px #000;
-  white-space:nowrap;opacity:.85;font-weight:600;
+  position:absolute;left:50%;top:-1.35em;transform:translateX(-50%);
+  font-size:10px;color:#F2CF6A;text-shadow:0 1px 3px #000,0 0 6px #000;
+  white-space:nowrap;opacity:.92;font-weight:700;z-index:2;
+  padding:0 4px; pointer-events:none;
 }
+#courtLayer{ overflow:visible; }
+
 @keyframes courtBreathe{
   0%,100%{transform:scale(1) translateY(0)}
   50%{transform:scale(1.015) translateY(-0.4%)}
@@ -194,7 +215,9 @@ button.rec.on{background:rgba(140,20,10,.95)}
 </head>
 <body>
 <div class="stage-wrap" id="stageWrap">
-  <img id="hallBg" src="img/hall.webp" alt="" decoding="async" />
+  <img id="hallBgOffice" class="hall-bg show" src="img/hall_court_9x16.webp" alt="" decoding="async" />
+  <img id="hallBgStand" class="hall-bg" src="img/hall_stand_9x16.webp" alt="" decoding="async" />
+  <img id="empGesture" src="img/chars/emperor_gesture.webp" alt="" decoding="async" />
   <video id="idleVideo" class="show" muted loop playsinline webkit-playsinline preload="auto"></video>
   <div id="courtLayer" class="show" aria-hidden="true"></div>
   <div id="saluteOverlay" aria-hidden="true"><img id="saluteImg" alt=""/><div id="saluteCaption">抱拳行礼</div></div>
@@ -249,7 +272,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
 <div class="below">
   <h2>会议纪要</h2>
   <div class="minutes" id="minutes"></div>
-  <div class="warnbox">打开页面不重播旧汇报，只播打开后的新事件（各一次）。旧内容点「回放今日会议」，可拖进度条跳到任意发言。全景可见陛下坐龙椅、天在旁主持、众卿两侧伏案；进出特写约 1.5 秒交叉淡入淡出。每人固定声线。语音：点「开启殿中语音」听到提示后才算打开；iPhone 请关掉侧边静音键并调高铃声音量。录制只录画面，要连声音请用屏幕录制。</div>
+  <div class="warnbox">打开页面不重播旧汇报，只播打开后的新事件（各一次）。旧内容点「回放今日会议」，可拖进度条跳到任意发言。平时办公伏案；开会淡入站班；陛下发言：全景→全身推近→半身近景（可带手势），讲完拉回。进出约 1.5 秒淡入淡出。每人固定声线。语音：点「开启殿中语音」听到提示后才算打开；iPhone 请关掉侧边静音键并调高铃声音量。录制只录画面，要连声音请用屏幕录制。</div>
   <h2>使用说明</h2>
   <div class="note">
     <p>真实 bot 交互按时间顺序开会。特写加载失败会自动退回大殿全景（带推近），不会黑屏。约每 60 秒读取 events.json。点「回放今日会议」从头再播。</p>
@@ -260,8 +283,11 @@ button.rec.on{background:rgba(140,20,10,.95)}
 <script>
 (function(){
   const V = "video/";
-  const CUT = "img/chars/cutouts/";
-  const SEATS = {"version": 1, "note": "大殿全景座位：百分比相对 stage-wrap；transform-origin 底部居中；z 随深度自动算", "fixed": {"wuji": {"role": "throne", "x": 50, "y": 26, "w": 30, "anchor": "emperor", "label": "陛下"}, "tian": {"role": "host", "x": 66, "y": 36, "w": 24, "figureKey": "zhugeliang", "label": "天"}}, "rows": {"left": [{"x": 20, "y": 42, "w": 15}, {"x": 16, "y": 52, "w": 17}, {"x": 13, "y": 62, "w": 20}, {"x": 11, "y": 72, "w": 23}, {"x": 10, "y": 82, "w": 26}], "right": [{"x": 80, "y": 42, "w": 15}, {"x": 84, "y": 52, "w": 17}, {"x": 87, "y": 62, "w": 20}, {"x": 89, "y": 72, "w": 23}, {"x": 90, "y": 82, "w": 26}]}, "memberOrder": ["jb", "oi", "yl", "ts", "yq", "ppl", "jg", "ylong", "zq", "tk", "ip", "ds", "cs"], "figureKeyById": {"tian": "zhugeliang", "jb": "fanli", "oi": "kongzi", "yl": "luban", "ts": "mozi", "yq": "zhangheng", "ppl": "majun", "jg": "jiangziya", "ylong": "sanghongyang", "zq": "guanzhong", "tk": "libai", "ip": "simaqian", "ds": "dongfangshuo", "cs": "baozheng", "wuji": "emperor"}};
+  const SEATS = {"version":6,"coordSpace":"hall","fit":"contain","modes":{"office":{"bg":"img/hall_court_9x16.webp","hallSize":{"w":720,"h":1280},"cutoutDir":"img/chars/cutouts_bust/","fixed":{"wuji":{"hx":50.0,"hy":88.0,"hw":0.0,"seatAnchor":0.82,"label":"陛下","hidden":true},"tian":{"hx":68.0,"hy":78.0,"hw":10.0,"seatAnchor":0.95,"label":"天"}},"rows":{"left":[{"hx":24,"hy":30,"hw":7.5},{"hx":22,"hy":38,"hw":8.5},{"hx":21,"hy":46,"hw":9.5},{"hx":20,"hy":54,"hw":10.5},{"hx":19,"hy":62,"hw":11.5},{"hx":18,"hy":70,"hw":13.0},{"hx":17,"hy":78,"hw":14.5}],"right":[{"hx":76,"hy":30,"hw":7.5},{"hx":78,"hy":38,"hw":8.5},{"hx":79,"hy":46,"hw":9.5},{"hx":80,"hy":54,"hw":10.5},{"hx":81,"hy":62,"hw":11.5},{"hx":82,"hy":70,"hw":13.0},{"hx":83,"hy":78,"hw":14.5}]},"centerSpeak":{"hx":50,"hy":55,"hw":14.0,"seatAnchor":0.98}},"stand":{"bg":"img/hall_stand_9x16.webp","hallSize":{"w":720,"h":1280},"cutoutDir":"img/chars/cutouts_stand/","fixed":{"wuji":{"hx":50.0,"hy":32.0,"hw":12.0,"seatAnchor":0.88,"label":"陛下"},"tian":{"hx":62.0,"hy":40.0,"hw":9.0,"seatAnchor":0.98,"label":"天"}},"rows":{"left":[{"hx":28,"hy":52,"hw":7.5},{"hx":26,"hy":58,"hw":8.5},{"hx":24,"hy":64,"hw":9.5},{"hx":22,"hy":71,"hw":11.0},{"hx":20,"hy":78,"hw":12.5},{"hx":19,"hy":85,"hw":14.0},{"hx":18,"hy":92,"hw":15.5}],"right":[{"hx":72,"hy":52,"hw":7.5},{"hx":74,"hy":58,"hw":8.5},{"hx":76,"hy":64,"hw":9.5},{"hx":78,"hy":71,"hw":11.0},{"hx":80,"hy":78,"hw":12.5},{"hx":81,"hy":85,"hw":14.0},{"hx":82,"hy":92,"hw":15.5}]}},"throne":{"bg":"img/hall_stand_9x16.webp","hallSize":{"w":720,"h":1280},"cutoutDir":"img/chars/cutouts_stand/","fixed":{"wuji":{"hx":50.0,"hy":58.0,"hw":42.0,"seatAnchor":0.92,"label":"陛下"},"tian":{"hx":12.0,"hy":62.0,"hw":14.0,"seatAnchor":0.98,"label":"天"}},"rows":{"left":[],"right":[]}}},"memberOrder":["jb","oi","yl","ts","yq","ppl","jg","ylong","zq","tk","ip","ds","cs"],"figureKeyById":{"tian":"zhugeliang","jb":"fanli","oi":"kongzi","yl":"luban","ts":"mozi","yq":"zhangheng","ppl":"majun","jg":"jiangziya","ylong":"sanghongyang","zq":"guanzhong","tk":"libai","ip":"simaqian","ds":"dongfangshuo","cs":"baozheng","wuji":"emperor"}};
+  let courtMode = "office"; // office | stand | throne
+  function modeConf(){ const modes = SEATS.modes || {}; return modes[courtMode] || modes.office || SEATS; }
+  function activeCutDir(){ const m = modeConf(); return (m && m.cutoutDir) || "img/chars/cutouts_bust/"; }
+  function activeHallSize(){ const m = modeConf(); return (m && m.hallSize) || {w:720,h:1280}; }
   const FIG_KEY = {
     "诸葛亮":"zhugeliang","范蠡":"fanli","孔子":"kongzi","鲁班":"luban","墨子":"mozi",
     "张衡":"zhangheng","马钧":"majun","姜子牙":"jiangziya","桑弘羊":"sanghongyang","管仲":"guanzhong",
@@ -295,7 +321,10 @@ button.rec.on{background:rgba(140,20,10,.95)}
   const ENTER_HOLD_MS = 200;  // 开播前微顿
 
 
-  const hallBg = document.getElementById("hallBg");
+  const hallBgOffice = document.getElementById("hallBgOffice");
+  const hallBgStand = document.getElementById("hallBgStand");
+  const empGesture = document.getElementById("empGesture");
+  function activeHallBg(){ return courtMode === "office" ? hallBgOffice : hallBgStand; }
   const empShot = document.getElementById("empShot");
   const idleVideo = document.getElementById("idleVideo");
   const stageVideo = document.getElementById("stageVideo");
@@ -316,9 +345,8 @@ button.rec.on{background:rgba(140,20,10,.95)}
 
   idleVideo.src = V + "hall_idle.mp4";
   const tryPlayIdle = ()=> idleVideo.play().catch(()=>{});
-  tryPlayIdle();
-  // 用户任意点击也尝试恢复 idle（iOS 自动播放策略）
-  document.addEventListener("touchstart", function once(){ tryPlayIdle(); }, {passive:true, once:true});
+  // 全景用静态带桌排底图；idle 视频仅在需要时空殿微动（现默认不盖群像）
+  idleVideo.classList.remove("show");
 
   let STATUS = (window.PALACE_STATUS||[]).slice();
   let AS_OF = window.PALACE_AS_OF || "—";
@@ -396,20 +424,36 @@ button.rec.on{background:rgba(140,20,10,.95)}
     return "work";
   }
   function cutoutSrc(id, pose){
+    const CUT = activeCutDir();
     const key = figureKeyOf(id);
     if(key === "emperor") return CUT + "emperor.png";
-    const file = key + "_" + (pose === "idle" ? "idle" : "work") + ".png";
-    return CUT + file;
+    const usePose = (courtMode === "stand" || courtMode === "throne") ? "work" : (pose === "idle" ? "idle" : "work");
+    return CUT + key + "_" + usePose + ".png";
+  }
+  /** hall.webp 百分比 → 舞台百分比（跟随 object-fit:cover） */
+  function hallToStage(hx, hy, hw){
+    const sw = stageWrap.clientWidth || 390;
+    const sh = stageWrap.clientHeight || 844;
+    const bg = activeHallBg();
+    const hs = activeHallSize();
+    const iw = (bg && bg.naturalWidth) || (hs && hs.w) || 720;
+    const ih = (bg && bg.naturalHeight) || (hs && hs.h) || 1280;
+    const fit = (SEATS.fit === "contain") ? "contain" : "cover";
+    const scale = (fit === "contain") ? Math.min(sw/iw, sh/ih) : Math.max(sw/iw, sh/ih);
+    const dw = iw * scale, dh = ih * scale;
+    const ox = (sw - dw) / 2, oy = (sh - dh) / 2;
+    const sx = ((ox + (hx/100) * dw) / sw) * 100;
+    const sy = ((oy + (hy/100) * dh) / sh) * 100;
+    const swPct = hw != null ? (hw/100 * dw / sw) * 100 : null;
+    return {x: sx, y: sy, w: swPct};
   }
   function ensureSeatSlot(id){
     if(id === "wuji" || id === "tian") return null;
     if(seatAssign[id]) return seatAssign[id];
+    const conf = modeConf();
     const order = (SEATS.memberOrder)||[];
-    const left = (SEATS.rows&&SEATS.rows.left)||[];
-    const right = (SEATS.rows&&SEATS.rows.right)||[];
-    // 先按预设顺序占座
-    const taken = new Set(Object.keys(seatAssign).map(k=>seatAssign[k].side+":"+seatAssign[k].index));
-    // 给已知 order 预留
+    const left = (conf.rows&&conf.rows.left)||[];
+    const right = (conf.rows&&conf.rows.right)||[];
     order.forEach((mid,i)=>{
       if(seatAssign[mid]) return;
       const side = (i % 2 === 0) ? "left" : "right";
@@ -418,73 +462,110 @@ button.rec.on{background:rgba(140,20,10,.95)}
       if(index < row.length) seatAssign[mid] = {side, index};
     });
     if(seatAssign[id]) return seatAssign[id];
-    // 新成员：找空位
     for(const side of ["left","right"]){
       const row = side === "left" ? left : right;
       for(let index=0; index<row.length; index++){
-        const key = side+":"+index;
         const used = Object.values(seatAssign).some(s=>s.side===side && s.index===index);
         if(!used){ seatAssign[id] = {side, index}; return seatAssign[id]; }
       }
     }
-    // 座位满：挤到最后一排略偏移
     const side = Object.keys(seatAssign).length % 2 === 0 ? "left" : "right";
     const row = side === "left" ? left : right;
     seatAssign[id] = {side, index: Math.max(0, row.length-1), bump: true};
     return seatAssign[id];
   }
+  function addSeatEl(id, hallConf, poseClass){
+    const pose = poseOf(id);
+    const src = cutoutSrc(id, pose);
+    const mapped = hallToStage(hallConf.hx, hallConf.hy, hallConf.hw);
+    if(mapped.x < -8 || mapped.x > 108 || mapped.y < 8 || mapped.y > 104) return null;
+    const el = document.createElement("div");
+    el.className = "seat";
+    el.dataset.id = id;
+    el.style.left = mapped.x + "%";
+    el.style.top = mapped.y + "%";
+    el.style.width = (mapped.w || 8) + "%";
+    // seatAnchor: 0–1，图上落点（脚底=1，龙椅坐面约 0.72）
+    const anchor = (hallConf.seatAnchor != null) ? hallConf.seatAnchor : 1;
+    el.style.transform = "translate(-50%, -" + (anchor * 100) + "%)";
+    el.style.zIndex = String(Math.round(mapped.y * 10));
+    const shadow = document.createElement("div");
+    shadow.className = "seat-shadow";
+    // 阴影贴在落点附近
+    shadow.style.bottom = ((1 - anchor) * 100) + "%";
+    const anim = document.createElement("div");
+    anim.className = "seat-anim " + (poseClass || (pose === "idle" ? "idle" : "work"));
+    const img = document.createElement("img");
+    img.alt = ""; img.decoding = "async"; img.loading = "eager";
+    img.src = src;
+    img.onerror = function(){ this.src = activeCutDir() + "pool_work.png"; };
+    anim.appendChild(img);
+    const tag = document.createElement("div");
+    tag.className = "seat-tag";
+    tag.textContent = (id === "wuji") ? "陛下" : shortName(id);
+    el.appendChild(shadow); el.appendChild(anim); el.appendChild(tag);
+    return el;
+  }
+  function setCourtMode(mode, opts){
+    opts = opts || {};
+    const next = (mode === "stand" || mode === "throne") ? mode : "office";
+    if(next === courtMode && !opts.force){
+      if(opts.rerender !== false) renderCourt();
+      return;
+    }
+    courtMode = next;
+    if(hallBgOffice) hallBgOffice.classList.toggle("show", courtMode === "office");
+    if(hallBgStand) hallBgStand.classList.toggle("show", courtMode !== "office");
+    seatAssign = {};
+    if(opts.rerender !== false) renderCourt();
+    const bg = activeHallBg();
+    if(bg && !bg.complete){
+      bg.addEventListener("load", ()=>{ if(courtLayer && courtLayer.classList.contains("show")) renderCourt(); }, {once:true});
+    }
+  }
+  function hideEmpGesture(){
+    if(!empGesture) return;
+    empGesture.classList.remove("show","push","speak");
+  }
+  function showEmpGestureShot(){
+    // 开会时陛下半身手势近景（免费：静态姿势图 + 轻微推镜晃动）
+    if(!empGesture) return false;
+    if(!empGesture.getAttribute("src")) return false;
+    empGesture.classList.remove("push","speak");
+    empGesture.classList.add("show");
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        empGesture.classList.add("push","speak");
+      });
+    });
+    return true;
+  }
   function renderCourt(){
     if(!courtLayer) return;
-    const frag = document.createDocumentFragment();
     const nodes = [];
-    // 固定：陛下 + 天
-    const fixed = SEATS.fixed || {};
-    function addSeat(id, conf, poseClass){
-      const pose = poseOf(id);
-      const src = cutoutSrc(id, pose);
-      const el = document.createElement("div");
-      el.className = "seat";
-      el.dataset.id = id;
-      const x = conf.x, y = conf.y, w = conf.w;
-      const z = Math.round(y * 10);
-      el.style.left = x + "%";
-      el.style.top = y + "%";
-      el.style.width = w + "%";
-      el.style.zIndex = String(z);
-      if(conf.bump){ el.style.left = (x + (conf.side==="left"?-3:3)) + "%"; }
-      const shadow = document.createElement("div");
-      shadow.className = "seat-shadow";
-      const anim = document.createElement("div");
-      anim.className = "seat-anim " + (poseClass || (pose === "idle" ? "idle" : "work"));
-      const img = document.createElement("img");
-      img.alt = "";
-      img.decoding = "async";
-      img.loading = "eager";
-      img.src = src;
-      img.onerror = function(){ this.src = CUT + "pool_work.png"; };
-      anim.appendChild(img);
-      const tag = document.createElement("div");
-      tag.className = "seat-tag";
-      tag.textContent = (id === "wuji") ? "陛下" : shortName(id);
-      el.appendChild(shadow); el.appendChild(anim); el.appendChild(tag);
-      nodes.push(el);
+    const conf = modeConf();
+    const fixed = conf.fixed || {};
+    if(fixed.wuji && !fixed.wuji.hidden && (fixed.wuji.hw||0) > 0){
+      const el = addSeatEl("wuji", fixed.wuji, "throne");
+      if(el) nodes.push(el);
     }
-    if(fixed.wuji) addSeat("wuji", fixed.wuji, "throne");
-    if(fixed.tian) addSeat("tian", fixed.tian, "host");
-    // 其余成员：STATUS 里除 wuji/tian
+    if(fixed.tian && !fixed.tian.hidden && (fixed.tian.hw||0) > 0){
+      const el = addSeatEl("tian", fixed.tian, "host");
+      if(el) nodes.push(el);
+    }
     const ids = [];
     STATUS.forEach(s=>{ if(s && s.id && s.id!=="wuji" && s.id!=="tian") ids.push(s.id); });
-    // 也放入 SEATS.memberOrder 中尚未在 STATUS 的（保持队列完整）
     (SEATS.memberOrder||[]).forEach(id=>{ if(ids.indexOf(id)<0) ids.push(id); });
     ids.forEach(id=>{
       const slot = ensureSeatSlot(id);
       if(!slot) return;
-      const row = ((SEATS.rows||{})[slot.side]||[])[slot.index];
+      const row = ((conf.rows||{})[slot.side]||[])[slot.index];
       if(!row) return;
-      const conf = Object.assign({}, row, {side: slot.side, bump: !!slot.bump});
-      addSeat(id, conf);
+      const seat = Object.assign({}, row);
+      if(slot.bump){ seat.hx = seat.hx + (slot.side==="left" ? -1.2 : 1.2); }
+      const el = addSeatEl(id, seat);
+      if(el) nodes.push(el);
     });
-    // 按 y 排序再挂载，保证遮挡
     nodes.sort((a,b)=>parseFloat(a.style.top)-parseFloat(b.style.top));
     courtLayer.innerHTML = "";
     nodes.forEach(n=>courtLayer.appendChild(n));
@@ -492,20 +573,22 @@ button.rec.on{background:rgba(140,20,10,.95)}
   function showCourt(zoomKind){
     if(!courtLayer) return;
     courtLayer.classList.add("show");
-    courtLayer.classList.remove("zoom","zoom-throne");
+    courtLayer.classList.remove("zoom","zoom-throne","zoom-medium");
     if(zoomKind === "throne") courtLayer.classList.add("zoom-throne");
     else if(zoomKind === "zoom") courtLayer.classList.add("zoom");
+    else if(zoomKind === "medium") courtLayer.classList.add("zoom-medium");
   }
   function hideCourt(){
     if(!courtLayer) return;
-    courtLayer.classList.remove("show","zoom","zoom-throne");
+    courtLayer.classList.remove("show","zoom","zoom-throne","zoom-medium");
   }
 
   function clearZooms(){
-    hallBg.classList.remove("zoom","zoom-throne");
-    idleVideo.classList.remove("zoom","zoom-throne");
-    stageVideo.classList.remove("zoom","zoom-throne");
-    if(courtLayer) courtLayer.classList.remove("zoom","zoom-throne");
+    [hallBgOffice, hallBgStand, idleVideo, stageVideo].forEach(el=>{
+      if(el) el.classList.remove("zoom","zoom-throne","zoom-medium");
+    });
+    if(courtLayer) courtLayer.classList.remove("zoom","zoom-throne","zoom-medium");
+    hideEmpGesture();
   }
   function afterXfade(fn){
     return setTimeout(fn, XFADE_MS + 40);
@@ -519,47 +602,75 @@ button.rec.on{background:rgba(140,20,10,.95)}
       stopSeekTicker();
       showSeekbar(false);
     }
-    // 拉远 + 交叉淡回全景（含群像）
+    // 会议结束：平滑淡回办公全景
     empShot.classList.remove("show");
     clearZooms();
-    idleVideo.classList.add("show");
-    tryPlayIdle();
+    idleVideo.classList.remove("show"); idleVideo.pause();
     stageVideo.classList.remove("show");
     transVideo.classList.remove("show");
-    renderCourt();
+    setCourtMode("office");
     showCourt(null);
-    document.getElementById("modepill").textContent = "候场";
+    document.getElementById("modepill").textContent = "候场·办公";
     document.getElementById("cineSub").classList.remove("show");
-    document.getElementById("agendaNow").textContent = "本场发言已播完，候场中。有新交互会自动接着播。";
+    document.getElementById("agendaNow").textContent = "本场发言已播完，候场办公中。有新交互会自动站班开会。";
     afterXfade(()=>{
       try{ stageVideo.pause(); }catch(e){}
       try{ transVideo.pause(); }catch(e){}
     });
   }
 
-  /** 特写缺失/失败/陛下发言：大殿全景缓慢推近，绝不黑屏 */
+  /** 两级推镜：全景 → 全身特写 → 半身近景；陛下开会用手势半身图 */
+  function applyZoomClass(cls){
+    [hallBgOffice, hallBgStand, idleVideo, stageVideo].forEach(el=>{
+      if(!el) return;
+      el.classList.remove("zoom","zoom-throne","zoom-medium");
+      if(cls) el.classList.add(cls);
+    });
+    if(courtLayer){
+      courtLayer.classList.remove("zoom","zoom-throne","zoom-medium");
+      if(cls === "zoom-throne") courtLayer.classList.add("zoom-throne");
+      else if(cls === "zoom-medium") courtLayer.classList.add("zoom-medium");
+      else if(cls === "zoom") courtLayer.classList.add("zoom");
+    }
+  }
   function showHallZoom(kind){
     mode = "speaking";
     const token = speakerToken;
     stageVideo.classList.remove("show");
     transVideo.classList.remove("show");
-    idleVideo.classList.add("show");
-    tryPlayIdle();
+    idleVideo.classList.remove("show"); idleVideo.pause();
     clearZooms();
-    empShot.classList.remove("show"); // 群像层已有陛下，不再盖整幅 emperor 图
-    renderCourt();
+    empShot.classList.remove("show");
+    // 陛下：站班全景上推；大臣：当前会议全景推近
+    if(kind === "throne" || kind === "throne-gesture"){
+      setCourtMode("stand");
+    } else {
+      renderCourt();
+    }
     showCourt(null);
+    document.getElementById("modepill").textContent = "发言中";
+    // 第一级：全身推近
     requestAnimationFrame(()=>{
       if(token !== speakerToken) return;
       requestAnimationFrame(()=>{
         if(token !== speakerToken) return;
-        const cls = kind === "throne" ? "zoom-throne" : "zoom";
-        hallBg.classList.add(cls);
-        idleVideo.classList.add(cls);
-        showCourt(kind === "throne" ? "throne" : "zoom");
+        applyZoomClass(kind === "throne" || kind === "throne-gesture" ? "zoom-throne" : "zoom");
+        showCourt(kind === "throne" || kind === "throne-gesture" ? "throne" : "zoom");
       });
     });
-    document.getElementById("modepill").textContent = "发言中";
+    // 第二级：半身近景（讲话主体时间停在这里）
+    setTimeout(()=>{
+      if(token !== speakerToken) return;
+      if(kind === "throne-gesture" && showEmpGestureShot()){
+        // 用手势半身图盖住，群像收起避免打架
+        hideCourt();
+        applyZoomClass("zoom-medium");
+        return;
+      }
+      applyZoomClass("zoom-medium");
+      showCourt("zoom");
+      if(courtLayer){ courtLayer.classList.remove("zoom","zoom-throne"); courtLayer.classList.add("zoom-medium"); }
+    }, Math.max(900, ZOOM_MS - 200));
   }
 
   /**
@@ -571,7 +682,11 @@ button.rec.on{background:rgba(140,20,10,.95)}
     document.getElementById("modepill").textContent = "发言中";
 
     if(id === "wuji" || !closeupOf(id)){
-      showHallZoom(id === "wuji" ? "throne" : "zoom");
+      // 开会中陛下：全身→带手势半身近景；否则普通龙椅推近
+      const wujiKind = (id === "wuji")
+        ? ((courtMode === "stand" || courtMode === "throne" || replayMode || queue.length >= 0) ? "throne-gesture" : "throne")
+        : "zoom";
+      showHallZoom(id === "wuji" ? "throne-gesture" : "zoom");
       return;
     }
     const src = closeupOf(id);
@@ -586,9 +701,9 @@ button.rec.on{background:rgba(140,20,10,.95)}
       stageVideo.classList.add("show");
       requestAnimationFrame(()=>{
         if(token !== speakerToken) return;
-        hallBg.classList.add("zoom");
-        stageVideo.classList.add("zoom");
-        idleVideo.classList.add("zoom");
+        applyZoomClass("zoom");
+        // 大臣特写：先全身推近，再进半身近景（视频特写本身即半身）
+        setTimeout(()=>{ if(token === speakerToken) applyZoomClass("zoom-medium"); }, Math.max(700, ZOOM_MS - 400));
         idleVideo.classList.remove("show");
         hideCourt(); // 特写时收起群像，避免叠层打架
       });
@@ -642,8 +757,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     document.getElementById("modepill").textContent = "传简";
     empShot.classList.remove("show");
     clearZooms();
-    idleVideo.classList.add("show");
-    tryPlayIdle();
+    idleVideo.classList.remove("show"); idleVideo.pause();
     stageVideo.classList.remove("show");
     renderCourt();
     showCourt(null);
@@ -921,6 +1035,9 @@ button.rec.on{background:rgba(140,20,10,.95)}
     if(meetingPaused) return;
     if(currentEvent) return;
     if(!queue.length){ showIdle(); renderMinutes(); return; }
+    setCourtMode("stand");
+    showCourt(null);
+    document.getElementById("modepill").textContent = "朝会·站班";
     const e = queue.shift();
     const go = ()=>{
       currentEvent = e;
@@ -966,18 +1083,16 @@ button.rec.on{background:rgba(140,20,10,.95)}
     currentEvent = null;
     document.getElementById("cineSub").classList.remove("show");
     stopVoiceAudio();
-    // 发言结束：缓慢拉回全景，再停顿一会才下一段
+    // 发言结束：拉回站班全景；队列空则淡回办公
     const returning = queue.length > 0;
-    // 交叉淡回全景 + 拉远
     empShot.classList.remove("show");
     clearZooms();
-    idleVideo.classList.add("show");
-    tryPlayIdle();
+    idleVideo.classList.remove("show"); idleVideo.pause();
     stageVideo.classList.remove("show");
     transVideo.classList.remove("show");
-    renderCourt();
+    setCourtMode(returning ? "stand" : "office");
     showCourt(null);
-    document.getElementById("modepill").textContent = returning ? "过场" : "候场";
+    document.getElementById("modepill").textContent = returning ? "站班·过场" : "候场·办公";
     afterXfade(()=>{
       try{ stageVideo.pause(); }catch(e){}
       setTimeout(startNextEvent, GAP_MS);
@@ -1111,7 +1226,13 @@ button.rec.on{background:rgba(140,20,10,.95)}
     const w = stageWrap.clientWidth, h = stageWrap.clientHeight;
     if(recCanvas.width!==w || recCanvas.height!==h){ recCanvas.width=w; recCanvas.height=h; }
     // 永远先画大殿底图，避免录到黑帧
-    try{ recCtx.drawImage(hallBg, 0, 0, w, h); }catch(e){ recCtx.fillStyle="#1a0a04"; recCtx.fillRect(0,0,w,h); }
+    try{ recCtx.drawImage(activeHallBg(), 0, 0, w, h); }catch(e){ recCtx.fillStyle="#1a0a04"; recCtx.fillRect(0,0,w,h); }
+    if(empGesture && empGesture.classList.contains("show")){
+      try{
+        const ew = Math.min(w*0.88, 420), eh = h*0.7;
+        recCtx.drawImage(empGesture, (w-ew)/2, h*0.12, ew, eh);
+      }catch(e){}
+    }
     const active = transVideo.classList.contains("show") ? transVideo
       : (stageVideo.classList.contains("show") ? stageVideo
       : (idleVideo.classList.contains("show") ? idleVideo : null));
@@ -1175,10 +1296,24 @@ button.rec.on{background:rgba(140,20,10,.95)}
   };
 
   document.getElementById("timepill").textContent = AS_OF;
+  if(!window.courtResizeBound){
+    window.courtResizeBound = true;
+    let _rt = 0;
+    window.addEventListener("resize", ()=>{
+      clearTimeout(_rt);
+      _rt = setTimeout(()=>{ if(courtLayer && courtLayer.classList.contains("show")) renderCourt(); }, 120);
+    });
+    // hall 图尺寸就绪后再排一次，避免 naturalWidth=0
+    [hallBgOffice, hallBgStand].forEach(bg=>{
+      if(bg && !bg.complete){
+        bg.addEventListener("load", ()=>{ if(courtLayer && courtLayer.classList.contains("show")) renderCourt(); }, {once:true});
+      }
+    });
+  }
   (async function boot(){
     await poll(); // 首轮：同步历史事件并记入 played，不播
     bootSynced = true;
-    renderCourt();
+    setCourtMode("office", {force:true});
     showCourt(null);
     showIdle();
     renderMinutes();
