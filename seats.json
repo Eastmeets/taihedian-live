@@ -1,7 +1,8 @@
 {
-  "version": 7,
+  "version": 9,
   "coordSpace": "hall",
   "fit": "contain",
+  "fillFrontFirst": true,
   "modes": {
     "office": {
       "bg": "img/hall_court_9x16.webp",
@@ -9,7 +10,10 @@
         "w": 720,
         "h": 1280
       },
-      "cutoutDir": "img/chars/cutouts_bust/",
+      "cutoutDir": "img/chars/cutouts_kneel/",
+      "cutoutSuffix": "_kneel.png",
+      "mirrorSuffix": "_kneel_R.png",
+      "fallbackCutoutDir": "img/chars/cutouts_bust/",
       "fixed": {
         "wuji": {
           "hx": 50,
@@ -21,7 +25,7 @@
         },
         "tian": {
           "hx": 71,
-          "hy": 72,
+          "hy": 71,
           "hw": 10,
           "seatAnchor": 0.98,
           "label": "天",
@@ -31,110 +35,200 @@
       "rows": {
         "left": [
           {
-            "hx": 11.0,
-            "hy": 56.5,
-            "hw": 12.0,
-            "seatAnchor": 0.88
+            "hx": 12.0,
+            "hy": 58.5,
+            "hw": 14.0,
+            "seatAnchor": 0.88,
+            "deskDx": 5.0,
+            "deskDy": 1.2,
+            "deskW": 14.5,
+            "deskH": 5.0,
+            "tagOffX": -1.2,
+            "tagOffY": -2.2
           },
           {
-            "hx": 12.5,
-            "hy": 51.0,
-            "hw": 10.8,
-            "seatAnchor": 0.88
+            "hx": 13.5,
+            "hy": 53.0,
+            "hw": 12.5,
+            "seatAnchor": 0.88,
+            "deskDx": 4.6,
+            "deskDy": 1.1,
+            "deskW": 13.0,
+            "deskH": 4.5,
+            "tagOffX": -1.0,
+            "tagOffY": -2.0
           },
           {
-            "hx": 14.0,
-            "hy": 46.0,
+            "hx": 15.0,
+            "hy": 48.0,
+            "hw": 11.0,
+            "seatAnchor": 0.88,
+            "deskDx": 4.2,
+            "deskDy": 1.0,
+            "deskW": 11.5,
+            "deskH": 4.0,
+            "tagOffX": -0.9,
+            "tagOffY": -1.8
+          },
+          {
+            "hx": 16.5,
+            "hy": 43.5,
             "hw": 9.8,
-            "seatAnchor": 0.88
+            "seatAnchor": 0.88,
+            "deskDx": 3.8,
+            "deskDy": 0.9,
+            "deskW": 10.2,
+            "deskH": 3.5,
+            "tagOffX": -0.8,
+            "tagOffY": -1.6
           },
           {
-            "hx": 15.5,
-            "hy": 41.5,
-            "hw": 8.8,
-            "seatAnchor": 0.88
+            "hx": 17.8,
+            "hy": 39.2,
+            "hw": 8.6,
+            "seatAnchor": 0.88,
+            "deskDx": 3.4,
+            "deskDy": 0.8,
+            "deskW": 9.0,
+            "deskH": 3.1,
+            "tagOffX": -0.7,
+            "tagOffY": -1.5
           },
           {
-            "hx": 17.0,
-            "hy": 37.5,
-            "hw": 8.0,
-            "seatAnchor": 0.88
+            "hx": 19.0,
+            "hy": 35.2,
+            "hw": 7.6,
+            "seatAnchor": 0.88,
+            "deskDx": 3.0,
+            "deskDy": 0.7,
+            "deskW": 8.0,
+            "deskH": 2.8,
+            "tagOffX": -0.6,
+            "tagOffY": -1.4
           },
           {
-            "hx": 18.2,
-            "hy": 33.8,
-            "hw": 7.2,
-            "seatAnchor": 0.88
+            "hx": 20.0,
+            "hy": 31.5,
+            "hw": 6.8,
+            "seatAnchor": 0.88,
+            "deskDx": 2.7,
+            "deskDy": 0.6,
+            "deskW": 7.2,
+            "deskH": 2.5,
+            "tagOffX": -0.5,
+            "tagOffY": -1.3
           },
           {
-            "hx": 19.5,
-            "hy": 30.2,
-            "hw": 6.5,
-            "seatAnchor": 0.88
-          },
-          {
-            "hx": 20.5,
-            "hy": 27.0,
-            "hw": 5.9,
-            "seatAnchor": 0.88
+            "hx": 21.0,
+            "hy": 28.2,
+            "hw": 6.0,
+            "seatAnchor": 0.88,
+            "deskDx": 2.4,
+            "deskDy": 0.5,
+            "deskW": 6.4,
+            "deskH": 2.2,
+            "tagOffX": -0.4,
+            "tagOffY": -1.2
           }
         ],
         "right": [
           {
-            "hx": 89.0,
-            "hy": 56.5,
-            "hw": 12.0,
-            "seatAnchor": 0.88
+            "hx": 88.0,
+            "hy": 58.5,
+            "hw": 14.0,
+            "seatAnchor": 0.88,
+            "deskDx": -5.0,
+            "deskDy": 1.2,
+            "deskW": 14.5,
+            "deskH": 5.0,
+            "tagOffX": 1.2,
+            "tagOffY": -2.2
           },
           {
-            "hx": 87.5,
-            "hy": 51.0,
-            "hw": 10.8,
-            "seatAnchor": 0.88
+            "hx": 86.5,
+            "hy": 53.0,
+            "hw": 12.5,
+            "seatAnchor": 0.88,
+            "deskDx": -4.6,
+            "deskDy": 1.1,
+            "deskW": 13.0,
+            "deskH": 4.5,
+            "tagOffX": 1.0,
+            "tagOffY": -2.0
           },
           {
-            "hx": 86.0,
-            "hy": 46.0,
+            "hx": 85.0,
+            "hy": 48.0,
+            "hw": 11.0,
+            "seatAnchor": 0.88,
+            "deskDx": -4.2,
+            "deskDy": 1.0,
+            "deskW": 11.5,
+            "deskH": 4.0,
+            "tagOffX": 0.9,
+            "tagOffY": -1.8
+          },
+          {
+            "hx": 83.5,
+            "hy": 43.5,
             "hw": 9.8,
-            "seatAnchor": 0.88
+            "seatAnchor": 0.88,
+            "deskDx": -3.8,
+            "deskDy": 0.9,
+            "deskW": 10.2,
+            "deskH": 3.5,
+            "tagOffX": 0.8,
+            "tagOffY": -1.6
           },
           {
-            "hx": 84.5,
-            "hy": 41.5,
-            "hw": 8.8,
-            "seatAnchor": 0.88
+            "hx": 82.2,
+            "hy": 39.2,
+            "hw": 8.6,
+            "seatAnchor": 0.88,
+            "deskDx": -3.4,
+            "deskDy": 0.8,
+            "deskW": 9.0,
+            "deskH": 3.1,
+            "tagOffX": 0.7,
+            "tagOffY": -1.5
           },
           {
-            "hx": 83.0,
-            "hy": 37.5,
-            "hw": 8.0,
-            "seatAnchor": 0.88
+            "hx": 81.0,
+            "hy": 35.2,
+            "hw": 7.6,
+            "seatAnchor": 0.88,
+            "deskDx": -3.0,
+            "deskDy": 0.7,
+            "deskW": 8.0,
+            "deskH": 2.8,
+            "tagOffX": 0.6,
+            "tagOffY": -1.4
           },
           {
-            "hx": 81.8,
-            "hy": 33.8,
-            "hw": 7.2,
-            "seatAnchor": 0.88
+            "hx": 80.0,
+            "hy": 31.5,
+            "hw": 6.8,
+            "seatAnchor": 0.88,
+            "deskDx": -2.7,
+            "deskDy": 0.6,
+            "deskW": 7.2,
+            "deskH": 2.5,
+            "tagOffX": 0.5,
+            "tagOffY": -1.3
           },
           {
-            "hx": 80.5,
-            "hy": 30.2,
-            "hw": 6.5,
-            "seatAnchor": 0.88
-          },
-          {
-            "hx": 79.5,
-            "hy": 27.0,
-            "hw": 5.9,
-            "seatAnchor": 0.88
+            "hx": 79.0,
+            "hy": 28.2,
+            "hw": 6.0,
+            "seatAnchor": 0.88,
+            "deskDx": -2.4,
+            "deskDy": 0.5,
+            "deskW": 6.4,
+            "deskH": 2.2,
+            "tagOffX": 0.4,
+            "tagOffY": -1.2
           }
         ]
-      },
-      "centerSpeak": {
-        "hx": 50,
-        "hy": 48,
-        "hw": 13.0,
-        "seatAnchor": 0.98
       }
     },
     "stand": {
@@ -147,14 +241,14 @@
       "fixed": {
         "wuji": {
           "hx": 50.0,
-          "hy": 43.5,
-          "hw": 11.5,
-          "seatAnchor": 0.78,
+          "hy": 44.0,
+          "hw": 12.5,
+          "seatAnchor": 0.76,
           "label": "陛下"
         },
         "tian": {
-          "hx": 61.5,
-          "hy": 46.5,
+          "hx": 61.0,
+          "hy": 47.0,
           "hw": 8.5,
           "seatAnchor": 0.98,
           "label": "天"
@@ -163,90 +257,118 @@
       "rows": {
         "left": [
           {
-            "hx": 27,
-            "hy": 54,
-            "hw": 7.0,
-            "seatAnchor": 0.98
+            "hx": 28,
+            "hy": 55,
+            "hw": 7.5,
+            "seatAnchor": 0.98,
+            "tagOffX": -0.8,
+            "tagOffY": -1.5
           },
           {
-            "hx": 25,
-            "hy": 60,
-            "hw": 8.0,
-            "seatAnchor": 0.98
+            "hx": 26,
+            "hy": 61,
+            "hw": 8.5,
+            "seatAnchor": 0.98,
+            "tagOffX": -0.8,
+            "tagOffY": -1.5
           },
           {
-            "hx": 23,
-            "hy": 66,
-            "hw": 9.0,
-            "seatAnchor": 0.98
+            "hx": 24,
+            "hy": 67,
+            "hw": 9.5,
+            "seatAnchor": 0.98,
+            "tagOffX": -0.8,
+            "tagOffY": -1.5
           },
           {
-            "hx": 21,
-            "hy": 73,
-            "hw": 10.5,
-            "seatAnchor": 0.98
+            "hx": 22,
+            "hy": 74,
+            "hw": 11.0,
+            "seatAnchor": 0.98,
+            "tagOffX": -0.9,
+            "tagOffY": -1.6
           },
           {
             "hx": 20,
-            "hy": 80,
-            "hw": 12.0,
-            "seatAnchor": 0.98
+            "hy": 81,
+            "hw": 12.5,
+            "seatAnchor": 0.98,
+            "tagOffX": -1.0,
+            "tagOffY": -1.8
           },
           {
             "hx": 19,
-            "hy": 87,
-            "hw": 13.5,
-            "seatAnchor": 0.98
+            "hy": 88,
+            "hw": 14.0,
+            "seatAnchor": 0.98,
+            "tagOffX": -1.1,
+            "tagOffY": -2.0
           },
           {
             "hx": 18,
-            "hy": 93,
-            "hw": 15.0,
-            "seatAnchor": 0.98
+            "hy": 94,
+            "hw": 15.5,
+            "seatAnchor": 0.98,
+            "tagOffX": -1.2,
+            "tagOffY": -2.2
           }
         ],
         "right": [
           {
-            "hx": 73,
-            "hy": 54,
-            "hw": 7.0,
-            "seatAnchor": 0.98
+            "hx": 72,
+            "hy": 55,
+            "hw": 7.5,
+            "seatAnchor": 0.98,
+            "tagOffX": 0.8,
+            "tagOffY": -1.5
           },
           {
-            "hx": 75,
-            "hy": 60,
-            "hw": 8.0,
-            "seatAnchor": 0.98
+            "hx": 74,
+            "hy": 61,
+            "hw": 8.5,
+            "seatAnchor": 0.98,
+            "tagOffX": 0.8,
+            "tagOffY": -1.5
           },
           {
-            "hx": 77,
-            "hy": 66,
-            "hw": 9.0,
-            "seatAnchor": 0.98
+            "hx": 76,
+            "hy": 67,
+            "hw": 9.5,
+            "seatAnchor": 0.98,
+            "tagOffX": 0.8,
+            "tagOffY": -1.5
           },
           {
-            "hx": 79,
-            "hy": 73,
-            "hw": 10.5,
-            "seatAnchor": 0.98
+            "hx": 78,
+            "hy": 74,
+            "hw": 11.0,
+            "seatAnchor": 0.98,
+            "tagOffX": 0.9,
+            "tagOffY": -1.6
           },
           {
             "hx": 80,
-            "hy": 80,
-            "hw": 12.0,
-            "seatAnchor": 0.98
+            "hy": 81,
+            "hw": 12.5,
+            "seatAnchor": 0.98,
+            "tagOffX": 1.0,
+            "tagOffY": -1.8
           },
           {
             "hx": 81,
-            "hy": 87,
-            "hw": 13.5,
-            "seatAnchor": 0.98
+            "hy": 88,
+            "hw": 14.0,
+            "seatAnchor": 0.98,
+            "tagOffX": 1.1,
+            "tagOffY": -2.0
           },
           {
             "hx": 82,
-            "hy": 93,
-            "hw": 15.0,
-            "seatAnchor": 0.98
+            "hy": 94,
+            "hw": 15.5,
+            "seatAnchor": 0.98,
+            "tagOffX": 1.2,
+            "tagOffY": -2.2
           }
         ]
       }
