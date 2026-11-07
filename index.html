@@ -249,13 +249,15 @@ button.rec.on{background:rgba(140,20,10,.95)}
 }
 
 /* —— 白天关灯自然光 / 日落后宫灯亮（对齐加效果前亮度，绝不压暗） —— */
-#hallBgOfficeNight, #hallBgStandNight{
+#hallBgOfficeNight, #hallBgStandNight,
+#hallBgOfficeAfternoon, #hallBgStandAfternoon{
   position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center center;
   z-index:1;transform-origin:50% 38%;
   transition:opacity 2.6s ease-in-out, transform 1.6s ease-in-out;
   opacity:0;pointer-events:none;background:#1a0a04;
 }
-#hallBgOfficeNight.show, #hallBgStandNight.show{opacity:1}
+#hallBgOfficeNight.show, #hallBgStandNight.show,
+#hallBgOfficeAfternoon.show, #hallBgStandAfternoon.show{opacity:1}
 #lightOverlay{ position:absolute;inset:0;z-index:3;pointer-events:none; opacity:1; }
 #lightOverlay .veil, #lightOverlay .windowShade{ display:none !important; }
 #lightOverlay .glow{
@@ -272,6 +274,8 @@ button.rec.on{background:rgba(140,20,10,.95)}
 .stage-wrap .hall-bg,
 .stage-wrap #hallBgOfficeNight,
 .stage-wrap #hallBgStandNight,
+.stage-wrap #hallBgOfficeAfternoon,
+.stage-wrap #hallBgStandAfternoon,
 .stage-wrap #idleVideo,
 .stage-wrap #stageVideo,
 .stage-wrap #transVideo,
@@ -281,8 +285,13 @@ button.rec.on{background:rgba(140,20,10,.95)}
   transition: opacity 1.5s ease-in-out, transform 1.6s ease-in-out;
   filter: none !important; /* 永不压暗：亮度只靠底图本身 */
 }
-/* 白天：关灯自然光底图，无宫灯光晕 */
-.stage-wrap.period-day #lightOverlay .glow{ opacity:0 !important; }
+/* 白天各段：关灯自然光底图，无宫灯光晕 */
+.stage-wrap.period-day #lightOverlay .glow,
+.stage-wrap.period-morning #lightOverlay .glow,
+.stage-wrap.period-noon #lightOverlay .glow,
+.stage-wrap.period-afternoon #lightOverlay .glow{ opacity:0 !important; }
+/* 中午：略提亮（不压暗其它时段） */
+.stage-wrap.period-noon .hall-bg.show{ filter: brightness(1.06) !important; }
 /* 黄昏/夜晚：切到宫灯亮起的日落底图（原图亮度），轻晕加亮宫灯 */
 .stage-wrap.period-dusk #lightOverlay .glow{ opacity:.25; }
 .stage-wrap.period-night #lightOverlay .glow{ opacity:.35; }
@@ -307,10 +316,12 @@ button.rec.on{background:rgba(140,20,10,.95)}
 </head>
 <body>
 <div class="stage-wrap" id="stageWrap">
-  <img id="hallBgOffice" class="hall-bg show" src="img/hall_court_day_9x16.jpg?v=83" alt="" decoding="async" />
-  <img id="hallBgStand" class="hall-bg" src="img/hall_stand_day_9x16.jpg?v=83" alt="" decoding="async" />
-  <img id="hallBgOfficeNight" src="img/hall_court_night_9x16.jpg?v=83" alt="" decoding="async" />
-  <img id="hallBgStandNight" src="img/hall_stand_night_9x16.jpg?v=83" alt="" decoding="async" />
+  <img id="hallBgOffice" class="hall-bg show" src="img/hall_court_day_9x16.jpg?v=84" alt="" decoding="async" />
+  <img id="hallBgStand" class="hall-bg" src="img/hall_stand_day_9x16.jpg?v=84" alt="" decoding="async" />
+  <img id="hallBgOfficeNight" src="img/hall_court_night_9x16.jpg?v=84" alt="" decoding="async" />
+  <img id="hallBgStandNight" src="img/hall_stand_night_9x16.jpg?v=84" alt="" decoding="async" />
+  <img id="hallBgOfficeAfternoon" src="img/hall_court_afternoon_9x16.jpg?v=84" alt="" decoding="async" />
+  <img id="hallBgStandAfternoon" src="img/hall_stand_afternoon_9x16.jpg?v=84" alt="" decoding="async" />
   <img id="empGesture" src="img/chars/emperor_gesture.webp" alt="" decoding="async" />
   <video id="idleVideo" class="" muted loop playsinline webkit-playsinline preload="auto"></video>
   <div id="courtLayer" class="show" aria-hidden="true"></div>
@@ -370,7 +381,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
 
 <!-- iOS：用 HTMLAudioElement 播语音（静音键下 WebAudio/speechSynthesis 常无声） -->
 <audio id="voiceAudio" playsinline webkit-playsinline preload="auto"></audio>
-<audio id="bgmAudio" playsinline webkit-playsinline preload="metadata" loop></audio>
+<audio id="bgmAudio" playsinline webkit-playsinline preload="metadata"></audio>
 <audio id="unlockAudio" playsinline webkit-playsinline preload="auto" src="audio/voice_unlock.mp3"></audio>
 
 <div class="below">
@@ -521,8 +532,10 @@ button.rec.on{background:rgba(140,20,10,.95)}
   function periodFromSun(now, times){
     if(!times || !times.sunrise || !times.sunset){
       const h = now.getHours() + now.getMinutes()/60;
-      if(h >= 7 && h < 17.5) return "day";
-      if((h >= 5.5 && h < 7) || (h >= 17.5 && h < 19.5)) return "dusk";
+      if(h >= 5.5 && h < 10.5) return "morning";
+      if(h >= 10.5 && h < 14.5) return "noon";
+      if(h >= 14.5 && h < 17.5) return "afternoon";
+      if((h >= 17.5 && h < 19.5)) return "dusk";
       return "night";
     }
     const t = now.getTime();
@@ -533,50 +546,70 @@ button.rec.on{background:rgba(140,20,10,.95)}
     // 晨曦：dawn→sunrise+35min；黄昏：sunset-35min→dusk
     const morningEnd = rise + 35*60000;
     const eveningStart = set - 35*60000;
-    if(t >= morningEnd && t < eveningStart) return "day";
-    if((t >= dawn && t < morningEnd) || (t >= eveningStart && t < dusk)) return "dusk";
+    // 晨曦：dawn→sunrise+35 → morning（关灯冷白）
+    if(t >= dawn && t < morningEnd) return "morning";
+    // 白天细分：上午冷白 / 中午最亮 / 下午偏暖斜射
+    const aftStart = set - 3.5*3600000;
+    const noonStart = rise + 3.5*3600000;
+    if(t >= morningEnd && t < noonStart) return "morning";
+    if(t >= noonStart && t < aftStart) return "noon";
+    if(t >= aftStart && t < eveningStart) return "afternoon";
+    if(t >= eveningStart && t < dusk) return "dusk";
     return "night";
   }
   // 恒亮补光：naturalLight∈[0,1]，lampLight=1-naturalLight；整体亮度≈白天
   const LIGHT_BALANCE = {
-    day:  { natural: 1.00, label: "日间" },
-    dusk: { natural: 0.45, label: "黄昏" },
-    night:{ natural: 0.08, label: "夜" }
+    morning:   { natural: 1.00, label: "上午" },
+    day:       { natural: 1.00, label: "日间" },
+    noon:      { natural: 1.00, label: "中午" },
+    afternoon: { natural: 0.92, label: "下午" },
+    dusk:      { natural: 0.45, label: "黄昏" },
+    night:     { natural: 0.08, label: "夜" }
   };
+  function normalizePeriod(period){
+    if(period === "dusk" || period === "night") return period;
+    if(period === "morning" || period === "noon" || period === "afternoon") return period;
+    if(period === "day") return "day";
+    return "day";
+  }
   function applyLightPeriod(period){
     const wrap = document.getElementById("stageWrap");
     if(!wrap) return;
-    const next = (period === "dusk" || period === "night") ? period : "day";
+    const next = normalizePeriod(period);
     lightPeriod = next;
     const bal = LIGHT_BALANCE[next] || LIGHT_BALANCE.day;
     const naturalLight = bal.natural;
     const lampLight = 1 - naturalLight;
     wrap.dataset.naturalLight = String(naturalLight);
     wrap.dataset.lampLight = String(lampLight);
-    wrap.classList.remove("period-day","period-dusk","period-night");
+    wrap.classList.remove("period-day","period-morning","period-noon","period-afternoon","period-dusk","period-night");
     wrap.classList.add("period-" + next);
     const pill = document.getElementById("periodpill");
     if(pill) pill.textContent = bal.label;
     const overlay = document.getElementById("lightOverlay");
     if(overlay) overlay.classList.add("on");
-    // 夜景底图交叉淡入：夜=满显夜景；黄昏=半显；日间=隐藏
     syncNightBgs(next, lampLight);
   }
   function syncNightBgs(period, lampLight){
-    // 白天：日间关灯自然光底图；黄昏/夜晚：淡入宫灯亮起的日落原图（亮度≥加效果前）
+    // 上午/日间/中午：关灯冷白自然光底图；下午：关灯偏暖斜射光底图；黄昏/夜：宫灯亮起日落底图
     const officeN = document.getElementById("hallBgOfficeNight");
     const standN = document.getElementById("hallBgStandNight");
+    const officeA = document.getElementById("hallBgOfficeAfternoon");
+    const standA = document.getElementById("hallBgStandAfternoon");
     const nightOn = (period === "night" || period === "dusk");
-    const op = (period === "night" || period === "dusk") ? 1 : 0;
+    const aftOn = (period === "afternoon");
     if(hallBgOffice) hallBgOffice.classList.toggle("show", courtMode === "office");
     if(hallBgStand) hallBgStand.classList.toggle("show", courtMode !== "office");
-    [officeN, standN].forEach(el=>{
+    const setLayer = (el, on)=>{
       if(!el) return;
-      const isOffice = (el.id === "hallBgOfficeNight");
-      const active = nightOn && ((courtMode === "office") ? isOffice : !isOffice);
-      el.style.opacity = active ? String(op) : "0";
-      el.classList.toggle("show", active && op > 0.05);
-    });
+      el.style.opacity = on ? "1" : "0";
+      el.classList.toggle("show", !!on);
+    };
+    const office = (courtMode === "office");
+    setLayer(officeN, nightOn && office);
+    setLayer(standN, nightOn && !office);
+    setLayer(officeA, aftOn && office);
+    setLayer(standA, aftOn && !office);
   }
   function refreshLightPeriod(){
     if(lightForced){ applyLightPeriod(lightForced); return; }
@@ -591,8 +624,9 @@ button.rec.on{background:rgba(140,20,10,.95)}
     try{
       const q = new URLSearchParams(location.search || "");
       let tq = (q.get("time") || "").toLowerCase();
-      if(tq === "dawn" || tq === "evening" || tq === "twilight") tq = "dusk";
-      if(tq === "day" || tq === "dusk" || tq === "night") lightForced = tq;
+      if(tq === "dawn") tq = "morning";
+      if(tq === "evening" || tq === "twilight") tq = "dusk";
+      if(tq === "day" || tq === "morning" || tq === "noon" || tq === "afternoon" || tq === "dusk" || tq === "night") lightForced = tq;
       const scene = (q.get("scene") || "").toLowerCase();
       if(scene === "stand" || scene === "office"){
         try{ setCourtMode(scene, {force:true, rerender:true}); }catch(e){}
@@ -666,12 +700,21 @@ button.rec.on{background:rgba(140,20,10,.95)}
   let bgmOn = false, bgmUnlocked = false, bgmIndex = 0;
   let bgmTargetVol = 0.28, bgmDuckVol = 0.04, bgmFading = null;
   let audioCtx = null, bgmSourceNode = null, voiceSourceNode = null, recDest = null;
+  let bgmGain = null, voiceGain = null;
+  let bgmStopTimer = null;
+  let eventGapTimer = null;
+  let voiceEndedHandler = null;
   if(bgmAudio){
     bgmAudio.setAttribute("playsinline","");
     bgmAudio.setAttribute("webkit-playsinline","");
     bgmAudio.loop = false;
+    bgmAudio.removeAttribute("loop");
     bgmAudio.volume = bgmTargetVol;
-    bgmAudio.addEventListener("ended", ()=>{ if(bgmIndex >= BGM_TRACKS.length-1) shuffleBgmOrder(); nextBgmTrack(true); });
+    bgmAudio.addEventListener("ended", ()=>{
+      if(!bgmOn) return;
+      if(bgmIndex >= BGM_TRACKS.length-1) shuffleBgmOrder();
+      nextBgmTrack(true);
+    });
   }
   function ensureAudioGraph(){
     if(audioCtx) return audioCtx;
@@ -680,29 +723,46 @@ button.rec.on{background:rgba(140,20,10,.95)}
       if(!AC) return null;
       audioCtx = new AC();
       recDest = audioCtx.createMediaStreamDestination();
+      bgmGain = audioCtx.createGain();
+      voiceGain = audioCtx.createGain();
+      bgmGain.gain.value = 1;
+      voiceGain.gain.value = 1;
+      bgmGain.connect(audioCtx.destination);
+      bgmGain.connect(recDest);
+      voiceGain.connect(audioCtx.destination);
+      voiceGain.connect(recDest);
       if(bgmAudio && !bgmSourceNode){
         bgmSourceNode = audioCtx.createMediaElementSource(bgmAudio);
-        bgmSourceNode.connect(audioCtx.destination);
-        bgmSourceNode.connect(recDest);
+        bgmSourceNode.connect(bgmGain);
       }
       if(voiceAudio && !voiceSourceNode){
         try{
           voiceSourceNode = audioCtx.createMediaElementSource(voiceAudio);
-          voiceSourceNode.connect(audioCtx.destination);
-          voiceSourceNode.connect(recDest);
+          voiceSourceNode.connect(voiceGain);
         }catch(e){ /* already connected */ }
       }
     }catch(e){ audioCtx = null; }
     return audioCtx;
   }
+  function setBgmGain(v){
+    if(bgmGain && audioCtx){
+      try{ bgmGain.gain.cancelScheduledValues(audioCtx.currentTime); bgmGain.gain.setValueAtTime(Math.max(0,v), audioCtx.currentTime); }catch(e){}
+    }
+  }
+  function setVoiceGain(v){
+    if(voiceGain && audioCtx){
+      try{ voiceGain.gain.cancelScheduledValues(audioCtx.currentTime); voiceGain.gain.setValueAtTime(Math.max(0,v), audioCtx.currentTime); }catch(e){}
+    }
+  }
   function fadeBgmTo(vol, ms){
-    if(!bgmAudio) return;
+    if(!bgmAudio || !bgmOn) return;
     if(bgmFading){ clearInterval(bgmFading); bgmFading = null; }
     const start = bgmAudio.volume;
     const dest = Math.max(0, Math.min(1, vol));
     const steps = Math.max(8, Math.round((ms||900)/40));
     let i = 0;
     bgmFading = setInterval(()=>{
+      if(!bgmOn){ clearInterval(bgmFading); bgmFading = null; return; }
       i++;
       const t = i/steps;
       bgmAudio.volume = start + (dest - start) * t;
@@ -723,12 +783,14 @@ button.rec.on{background:rgba(140,20,10,.95)}
     if(!bgmAudio || !BGM_TRACKS.length) return;
     bgmIndex = ((i % BGM_TRACKS.length) + BGM_TRACKS.length) % BGM_TRACKS.length;
     const tr = BGM_TRACKS[bgmIndex];
+    bgmAudio.loop = false;
     if(!bgmAudio.src || bgmAudio.src.indexOf(tr.src.split("/").pop()) < 0){
       bgmAudio.src = tr.src;
       try{ bgmAudio.load(); }catch(e){}
     }
   }
   function nextBgmTrack(autoplay){
+    if(!bgmOn) return;
     loadBgm(bgmIndex + 1);
     if(autoplay && bgmOn) playBgmInternal();
   }
@@ -737,6 +799,8 @@ button.rec.on{background:rgba(140,20,10,.95)}
     ensureAudioGraph();
     if(audioCtx && audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
     if(!bgmAudio.src) loadBgm(bgmIndex);
+    bgmAudio.loop = false;
+    setBgmGain(1);
     const wantDuck = (mode === "speaking" || mode === "transition" || !!currentEvent);
     bgmAudio.volume = wantDuck ? bgmDuckVol : bgmTargetVol;
     const p = bgmAudio.play();
@@ -746,8 +810,21 @@ button.rec.on{background:rgba(140,20,10,.95)}
     if(!bgmAudio) return;
     try{ bgmAudio.pause(); }catch(e){}
   }
+  /** 彻底停止 BGM：清 timer、增益归零、pause，禁止任何残留循环 */
+  function hardStopBgm(){
+    bgmOn = false;
+    if(bgmFading){ clearInterval(bgmFading); bgmFading = null; }
+    if(bgmStopTimer){ clearTimeout(bgmStopTimer); bgmStopTimer = null; }
+    if(bgmAudio){
+      try{ bgmAudio.loop = false; }catch(e){}
+      try{ bgmAudio.volume = 0; }catch(e){}
+      try{ bgmAudio.pause(); }catch(e){}
+      try{ bgmAudio.currentTime = bgmAudio.currentTime; }catch(e){}
+    }
+    setBgmGain(0);
+  }
   function syncBgmToMode(){
-    if(!bgmOn){ pauseBgmInternal(); return; }
+    if(!bgmOn){ hardStopBgm(); return; }
     // 无会议/发言时正常音量；奏报/发言/传简时压低
     if(mode === "speaking" || mode === "transition" || currentEvent){
       fadeBgmTo(bgmDuckVol, 700);
@@ -766,15 +843,21 @@ button.rec.on{background:rgba(140,20,10,.95)}
     bgmUnlocked = true;
     ensureAudioGraph();
     if(audioCtx && audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
-    // 轻触播一下解锁（与殿中语音共用手势）
+    // 轻触播一下解锁（与殿中语音共用手势）；若当前应关闭则立刻硬停
     if(bgmAudio){
       if(!bgmAudio.src) loadBgm(0);
       const was = bgmOn;
       const v = bgmAudio.volume;
       bgmAudio.volume = 0.01;
+      setBgmGain(was ? 1 : 0);
       const p = bgmAudio.play();
-      if(p && p.then) p.then(()=>{ if(!was){ try{ bgmAudio.pause(); }catch(e){} } bgmAudio.volume = v; }).catch(()=>{ bgmAudio.volume = v; });
-      else bgmAudio.volume = v;
+      const finishUnlock = ()=>{
+        if(!bgmOn){ hardStopBgm(); return; }
+        bgmAudio.volume = v;
+        setBgmGain(1);
+      };
+      if(p && p.then) p.then(()=>{ if(!was || !bgmOn){ hardStopBgm(); } else { bgmAudio.volume = v; setBgmGain(1); } }).catch(finishUnlock);
+      else finishUnlock();
     }
   }
 
@@ -1109,12 +1192,12 @@ button.rec.on{background:rgba(140,20,10,.95)}
     } else if(id === "wuji"){
       ox = "50%"; oy = "34%";
     }
-    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), idleVideo, stageVideo, courtLayer].forEach(el=>{
+    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), document.getElementById("hallBgOfficeAfternoon"), document.getElementById("hallBgStandAfternoon"), idleVideo, stageVideo, courtLayer].forEach(el=>{
       if(el) el.style.transformOrigin = ox + " " + oy;
     });
   }
   function clearZoomOrigin(){
-    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), idleVideo, stageVideo, courtLayer].forEach(el=>{
+    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), document.getElementById("hallBgOfficeAfternoon"), document.getElementById("hallBgStandAfternoon"), idleVideo, stageVideo, courtLayer].forEach(el=>{
       if(el) el.style.transformOrigin = "";
     });
   }
@@ -1230,7 +1313,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
   }
 
   function clearZooms(){
-    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), idleVideo, stageVideo].forEach(el=>{
+    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), document.getElementById("hallBgOfficeAfternoon"), document.getElementById("hallBgStandAfternoon"), idleVideo, stageVideo].forEach(el=>{
       if(el) el.classList.remove("zoom","zoom-throne","zoom-medium");
     });
     if(courtLayer) courtLayer.classList.remove("zoom","zoom-throne","zoom-medium");
@@ -1248,6 +1331,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
       replayMode = false;
       stopSeekTicker();
       showSeekbar(false);
+      try{ updateReplayButton(); }catch(e){}
     }
     // 会议结束：平滑淡回办公全景
     empShot.classList.remove("show");
@@ -1274,7 +1358,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
 
   /** 两级推镜：全景 → 全身特写 → 半身近景；陛下开会用手势半身图 */
   function applyZoomClass(cls){
-    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), idleVideo, stageVideo].forEach(el=>{
+    [hallBgOffice, hallBgStand, document.getElementById("hallBgOfficeNight"), document.getElementById("hallBgStandNight"), document.getElementById("hallBgOfficeAfternoon"), document.getElementById("hallBgStandAfternoon"), idleVideo, stageVideo].forEach(el=>{
       if(!el) return;
       el.classList.remove("zoom","zoom-throne","zoom-medium");
       if(cls) el.classList.add(cls);
@@ -1454,7 +1538,17 @@ button.rec.on{background:rgba(140,20,10,.95)}
   }
 
   function stopVoiceAudio(){
-    try{ voiceAudio.pause(); voiceAudio.removeAttribute("src"); voiceAudio.load(); }catch(e){}
+    try{
+      if(voiceEndedHandler){
+        try{ voiceAudio.removeEventListener("ended", voiceEndedHandler); }catch(e){}
+        voiceEndedHandler = null;
+      }
+      setVoiceGain(0);
+      voiceAudio.pause();
+      try{ voiceAudio.currentTime = 0; }catch(e){}
+      voiceAudio.removeAttribute("src");
+      voiceAudio.load();
+    }catch(e){}
     if(window.speechSynthesis) try{ window.speechSynthesis.cancel(); }catch(e){}
   }
 
@@ -1466,6 +1560,8 @@ button.rec.on{background:rgba(140,20,10,.95)}
     if(mp3){
       try{
         stopVoiceAudio();
+        ensureAudioGraph();
+        setVoiceGain(1);
         voiceAudio.src = mp3 + (mp3.indexOf("?")>=0 ? "&" : "?") + "t=" + Date.now();
         voiceAudio.load();
         const p = voiceAudio.play();
@@ -1717,9 +1813,13 @@ button.rec.on{background:rgba(140,20,10,.95)}
       clearTimeout(endTimer);
       // 若正在播 mp3，结束后再切；否则定时
       const finish = ()=> finishEvent();
-      const onEnded = ()=>{ voiceAudio.removeEventListener("ended", onEnded); finish(); };
+      if(voiceEndedHandler){
+        try{ voiceAudio.removeEventListener("ended", voiceEndedHandler); }catch(e){}
+        voiceEndedHandler = null;
+      }
       if(voiceOn && audioManifest[e.id]){
-        voiceAudio.addEventListener("ended", onEnded);
+        voiceEndedHandler = ()=>{ voiceEndedHandler = null; finish(); };
+        voiceAudio.addEventListener("ended", voiceEndedHandler, {once:true});
         endTimer = setTimeout(finish, Math.max(eventDuration(e.text), 20000));
       } else {
         endTimer = setTimeout(finish, eventDuration(e.text));
@@ -1750,7 +1850,12 @@ button.rec.on{background:rgba(140,20,10,.95)}
     document.getElementById("modepill").textContent = returning ? "站班·过场" : "候场·办公";
     afterXfade(()=>{
       try{ stageVideo.pause(); }catch(e){}
-      setTimeout(startNextEvent, GAP_MS);
+      if(eventGapTimer){ clearTimeout(eventGapTimer); eventGapTimer = null; }
+      eventGapTimer = setTimeout(()=>{
+        eventGapTimer = null;
+        if(meetingPaused) return;
+        startNextEvent();
+      }, GAP_MS);
     });
   }
 
@@ -1775,7 +1880,18 @@ button.rec.on{background:rgba(140,20,10,.95)}
     try{
       const r = await fetch("status.json?t="+Date.now(),{cache:"no-store"});
       if(r.ok){ const d=await r.json(); AS_OF=d.asOf||AS_OF; STATUS=d.status||STATUS;
-        document.getElementById("timepill").textContent = AS_OF;
+        // iOS：切后台/隐藏时立刻静音停播，避免卡在某一秒循环
+  document.addEventListener("visibilitychange", ()=>{
+    if(document.hidden){
+      try{ if(!bgmOn) hardStopBgm(); else pauseBgmInternal(); }catch(e){}
+      try{ if(!voiceOn) stopVoiceAudio(); else { voiceAudio.pause(); } }catch(e){}
+    } else if(bgmOn){
+      try{ playBgmInternal(); }catch(e){}
+    }
+  });
+  window.addEventListener("pagehide", ()=>{ try{ hardStopBgm(); stopVoiceAudio(); }catch(e){} });
+
+  document.getElementById("timepill").textContent = AS_OF;
         if(mode==="idle" || mode==="transition" || (mode==="speaking" && !stageVideo.classList.contains("show"))){
           renderCourt();
         }
@@ -1813,6 +1929,38 @@ button.rec.on{background:rgba(140,20,10,.95)}
   }
 
 
+  function updateReplayButton(){
+    const btn = document.getElementById("btnReplay");
+    if(!btn) return;
+    if(replayMode){
+      btn.classList.add("on");
+      btn.textContent = "停止回放";
+    } else {
+      btn.classList.remove("on");
+      btn.textContent = "回放今日会议";
+    }
+  }
+  function stopReplay(opts){
+    opts = opts || {};
+    replayMode = false;
+    meetingPaused = false;
+    clearTimeout(endTimer); endTimer = null;
+    if(eventGapTimer){ clearTimeout(eventGapTimer); eventGapTimer = null; }
+    stopSeekTicker();
+    showSeekbar(false);
+    queue = [];
+    currentEvent = null;
+    lastSpeaker = null;
+    stopVoiceAudio();
+    document.getElementById("saluteOverlay").classList.remove("show");
+    document.getElementById("cineSub").classList.remove("show");
+    const bp = document.getElementById("btnPause");
+    if(bp){ bp.textContent="暂停会议"; bp.classList.remove("on"); }
+    updateReplayButton();
+    if(opts.keepIdle === false) return;
+    showIdle();
+  }
+
   document.getElementById("btnBgm").onclick = function(){
     if(!bgmOn){
       bgmOn = true;
@@ -1825,11 +1973,9 @@ button.rec.on{background:rgba(140,20,10,.95)}
       playBgmInternal();
       syncBgmToMode();
     } else {
-      bgmOn = false;
       this.classList.remove("on");
       this.textContent = "背景音乐 关";
-      fadeBgmTo(0, 400);
-      setTimeout(pauseBgmInternal, 450);
+      hardStopBgm();
     }
   };
 
@@ -1840,7 +1986,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
       this.classList.add("on");
       this.textContent = "殿中语音开";
       unlockVoiceInGesture();
-      try{ unlockBgmInGesture(); }catch(e){}
+      try{ if(bgmOn) unlockBgmInGesture(); }catch(e){}
       // 若当前正有发言，立刻用 audio 播当前句
       if(currentEvent){
         speakTTS(currentEvent.from, speechLine(currentEvent.from, currentEvent.text||""));
@@ -1853,7 +1999,14 @@ button.rec.on{background:rgba(140,20,10,.95)}
     }
   };
   document.getElementById("btnReplay").onclick = function(){
-    clearTimeout(endTimer); currentEvent=null; meetingPaused=false;
+    // 可开可关：回放中再按 → 停止回放
+    if(replayMode){
+      stopReplay();
+      return;
+    }
+    clearTimeout(endTimer); endTimer = null;
+    if(eventGapTimer){ clearTimeout(eventGapTimer); eventGapTimer = null; }
+    currentEvent=null; meetingPaused=false;
     document.getElementById("btnPause").textContent="暂停会议";
     document.getElementById("btnPause").classList.remove("on");
     stopVoiceAudio();
@@ -1873,6 +2026,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     setSeekUI(0);
     bindSeekbar();
     startSeekTicker();
+    updateReplayButton();
     startNextEvent();
   };
   document.getElementById("btnPause").onclick = function(){
