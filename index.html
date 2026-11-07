@@ -110,6 +110,31 @@ html,body{margin:0;background:#050201;color:#F6E3A8;font-family:-apple-system,Bl
 }
 #courtLayer{ overflow:visible; }
 
+.seat-headonly{
+  width:auto !important; min-width:0;
+  transform:translate(-50%, -100%);
+  z-index:6;
+}
+.seat-headonly .seat-shadow,
+.seat-headonly .seat-anim,
+.seat-headonly .seat-desk{display:none !important}
+.seat-headonly .seat-tag{
+  position:relative; left:auto; top:auto; transform:none;
+  display:inline-flex; align-items:center; gap:3px;
+  font-size:10px; line-height:1.2;
+  background:rgba(18,8,2,.72); border:1px solid rgba(232,197,71,.55);
+  border-radius:4px; padding:2px 5px 2px 6px;
+  box-shadow:0 1px 4px rgba(0,0,0,.45);
+}
+.seat-status{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:1.15em; height:1.15em; font-size:11px; line-height:1;
+  filter:drop-shadow(0 1px 1px #000);
+}
+.seat-status.work::before{content:"📜"}
+.seat-status.idle::before{content:"🍵"}
+
+
 @keyframes courtBreathe{
   0%,100%{transform:scale(1) translateY(0)}
   50%{transform:scale(1.015) translateY(-0.4%)}
@@ -291,7 +316,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
 <script>
 (function(){
   const V = "video/";
-  const SEATS = {"version":12,"coordSpace":"hall","fit":"contain","fillFrontFirst":true,"modes":{"office":{"bg":"img/hall_court_9x16.webp","hallSize":{"w":720,"h":1280},"cutoutDir":"img/chars/cutouts_kneel/","cutoutSuffix":"_kneel.png","mirrorSuffix":"_kneel_R.png","fallbackCutoutDir":"img/chars/cutouts_bust/","fixed":{"wuji":{"hx":50,"hy":88,"hw":0,"seatAnchor":0.8,"label":"陛下","hidden":true},"tian":{"hx":68,"hy":74,"hw":9,"seatAnchor":0.98,"label":"天","cutout":"img/chars/cutouts_stand/zhugeliang_work.png"}},"rows":{"left":[{"hx":12.0,"hy":59.5,"hw":16.5,"seatAnchor":0.7,"deskDx":5.8,"deskDy":2.2,"deskW":16.0,"deskH":5.5,"tagOffX":-2.5,"tagOffY":-3.5},{"hx":13.5,"hy":55.0,"hw":14.5,"seatAnchor":0.7,"deskDx":5.3999999999999995,"deskDy":2.0,"deskW":14.5,"deskH":5.0,"tagOffX":-2.2,"tagOffY":-3.2},{"hx":15.0,"hy":50.5,"hw":12.5,"seatAnchor":0.7,"deskDx":5.0,"deskDy":1.8,"deskW":12.5,"deskH":4.4,"tagOffX":-2.0,"tagOffY":-2.8},{"hx":16.5,"hy":46.5,"hw":11.0,"seatAnchor":0.7,"deskDx":4.6,"deskDy":1.5,"deskW":11.0,"deskH":3.9,"tagOffX":-1.7,"tagOffY":-2.5},{"hx":17.8,"hy":42.5,"hw":9.5,"seatAnchor":0.7,"deskDx":4.2,"deskDy":1.3,"deskW":9.5,"deskH":3.4,"tagOffX":-1.5,"tagOffY":-2.2},{"hx":19.0,"hy":38.8,"hw":8.2,"seatAnchor":0.7,"deskDx":3.8,"deskDy":1.1,"deskW":8.2,"deskH":3.0,"tagOffX":-1.2,"tagOffY":-2.0},{"hx":20.0,"hy":35.5,"hw":7.2,"seatAnchor":0.7,"deskDx":3.5,"deskDy":1.0,"deskW":7.2,"deskH":2.6,"tagOffX":-1.0,"tagOffY":-1.8},{"hx":21.0,"hy":32.5,"hw":6.2,"seatAnchor":0.7,"deskDx":3.2,"deskDy":0.9,"deskW":6.2,"deskH":2.3,"tagOffX":-0.9,"tagOffY":-1.6}],"right":[{"hx":88.0,"hy":59.5,"hw":16.5,"seatAnchor":0.7,"deskDx":-5.8,"deskDy":2.2,"deskW":16.0,"deskH":5.5,"tagOffX":2.5,"tagOffY":-3.5},{"hx":86.5,"hy":55.0,"hw":14.5,"seatAnchor":0.7,"deskDx":-5.3999999999999995,"deskDy":2.0,"deskW":14.5,"deskH":5.0,"tagOffX":2.2,"tagOffY":-3.2},{"hx":85.0,"hy":50.5,"hw":12.5,"seatAnchor":0.7,"deskDx":-5.0,"deskDy":1.8,"deskW":12.5,"deskH":4.4,"tagOffX":2.0,"tagOffY":-2.8},{"hx":83.5,"hy":46.5,"hw":11.0,"seatAnchor":0.7,"deskDx":-4.6,"deskDy":1.5,"deskW":11.0,"deskH":3.9,"tagOffX":1.7,"tagOffY":-2.5},{"hx":82.2,"hy":42.5,"hw":9.5,"seatAnchor":0.7,"deskDx":-4.2,"deskDy":1.3,"deskW":9.5,"deskH":3.4,"tagOffX":1.5,"tagOffY":-2.2},{"hx":81.0,"hy":38.8,"hw":8.2,"seatAnchor":0.7,"deskDx":-3.8,"deskDy":1.1,"deskW":8.2,"deskH":3.0,"tagOffX":1.2,"tagOffY":-2.0},{"hx":80.0,"hy":35.5,"hw":7.2,"seatAnchor":0.7,"deskDx":-3.5,"deskDy":1.0,"deskW":7.2,"deskH":2.6,"tagOffX":1.0,"tagOffY":-1.8},{"hx":79.0,"hy":32.5,"hw":6.2,"seatAnchor":0.7,"deskDx":-3.2,"deskDy":0.9,"deskW":6.2,"deskH":2.3,"tagOffX":0.9,"tagOffY":-1.6}]}},"stand":{"bg":"img/hall_stand_9x16.webp","hallSize":{"w":720,"h":1280},"cutoutDir":"img/chars/cutouts_stand/","fixed":{"wuji":{"hx":50.0,"hy":44.0,"hw":12.5,"seatAnchor":0.76,"label":"陛下"},"tian":{"hx":61.0,"hy":47.0,"hw":8.5,"seatAnchor":0.98,"label":"天"}},"rows":{"left":[{"hx":28,"hy":55,"hw":7.5,"seatAnchor":0.98,"tagOffX":-0.8,"tagOffY":-1.5},{"hx":26,"hy":61,"hw":8.5,"seatAnchor":0.98,"tagOffX":-0.8,"tagOffY":-1.5},{"hx":24,"hy":67,"hw":9.5,"seatAnchor":0.98,"tagOffX":-0.8,"tagOffY":-1.5},{"hx":22,"hy":74,"hw":11.0,"seatAnchor":0.98,"tagOffX":-0.9,"tagOffY":-1.6},{"hx":20,"hy":81,"hw":12.5,"seatAnchor":0.98,"tagOffX":-1.0,"tagOffY":-1.8},{"hx":19,"hy":88,"hw":14.0,"seatAnchor":0.98,"tagOffX":-1.1,"tagOffY":-2.0},{"hx":18,"hy":94,"hw":15.5,"seatAnchor":0.98,"tagOffX":-1.2,"tagOffY":-2.2}],"right":[{"hx":72,"hy":55,"hw":7.5,"seatAnchor":0.98,"tagOffX":0.8,"tagOffY":-1.5},{"hx":74,"hy":61,"hw":8.5,"seatAnchor":0.98,"tagOffX":0.8,"tagOffY":-1.5},{"hx":76,"hy":67,"hw":9.5,"seatAnchor":0.98,"tagOffX":0.8,"tagOffY":-1.5},{"hx":78,"hy":74,"hw":11.0,"seatAnchor":0.98,"tagOffX":0.9,"tagOffY":-1.6},{"hx":80,"hy":81,"hw":12.5,"seatAnchor":0.98,"tagOffX":1.0,"tagOffY":-1.8},{"hx":81,"hy":88,"hw":14.0,"seatAnchor":0.98,"tagOffX":1.1,"tagOffY":-2.0},{"hx":82,"hy":94,"hw":15.5,"seatAnchor":0.98,"tagOffX":1.2,"tagOffY":-2.2}]}}},"memberOrder":["jb","oi","yl","ts","yq","ppl","jg","ylong","zq","tk","ip","ds","cs"],"figureKeyById":{"tian":"zhugeliang","jb":"fanli","oi":"kongzi","yl":"luban","ts":"mozi","yq":"zhangheng","ppl":"majun","jg":"jiangziya","ylong":"sanghongyang","zq":"guanzhong","tk":"libai","ip":"simaqian","ds":"dongfangshuo","cs":"baozheng","wuji":"emperor"}};
+  const SEATS = {"version":13,"coordSpace":"hall","fit":"contain","fillFrontFirst":true,"modes":{"office":{"bg":"img/hall_court_9x16.webp","hallSize":{"w":720,"h":1280},"baked":true,"bakedIds":["tian","jb","yl","yq","jg","zq","ip","cs","oi","ts","ppl","ylong","tk","ds"],"heads":{"tian":{"hx":70.0,"hy":58.5},"jb":{"hx":18.0,"hy":47.5},"yl":{"hx":21.0,"hy":43.5},"yq":{"hx":23.5,"hy":40.0},"jg":{"hx":25.5,"hy":37.0},"zq":{"hx":27.5,"hy":34.3},"ip":{"hx":29.0,"hy":32.0},"cs":{"hx":30.5,"hy":30.0},"oi":{"hx":82.0,"hy":47.5},"ts":{"hx":79.0,"hy":43.5},"ppl":{"hx":76.5,"hy":40.0},"ylong":{"hx":74.5,"hy":37.0},"tk":{"hx":72.5,"hy":34.3},"ds":{"hx":71.0,"hy":32.0}},"cutoutDir":"img/chars/cutouts_kneel/","cutoutSuffix":"_kneel.png","mirrorSuffix":"_kneel_R.png","fallbackCutoutDir":"img/chars/cutouts_bust/","fixed":{"wuji":{"hx":50,"hy":88,"hw":0,"seatAnchor":0.8,"label":"陛下","hidden":true},"tian":{"hx":70.0,"hy":58.5,"hw":0,"seatAnchor":0.98,"label":"天","baked":true}},"rows":{"left":[],"right":[]},"overflowRows":{"left":[{"hx":31.5,"hy":28.2,"hw":5.5,"seatAnchor":0.88,"tagOffX":-0.8,"tagOffY":-1.4},{"hx":32.5,"hy":26.5,"hw":5.0,"seatAnchor":0.88,"tagOffX":-0.8,"tagOffY":-1.4}],"right":[{"hx":69.5,"hy":30.0,"hw":5.5,"seatAnchor":0.88,"tagOffX":0.8,"tagOffY":-1.4},{"hx":68.5,"hy":28.2,"hw":5.0,"seatAnchor":0.88,"tagOffX":0.8,"tagOffY":-1.4}]}},"stand":{"bg":"img/hall_stand_9x16.webp","hallSize":{"w":720,"h":1280},"cutoutDir":"img/chars/cutouts_stand/","fixed":{"wuji":{"hx":50.0,"hy":44.0,"hw":12.5,"seatAnchor":0.76,"label":"陛下"},"tian":{"hx":61.0,"hy":47.0,"hw":8.5,"seatAnchor":0.98,"label":"天"}},"rows":{"left":[{"hx":28,"hy":55,"hw":7.5,"seatAnchor":0.98,"tagOffX":-0.8,"tagOffY":-1.5},{"hx":26,"hy":61,"hw":8.5,"seatAnchor":0.98,"tagOffX":-0.8,"tagOffY":-1.5},{"hx":24,"hy":67,"hw":9.5,"seatAnchor":0.98,"tagOffX":-0.8,"tagOffY":-1.5},{"hx":22,"hy":74,"hw":11.0,"seatAnchor":0.98,"tagOffX":-0.9,"tagOffY":-1.6},{"hx":20,"hy":81,"hw":12.5,"seatAnchor":0.98,"tagOffX":-1.0,"tagOffY":-1.8},{"hx":19,"hy":88,"hw":14.0,"seatAnchor":0.98,"tagOffX":-1.1,"tagOffY":-2.0},{"hx":18,"hy":94,"hw":15.5,"seatAnchor":0.98,"tagOffX":-1.2,"tagOffY":-2.2}],"right":[{"hx":72,"hy":55,"hw":7.5,"seatAnchor":0.98,"tagOffX":0.8,"tagOffY":-1.5},{"hx":74,"hy":61,"hw":8.5,"seatAnchor":0.98,"tagOffX":0.8,"tagOffY":-1.5},{"hx":76,"hy":67,"hw":9.5,"seatAnchor":0.98,"tagOffX":0.8,"tagOffY":-1.5},{"hx":78,"hy":74,"hw":11.0,"seatAnchor":0.98,"tagOffX":0.9,"tagOffY":-1.6},{"hx":80,"hy":81,"hw":12.5,"seatAnchor":0.98,"tagOffX":1.0,"tagOffY":-1.8},{"hx":81,"hy":88,"hw":14.0,"seatAnchor":0.98,"tagOffX":1.1,"tagOffY":-2.0},{"hx":82,"hy":94,"hw":15.5,"seatAnchor":0.98,"tagOffX":1.2,"tagOffY":-2.2}]}}},"memberOrder":["jb","oi","yl","ts","yq","ppl","jg","ylong","zq","tk","ip","ds","cs"],"figureKeyById":{"tian":"zhugeliang","jb":"fanli","oi":"kongzi","yl":"luban","ts":"mozi","yq":"zhangheng","ppl":"majun","jg":"jiangziya","ylong":"sanghongyang","zq":"guanzhong","tk":"libai","ip":"simaqian","ds":"dongfangshuo","cs":"baozheng","wuji":"emperor"}};
   let courtMode = "office"; // office | stand | throne
   function modeConf(){ const modes = SEATS.modes || {}; return modes[courtMode] || modes.office || SEATS; }
   function activeCutDir(){ const m = modeConf(); return (m && m.cutoutDir) || "img/chars/cutouts_bust/"; }
@@ -465,14 +490,36 @@ button.rec.on{background:rgba(140,20,10,.95)}
     if(id === "wuji" || id === "tian") return null;
     if(seatAssign[id]) return seatAssign[id];
     const conf = modeConf();
-    // 从前排（离御座最近、index=0）左右交替往后填；空桌留在最后面
+    // 办公 baked：已在整幅图里的人不占桌位；新成员走后排空桌 overflow
+    if(conf.baked){
+      const bakedIds = conf.bakedIds || Object.keys(conf.heads || {});
+      if(bakedIds.indexOf(id) >= 0){ seatAssign[id] = {baked:true}; return seatAssign[id]; }
+      const left = (conf.overflowRows && conf.overflowRows.left) || [];
+      const right = (conf.overflowRows && conf.overflowRows.right) || [];
+      const overflowIds = (SEATS.memberOrder||[]).filter(mid => bakedIds.indexOf(mid) < 0);
+      // also include any STATUS id not baked
+      STATUS.forEach(s=>{ if(s && s.id && s.id!=="wuji" && s.id!=="tian" && bakedIds.indexOf(s.id)<0 && overflowIds.indexOf(s.id)<0) overflowIds.push(s.id); });
+      overflowIds.forEach((mid,i)=>{
+        if(seatAssign[mid]) return;
+        const side = (i % 2 === 0) ? "left" : "right";
+        const index = Math.floor(i / 2);
+        const row = side === "left" ? left : right;
+        if(index < row.length) seatAssign[mid] = {side, index, overflow:true, rank:i};
+      });
+      if(seatAssign[id]) return seatAssign[id];
+      const side = Object.keys(seatAssign).filter(k=>seatAssign[k]&&seatAssign[k].overflow).length % 2 === 0 ? "left" : "right";
+      const row = side === "left" ? left : right;
+      seatAssign[id] = {side, index: Math.max(0, row.length-1), overflow:true, bump:true};
+      return seatAssign[id];
+    }
+    // 站班 / 非 baked：从前排左右交替往后填
     const order = (SEATS.memberOrder)||[];
     const left = (conf.rows&&conf.rows.left)||[];
     const right = (conf.rows&&conf.rows.right)||[];
     order.forEach((mid,i)=>{
       if(seatAssign[mid]) return;
       const side = (i % 2 === 0) ? "left" : "right";
-      const index = Math.floor(i / 2); // 0 = 前排最大桌
+      const index = Math.floor(i / 2);
       const row = side === "left" ? left : right;
       if(index < row.length) seatAssign[mid] = {side, index, rank:i};
     });
@@ -489,6 +536,32 @@ button.rec.on{background:rgba(140,20,10,.95)}
     seatAssign[id] = {side, index: Math.max(0, row.length-1), bump: true};
     return seatAssign[id];
   }
+  function statusIconClass(id){
+    return poseOf(id) === "idle" ? "idle" : "work";
+  }
+  function addHeadLabelEl(id, head){
+    if(!head) return null;
+    const mapped = hallToStage(head.hx, head.hy, 0);
+    if(mapped.x < -8 || mapped.x > 108 || mapped.y < 4 || mapped.y > 104) return null;
+    const el = document.createElement("div");
+    el.className = "seat seat-headonly";
+    el.dataset.id = id;
+    el.style.left = mapped.x + "%";
+    el.style.top = mapped.y + "%";
+    el.style.width = "auto";
+    el.style.transform = "translate(-50%, -100%)";
+    el.style.zIndex = String(Math.round(mapped.y * 10) + 20);
+    const tag = document.createElement("div");
+    tag.className = "seat-tag";
+    const name = document.createElement("span");
+    name.textContent = (id === "wuji") ? "陛下" : shortName(id);
+    const icon = document.createElement("span");
+    icon.className = "seat-status " + statusIconClass(id);
+    icon.setAttribute("aria-hidden", "true");
+    tag.appendChild(name); tag.appendChild(icon);
+    el.appendChild(tag);
+    return el;
+  }
   function addSeatEl(id, hallConf, poseClass){
     const pose = poseOf(id);
     const src = cutoutSrc(id, pose, hallConf, hallConf._side);
@@ -500,13 +573,11 @@ button.rec.on{background:rgba(140,20,10,.95)}
     el.style.left = mapped.x + "%";
     el.style.top = mapped.y + "%";
     el.style.width = (mapped.w || 8) + "%";
-    // seatAnchor: 0–1，图上落点（脚底=1，龙椅坐面约 0.72）
     const anchor = (hallConf.seatAnchor != null) ? hallConf.seatAnchor : 1;
     el.style.transform = "translate(-50%, -" + (anchor * 100) + "%)";
     el.style.zIndex = String(Math.round(mapped.y * 10));
     const shadow = document.createElement("div");
     shadow.className = "seat-shadow";
-    // 阴影贴在落点附近
     shadow.style.bottom = ((1 - anchor) * 100) + "%";
     const anim = document.createElement("div");
     anim.className = "seat-anim " + (poseClass || (pose === "idle" ? "idle" : "work"));
@@ -523,8 +594,12 @@ button.rec.on{background:rgba(140,20,10,.95)}
     anim.appendChild(img);
     const tag = document.createElement("div");
     tag.className = "seat-tag";
-    tag.textContent = (id === "wuji") ? "陛下" : shortName(id);
-    // 标签错开，避免重叠
+    const name = document.createElement("span");
+    name.textContent = (id === "wuji") ? "陛下" : shortName(id);
+    const icon = document.createElement("span");
+    icon.className = "seat-status " + statusIconClass(id);
+    icon.setAttribute("aria-hidden", "true");
+    tag.appendChild(name); tag.appendChild(icon);
     if(hallConf.tagOffX || hallConf.tagOffY){
       tag.style.left = "calc(50% + " + ((hallConf.tagOffX||0)*1.2) + "vw)";
       tag.style.top = ((hallConf.tagOffY||0) * 0.55 - 1.35) + "em";
@@ -534,12 +609,10 @@ button.rec.on{background:rgba(140,20,10,.95)}
       tag.style.left = "65%"; tag.style.top = "-1.55em";
     }
     el.appendChild(shadow); el.appendChild(anim); el.appendChild(tag);
-    // 办公态：矮案在人与镜头之间时，叠一层桌面遮挡（从底图裁切的假遮挡用半透明木色条近似；精确裁切用 desk overlay 图）
-    if(hallConf.deskDx != null && courtMode === "office"){
+    // 办公 overflow 兜底才允许桌面遮挡条；baked 主路径不再叠 desk / 调试圈
+    if(hallConf.deskDx != null && courtMode === "office" && !modeConf().baked){
       const desk = document.createElement("div");
       desk.className = "seat-desk";
-      const mappedDesk = hallToStage(hallConf.hx + hallConf.deskDx, hallConf.hy + (hallConf.deskDy||0), hallConf.deskW || hallConf.hw);
-      // seat 已定位在人；desk 相对 seat 用绝对舞台坐标，改挂到 courtLayer 更稳——这里用相对偏移
       const dxPct = ((hallConf.deskDx||0) / Math.max(hallConf.hw,0.1)) * 100;
       desk.style.left = (50 + dxPct * 0.55) + "%";
       desk.style.bottom = ((1 - (hallConf.seatAnchor||0.9)) * 100 + 2) + "%";
@@ -572,7 +645,6 @@ button.rec.on{background:rgba(140,20,10,.95)}
     empGesture.classList.remove("show","push","speak");
   }
   function showEmpGestureShot(){
-    // 开会时陛下半身手势近景（免费：静态姿势图 + 轻微推镜晃动）
     if(!empGesture) return false;
     if(!empGesture.getAttribute("src")) return false;
     empGesture.classList.remove("push","speak");
@@ -584,32 +656,92 @@ button.rec.on{background:rgba(140,20,10,.95)}
     });
     return true;
   }
+  function headOf(id){
+    const conf = modeConf();
+    if(conf.heads && conf.heads[id]) return conf.heads[id];
+    if(conf.fixed && conf.fixed[id]) return conf.fixed[id];
+    const slot = seatAssign[id];
+    if(slot && !slot.baked){
+      const rows = slot.overflow ? (conf.overflowRows||{}) : (conf.rows||{});
+      const row = (rows[slot.side]||[])[slot.index];
+      if(row) return row;
+    }
+    return null;
+  }
+  function setZoomOriginFor(id){
+    const head = headOf(id);
+    let ox = "50%", oy = "38%";
+    if(head){
+      const m = hallToStage(head.hx, head.hy);
+      ox = m.x.toFixed(2) + "%";
+      oy = m.y.toFixed(2) + "%";
+    } else if(id === "wuji"){
+      ox = "50%"; oy = "34%";
+    }
+    [hallBgOffice, hallBgStand, idleVideo, stageVideo, courtLayer].forEach(el=>{
+      if(el) el.style.transformOrigin = ox + " " + oy;
+    });
+  }
+  function clearZoomOrigin(){
+    [hallBgOffice, hallBgStand, idleVideo, stageVideo, courtLayer].forEach(el=>{
+      if(el) el.style.transformOrigin = "";
+    });
+  }
   function renderCourt(){
     if(!courtLayer) return;
     const nodes = [];
     const conf = modeConf();
     const fixed = conf.fixed || {};
-    if(fixed.wuji && !fixed.wuji.hidden && (fixed.wuji.hw||0) > 0){
-      const el = addSeatEl("wuji", fixed.wuji, "throne");
-      if(el) nodes.push(el);
+
+    if(conf.baked){
+      // 办公整幅烘焙：只叠昵称+状态图标；人不抠像叠加
+      const heads = conf.heads || {};
+      const bakedIds = conf.bakedIds || Object.keys(heads);
+      // 天 + 已烘焙成员
+      bakedIds.forEach(id=>{
+        if(id === "wuji") return;
+        const h = heads[id] || (fixed[id]);
+        const el = addHeadLabelEl(id, h);
+        if(el) nodes.push(el);
+      });
+      // 新成员：后排空桌抠像兜底
+      const ids = [];
+      STATUS.forEach(s=>{ if(s && s.id && s.id!=="wuji" && s.id!=="tian") ids.push(s.id); });
+      (SEATS.memberOrder||[]).forEach(id=>{ if(ids.indexOf(id)<0) ids.push(id); });
+      ids.forEach(id=>{
+        if(bakedIds.indexOf(id) >= 0) return;
+        const slot = ensureSeatSlot(id);
+        if(!slot || slot.baked) return;
+        const row = ((conf.overflowRows||{})[slot.side]||[])[slot.index];
+        if(!row) return;
+        const seat = Object.assign({}, row, {_side: slot.side});
+        if(slot.bump){ seat.hx = seat.hx + (slot.side==="left" ? -1.0 : 1.0); }
+        const el = addSeatEl(id, seat);
+        if(el) nodes.push(el);
+      });
+    } else {
+      if(fixed.wuji && !fixed.wuji.hidden && (fixed.wuji.hw||0) > 0){
+        const el = addSeatEl("wuji", fixed.wuji, "throne");
+        if(el) nodes.push(el);
+      }
+      if(fixed.tian && !fixed.tian.hidden && (fixed.tian.hw||0) > 0){
+        const el = addSeatEl("tian", fixed.tian, "host");
+        if(el) nodes.push(el);
+      }
+      const ids = [];
+      STATUS.forEach(s=>{ if(s && s.id && s.id!=="wuji" && s.id!=="tian") ids.push(s.id); });
+      (SEATS.memberOrder||[]).forEach(id=>{ if(ids.indexOf(id)<0) ids.push(id); });
+      ids.forEach(id=>{
+        const slot = ensureSeatSlot(id);
+        if(!slot) return;
+        const row = ((conf.rows||{})[slot.side]||[])[slot.index];
+        if(!row) return;
+        const seat = Object.assign({}, row, {_side: slot.side});
+        if(slot.bump){ seat.hx = seat.hx + (slot.side==="left" ? -1.2 : 1.2); }
+        const el = addSeatEl(id, seat);
+        if(el) nodes.push(el);
+      });
     }
-    if(fixed.tian && !fixed.tian.hidden && (fixed.tian.hw||0) > 0){
-      const el = addSeatEl("tian", fixed.tian, "host");
-      if(el) nodes.push(el);
-    }
-    const ids = [];
-    STATUS.forEach(s=>{ if(s && s.id && s.id!=="wuji" && s.id!=="tian") ids.push(s.id); });
-    (SEATS.memberOrder||[]).forEach(id=>{ if(ids.indexOf(id)<0) ids.push(id); });
-    ids.forEach(id=>{
-      const slot = ensureSeatSlot(id);
-      if(!slot) return;
-      const row = ((conf.rows||{})[slot.side]||[])[slot.index];
-      if(!row) return;
-      const seat = Object.assign({}, row, {_side: slot.side});
-      if(slot.bump){ seat.hx = seat.hx + (slot.side==="left" ? -1.2 : 1.2); }
-      const el = addSeatEl(id, seat);
-      if(el) nodes.push(el);
-    });
     nodes.sort((a,b)=>parseFloat(a.style.top)-parseFloat(b.style.top));
     courtLayer.innerHTML = "";
     nodes.forEach(n=>courtLayer.appendChild(n));
@@ -633,6 +765,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
     });
     if(courtLayer) courtLayer.classList.remove("zoom","zoom-throne","zoom-medium");
     hideEmpGesture();
+    clearZoomOrigin();
   }
   function afterXfade(fn){
     return setTimeout(fn, XFADE_MS + 40);
@@ -677,7 +810,7 @@ button.rec.on{background:rgba(140,20,10,.95)}
       else if(cls === "zoom") courtLayer.classList.add("zoom");
     }
   }
-  function showHallZoom(kind){
+  function showHallZoom(kind, speakerId){
     mode = "speaking";
     const token = speakerToken;
     stageVideo.classList.remove("show");
@@ -685,11 +818,13 @@ button.rec.on{background:rgba(140,20,10,.95)}
     idleVideo.classList.remove("show"); idleVideo.pause();
     clearZooms();
     empShot.classList.remove("show");
-    // 陛下：站班全景上推；大臣：当前会议全景推近
+    // 陛下：站班全景上推；大臣：当前会议全景推近；办公态从该人头顶推镜
     if(kind === "throne" || kind === "throne-gesture"){
       setCourtMode("stand");
+      setZoomOriginFor("wuji");
     } else {
       renderCourt();
+      setZoomOriginFor(speakerId || lastSpeaker || null);
     }
     showCourt(null);
     document.getElementById("modepill").textContent = "发言中";
@@ -726,18 +861,15 @@ button.rec.on{background:rgba(140,20,10,.95)}
     document.getElementById("modepill").textContent = "发言中";
 
     if(id === "wuji" || !closeupOf(id)){
-      // 开会中陛下：全身→带手势半身近景；否则普通龙椅推近
-      const wujiKind = (id === "wuji")
-        ? ((courtMode === "stand" || courtMode === "throne" || replayMode || queue.length >= 0) ? "throne-gesture" : "throne")
-        : "zoom";
-      showHallZoom(id === "wuji" ? "throne-gesture" : "zoom");
+      // 开会中陛下：全身→带手势半身近景；否则从该人头顶推近
+      showHallZoom(id === "wuji" ? "throne-gesture" : "zoom", id);
       return;
     }
     const src = closeupOf(id);
 
     const fail = ()=>{
       if(token !== speakerToken) return;
-      showHallZoom("zoom");
+      showHallZoom("zoom", id);
     };
     const ready = ()=>{
       if(token !== speakerToken) return;
